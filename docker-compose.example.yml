@@ -1,0 +1,52 @@
+services:
+  salix_dev:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile.dev
+    container_name: salix-dev
+    hostname: salix_dev
+    ports:
+      - "8000:8000"
+      - "3000:3000"
+    volumes:
+      - .:/workspace
+    environment:
+      NEXT_TELEMETRY_DISABLED: "1"
+    networks:
+      - salix
+    working_dir: /workspace
+    command: supervisord -c /etc/supervisor/conf.d/supervisord.conf
+
+  salix_db:
+    image: mysql:8
+    container_name: salix-db
+    hostname: salix_db
+    environment:
+      MYSQL_ROOT_PASSWORD: ChangeMe123!
+      MYSQL_DATABASE: 'salix'
+    command: ['mysqld', '--character-set-server=utf8mb4', '--collation-server=utf8mb4_0900_ai_ci', '--skip-log-bin', '--innodb-buffer-pool-size=256M', '--innodb-log-buffer-size=128M', '--innodb-flush-method=O_DSYNC']
+    volumes:
+      - ./docker/temp/mysql:/var/lib/mysql
+    networks:
+      - salix
+
+  salix_phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    container_name: salix_phpmyadmin
+    hostname: salix_phpmyadmin
+    environment:
+      UPLOAD_LIMIT: '2G'
+      PMA_PORT: 3306
+      PMA_HOST: salix_db
+      PMA_USER: root
+      PMA_PASSWORD: ChangeMe123!
+    networks:
+      - salix
+
+networks:
+  salix:
+    name: salix_network
+
+volumes:
+  db_data:

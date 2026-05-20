@@ -1,0 +1,18 @@
+{
+    "name": "Salix CMS Dev Container",
+    "dockerComposeFile": "../docker-compose.yml",
+    "service": "salix_app",
+    "workspaceFolder": "/var/www/html",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "bmewburn.vscode-intelephense-client",
+                "xdebug.php-debug",
+                "ms-azuretools.vscode-docker"
+            ],
+            "settings": {
+                "php.validate.executablePath": "/usr/local/bin/php"
+            }
+        }
+    }
+}

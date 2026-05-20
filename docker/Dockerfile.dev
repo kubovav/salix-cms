@@ -1,0 +1,28 @@
+FROM php:8.4-fpm
+
+RUN apt-get update && apt-get install -y \
+    git \
+    unzip \
+    libicu-dev \
+    curl \
+    nginx \
+    supervisor \
+    && rm -rf /var/lib/apt/lists/*
+
+ADD --chmod=0755 https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
+
+RUN install-php-extensions gd xdebug intl pdo_mysql opcache @composer
+
+RUN curl -sS https://get.symfony.com/cli/installer | bash \
+    && mv /root/.symfony*/bin/symfony /usr/local/bin/symfony
+
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
+    && apt-get install -y nodejs \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN ln -sf /var/www/html/docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf \
+    && ln -sf /var/www/html/docker/nginx.conf /etc/nginx/sites-available/default
+
+WORKDIR /var/www/html
+
+EXPOSE 8000
