@@ -1,0 +1,67 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block title %}New Article{% endblock %}
+
+{% block page_title %}New Article{% endblock %}
+
+{% block breadcrumbs %}
+  <li class="breadcrumb-item"><a href="{{ path('admin_articles_index') }}">Articles</a></li>
+  <li class="breadcrumb-item active" aria-current="page">New</li>
+{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-lg-8">
+      <div class="card card-primary card-outline">
+        <div class="card-header">
+          <h3 class="card-title">Create New Article</h3>
+        </div>
+        {{ form_start(form, { attr: { novalidate: 'novalidate' } }) }}
+        <div class="card-body">
+
+          {% for flash in app.flashes('error') %}
+            <div class="alert alert-danger">{{ flash }}</div>
+          {% endfor %}
+
+          <div class="mb-3">
+            {{ form_label(form.title, 'Title', { label_attr: { class: 'form-label fw-semibold' } }) }}
+            {{ form_widget(form.title) }}
+            {{ form_errors(form.title) }}
+          </div>
+
+          <div class="mb-3">
+            {{ form_label(form.slug, 'Slug', { label_attr: { class: 'form-label fw-semibold' } }) }}
+            <div class="input-group">
+              <span class="input-group-text text-muted">/</span>
+              {{ form_widget(form.slug) }}
+            </div>
+            <div class="form-text text-muted">Lowercase letters, numbers, and hyphens only. Used in the URL.</div>
+            {{ form_errors(form.slug) }}
+          </div>
+
+          <div class="mb-3">
+            {{ form_label(form.content, 'Content', { label_attr: { class: 'form-label fw-semibold' } }) }}
+            {{ form_widget(form.content) }}
+            {{ form_errors(form.content) }}
+          </div>
+
+          <div class="mb-3">
+            <div class="form-check">
+              {{ form_widget(form.published) }}
+              {{ form_label(form.published, 'Publish immediately', { label_attr: { class: 'form-check-label' } }) }}
+            </div>
+            {{ form_errors(form.published) }}
+          </div>
+
+        </div>
+        <div class="card-footer d-flex gap-2">
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-check-lg me-1"></i> Save Article
+          </button>
+          <a href="{{ path('admin_articles_index') }}" class="btn btn-secondary">Cancel</a>
+        </div>
+        {{ form_end(form) }}
+      </div>
+    </div>
+  </div>
+{% endblock %}

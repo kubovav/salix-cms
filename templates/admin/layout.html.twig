@@ -79,6 +79,13 @@
             </a>
           </li>
 
+          <li class="nav-item">
+            <a href="{{ path('admin_articles_index') }}" class="nav-link {% if app.request.attributes.get('_route') starts with 'admin_articles' %}active{% endif %}">
+              <i class="nav-icon bi bi-file-earmark-text"></i>
+              <p>Articles</p>
+            </a>
+          </li>
+
           {% block sidebar_menu %}{% endblock %}
 
         </ul>
