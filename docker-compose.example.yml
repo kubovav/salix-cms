@@ -1,25 +1,25 @@
 services:
-  salix_dev:
+  salix_app:
     build:
       context: .
       dockerfile: ./docker/Dockerfile.dev
-    container_name: salix-dev
-    hostname: salix_dev
+    restart: always
+    container_name: salix_app
+    hostname: salix_app
     ports:
       - "8000:8000"
       - "3000:3000"
     volumes:
-      - .:/workspace
-    environment:
-      NEXT_TELEMETRY_DISABLED: "1"
+      - .:/var/www/html
+      - ~/.ssh:/root/.ssh
     networks:
       - salix
-    working_dir: /workspace
     command: supervisord -c /etc/supervisor/conf.d/supervisord.conf
 
   salix_db:
     image: mysql:8
-    container_name: salix-db
+    restart: always
+    container_name: salix_db
     hostname: salix_db
     environment:
       MYSQL_ROOT_PASSWORD: ChangeMe123!

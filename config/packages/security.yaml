@@ -24,10 +24,13 @@ security:
             form_login:
                 login_path: app_login
                 check_path: app_login
+                default_target_path: admin_dashboard
             logout:
                 path: app_logout
+                target: app_login
 
     access_control:
+        - { path: ^/admin/login, roles: PUBLIC_ACCESS }
         - { path: ^/admin, roles: ROLE_ADMIN }
 
 when@test:

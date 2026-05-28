@@ -1,0 +1,16 @@
+framework:
+    asset_mapper:
+        # The paths to make available to the asset mapper.
+        paths:
+            assets/: ''
+            node_modules/admin-lte/dist/css/: 'adminlte/css'
+            node_modules/admin-lte/dist/js/: 'adminlte/js'
+        excluded_patterns:
+            - '*.map'
+            - '*.scss'
+        missing_import_mode: warn
+
+when@prod:
+    framework:
+        asset_mapper:
+            missing_import_mode: warn

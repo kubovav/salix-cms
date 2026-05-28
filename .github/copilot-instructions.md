@@ -39,6 +39,22 @@ Everything runs in a single `salix_app` Docker container managed by Supervisor:
 - Admin routes use the prefix `/admin/` and require `ROLE_ADMIN`
 - Public routes are open
 
+### Admin UI — AdminLTE 4
+- The admin section uses **AdminLTE 4** (Bootstrap 5-based theme) installed via npm (`node_modules/admin-lte`)
+- AdminLTE CSS and JS are served via **Symfony AssetMapper** — do NOT use a CDN for AdminLTE
+- All admin pages must extend `templates/admin/layout.html.twig`, never `base.html.twig`
+- AdminLTE bundles Bootstrap 5 inside `adminlte.min.css` — do NOT add a separate Bootstrap link in admin templates
+- Bootstrap Icons are loaded from CDN in the layout — use `<i class="bi bi-..."></i>` for icons
+- Available Twig blocks in `admin/layout.html.twig`:
+  - `title` — page `<title>` text
+  - `page_title` — heading shown in the content header bar
+  - `breadcrumbs` — `<li class="breadcrumb-item">` items appended after "Home"
+  - `sidebar_menu` — additional `<li>` nav items added to the sidebar
+  - `content` — main page body rendered inside `.container-fluid`
+  - `stylesheets` / `javascripts` — extra per-page CSS/JS
+- **Documentation:** https://adminlte.io/docs/4.x/ — components, layout options, widgets
+- **Live examples:** `node_modules/admin-lte/dist/index.html` and `node_modules/admin-lte/dist/pages/`
+
 ### Security
 - Admin controllers/routes are secured with `#[IsGranted('ROLE_ADMIN')]` or firewall config
 - Passwords are hashed via `UserPasswordListener` (event listener pattern, not a subscriber)

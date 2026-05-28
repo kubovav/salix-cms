@@ -1,0 +1,12 @@
+{
+  "scripts": {
+    "sass:build": "sass assets/styles/app.scss assets/styles/app.css --no-source-map",
+    "sass:watch": "sass assets/styles/app.scss assets/styles/app.css --no-source-map --watch"
+  },
+  "dependencies": {
+    "admin-lte": "^4.0.0"
+  },
+  "devDependencies": {
+    "sass": "^1.100.0"
+  }
+}
