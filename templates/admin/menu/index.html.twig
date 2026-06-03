@@ -1,0 +1,90 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block title %}Menu Items{% endblock %}
+
+{% block page_title %}Menu{% endblock %}
+
+{% block breadcrumbs %}
+  <li class="breadcrumb-item active" aria-current="page">Menu</li>
+{% endblock %}
+
+{% block content %}
+  {% for flash in app.flashes('success') %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+      {{ flash }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  {% endfor %}
+
+  <div class="card">
+    <div class="card-header d-flex align-items-center justify-content-between">
+      <h3 class="card-title mb-0">All Menu Items</h3>
+      <a href="{{ path('admin_menu_new') }}" class="btn btn-primary btn-sm">
+        <i class="bi bi-plus-lg me-1"></i> New Item
+      </a>
+    </div>
+    <div class="card-body p-0">
+      {% if items is empty %}
+        <p class="text-muted p-3 mb-0">No menu items yet. <a href="{{ path('admin_menu_new') }}">Create the first one.</a></p>
+      {% else %}
+        <table class="table table-hover mb-0">
+          <thead>
+            <tr>
+              <th>Label</th>
+              <th>Menu</th>
+              <th>Parent</th>
+              <th>Links to</th>
+              <th>Position</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in items %}
+              <tr>
+                <td>
+                  {% if item.parent %}
+                    <span class="text-muted ms-3">↳</span>
+                  {% endif %}
+                  {{ item.label }}
+                </td>
+                <td><span class="badge text-bg-secondary">{{ item.menuName }}</span></td>
+                <td class="text-muted">{{ item.parent ? item.parent.label : '—' }}</td>
+                <td>
+                  {% if item.page %}
+                    <i class="bi bi-file-earmark-text text-muted me-1"></i>
+                    <code>{{ item.page.slug }}</code>
+                  {% elseif item.url %}
+                    <i class="bi bi-link-45deg text-muted me-1"></i>
+                    <span class="text-truncate d-inline-block" style="max-width:200px;">{{ item.url }}</span>
+                  {% else %}
+                    <span class="text-muted">—</span>
+                  {% endif %}
+                </td>
+                <td>{{ item.position }}</td>
+                <td>
+                  {% if item.enabled %}
+                    <span class="badge text-bg-success">Enabled</span>
+                  {% else %}
+                    <span class="badge text-bg-secondary">Disabled</span>
+                  {% endif %}
+                </td>
+                <td class="text-end">
+                  <a href="{{ path('admin_menu_edit', {id: item.id}) }}" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-pencil"></i>
+                  </a>
+                  <form method="post" action="{{ path('admin_menu_delete', {id: item.id}) }}" class="d-inline" onsubmit="return confirm('Delete this menu item?');">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete_menu_item_' ~ item.id) }}">
+                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </form>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

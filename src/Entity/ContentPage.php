@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\ContentPageRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ContentPageRepository::class)]
@@ -29,6 +31,17 @@ class ContentPage
 
     #[ORM\Column]
     private ?\DateTimeImmutable $updatedAt = null;
+
+    /**
+     * @var Collection<int, MenuItem>
+     */
+    #[ORM\OneToMany(targetEntity: MenuItem::class, mappedBy: 'page')]
+    private Collection $menuItems;
+
+    public function __construct()
+    {
+        $this->menuItems = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -93,5 +106,35 @@ class ContentPage
     public function refreshUpdatedAt(): void
     {
         $this->updatedAt = new \DateTimeImmutable();
+    }
+
+    /**
+     * @return Collection<int, MenuItem>
+     */
+    public function getMenuItems(): Collection
+    {
+        return $this->menuItems;
+    }
+
+    public function addMenuItem(MenuItem $menuItem): static
+    {
+        if (!$this->menuItems->contains($menuItem)) {
+            $this->menuItems->add($menuItem);
+            $menuItem->setPage($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMenuItem(MenuItem $menuItem): static
+    {
+        if ($this->menuItems->removeElement($menuItem)) {
+            // set the owning side to null (unless already changed)
+            if ($menuItem->getPage() === $this) {
+                $menuItem->setPage(null);
+            }
+        }
+
+        return $this;
     }
 }

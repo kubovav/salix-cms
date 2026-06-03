@@ -1,0 +1,99 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block title %}Edit Menu Item{% endblock %}
+
+{% block page_title %}Edit Menu Item{% endblock %}
+
+{% block breadcrumbs %}
+  <li class="breadcrumb-item"><a href="{{ path('admin_menu_index') }}">Menu</a></li>
+  <li class="breadcrumb-item active" aria-current="page">{{ item.label }}</li>
+{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-lg-7">
+      <div class="card card-primary card-outline">
+        <div class="card-header">
+          <h3 class="card-title">Edit: {{ item.label }}</h3>
+        </div>
+        {{ form_start(form, { attr: { novalidate: 'novalidate' } }) }}
+        <div class="card-body">
+
+          {% for flash in app.flashes('error') %}
+            <div class="alert alert-danger">{{ flash }}</div>
+          {% endfor %}
+
+          <div class="mb-3">
+            {{ form_label(form.label, 'Label', { label_attr: { class: 'form-label fw-semibold' } }) }}
+            {{ form_widget(form.label) }}
+            {{ form_errors(form.label) }}
+          </div>
+
+          <div class="mb-3">
+            {{ form_label(form.menuName, 'Menu', { label_attr: { class: 'form-label fw-semibold' } }) }}
+            {{ form_widget(form.menuName) }}
+            {{ form_errors(form.menuName) }}
+          </div>
+
+          <div class="mb-3">
+            {{ form_label(form.parent, 'Parent item', { label_attr: { class: 'form-label fw-semibold' } }) }}
+            {{ form_widget(form.parent) }}
+            <div class="form-text text-muted">{{ form_help(form.parent) }}</div>
+            {{ form_errors(form.parent) }}
+          </div>
+
+          <hr>
+
+          <p class="text-muted small mb-2">Choose either a CMS page <em>or</em> a custom URL as the link destination.</p>
+
+          <div class="mb-3">
+            {{ form_label(form.page, 'CMS page', { label_attr: { class: 'form-label fw-semibold' } }) }}
+            {{ form_widget(form.page) }}
+            <div class="form-text text-muted">{{ form_help(form.page) }}</div>
+            {{ form_errors(form.page) }}
+          </div>
+
+          <div class="mb-3">
+            {{ form_label(form.url, 'Custom URL', { label_attr: { class: 'form-label fw-semibold' } }) }}
+            {{ form_widget(form.url) }}
+            <div class="form-text text-muted">{{ form_help(form.url) }}</div>
+            {{ form_errors(form.url) }}
+          </div>
+
+          <hr>
+
+          <div class="mb-3">
+            {{ form_label(form.position, 'Position', { label_attr: { class: 'form-label fw-semibold' } }) }}
+            {{ form_widget(form.position) }}
+            <div class="form-text text-muted">{{ form_help(form.position) }}</div>
+            {{ form_errors(form.position) }}
+          </div>
+
+          <div class="mb-3">
+            <div class="form-check">
+              {{ form_widget(form.enabled) }}
+              {{ form_label(form.enabled, 'Enabled', { label_attr: { class: 'form-check-label' } }) }}
+            </div>
+            {{ form_errors(form.enabled) }}
+          </div>
+
+        </div>
+        <div class="card-footer d-flex gap-2 justify-content-between">
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-check-lg me-1"></i> Save Changes
+            </button>
+            <a href="{{ path('admin_menu_index') }}" class="btn btn-secondary">Cancel</a>
+          </div>
+          <form method="post" action="{{ path('admin_menu_delete', {id: item.id}) }}" onsubmit="return confirm('Delete this menu item?');">
+            <input type="hidden" name="_token" value="{{ csrf_token('delete_menu_item_' ~ item.id) }}">
+            <button type="submit" class="btn btn-outline-danger">
+              <i class="bi bi-trash me-1"></i> Delete
+            </button>
+          </form>
+        </div>
+        {{ form_end(form) }}
+      </div>
+    </div>
+  </div>
+{% endblock %}
