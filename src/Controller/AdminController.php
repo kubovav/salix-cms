@@ -7,8 +7,10 @@ namespace App\Controller;
 use App\Entity\ContentPage;
 use App\Form\ContentPageType;
 use App\Repository\ContentPageRepository;
+use App\Repository\SiteSettingRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -49,6 +51,47 @@ final class AdminController extends AbstractController
         }
 
         return $this->render('admin/articles/new.html.twig', [
+            'form' => $form,
+        ]);
+    }
+
+    #[Route('/settings', name: 'admin_settings')]
+    public function settings(
+        Request $request,
+        EntityManagerInterface $em,
+        ContentPageRepository $contentPageRepository,
+        SiteSettingRepository $siteSettingRepository,
+    ): Response {
+        $pages = $contentPageRepository->findPublishedOrdered();
+        $choices = [];
+        foreach ($pages as $page) {
+            $choices[$page->getTitle().' (/'.$page->getSlug().')'] = $page->getSlug();
+        }
+
+        $form = $this->createFormBuilder(['home_page_slug' => $siteSettingRepository->get('home_page_slug')])
+            ->add('home_page_slug', ChoiceType::class, [
+                'label' => 'Home Page',
+                'choices' => $choices,
+                'placeholder' => '— none (show page listing) —',
+                'required' => false,
+                'attr' => ['class' => 'form-select'],
+            ])
+            ->getForm();
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            /** @var array{home_page_slug: string|null} $data */
+            $data = $form->getData();
+            $siteSettingRepository->set('home_page_slug', '' !== $data['home_page_slug'] ? $data['home_page_slug'] : null);
+            $em->flush();
+
+            $this->addFlash('success', 'Settings saved.');
+
+            return $this->redirectToRoute('admin_settings');
+        }
+
+        return $this->render('admin/settings/index.html.twig', [
             'form' => $form,
         ]);
     }

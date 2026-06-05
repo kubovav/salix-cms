@@ -17,10 +17,10 @@ class SiteSetting
     #[ORM\Column(length: 100)]
     private string $settingKey;
 
-    #[ORM\Column(length: 500, nullable: true)]
-    private ?string $settingValue = null;
+    #[ORM\Column(length: 500)]
+    private string $settingValue;
 
-    public function __construct(string $settingKey, ?string $settingValue = null)
+    public function __construct(string $settingKey, string $settingValue)
     {
         $this->settingKey = $settingKey;
         $this->settingValue = $settingValue;
@@ -36,12 +36,12 @@ class SiteSetting
         return $this->settingKey;
     }
 
-    public function getSettingValue(): ?string
+    public function getSettingValue(): string
     {
         return $this->settingValue;
     }
 
-    public function setSettingValue(?string $value): static
+    public function setSettingValue(string $value): static
     {
         $this->settingValue = $value;
 

@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Config\MenuType;
 use App\Repository\MenuItemRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -40,7 +41,7 @@ class MenuItem
     private int $position = 0;
 
     #[ORM\Column(length: 50)]
-    private string $menuName = 'main';
+    private string $menuName = MenuType::MAIN->value;
 
     #[ORM\Column]
     private bool $enabled = true;
@@ -128,9 +129,9 @@ class MenuItem
         return $this->menuName;
     }
 
-    public function setMenuName(string $menuName): static
+    public function setMenuName(MenuType $menuName): static
     {
-        $this->menuName = $menuName;
+        $this->menuName = $menuName->value;
 
         return $this;
     }

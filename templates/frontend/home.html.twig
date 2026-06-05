@@ -1,0 +1,46 @@
+{% extends 'frontend/layout.html.twig' %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+    {% if pages is empty %}
+        {# Default page shown when no published content pages exist #}
+        <div class="container py-5">
+            <div class="row justify-content-center">
+                <div class="col-lg-7 text-center">
+                    <div class="mb-4" style="font-size: 4rem;">🌿</div>
+                    <h1 class="display-5 fw-bold mb-3">Welcome to Salix CMS</h1>
+                    <p class="lead text-muted mb-4">
+                        Your site is live and ready. Get started by creating and publishing your first content page from the admin panel.
+                    </p>
+                    <a href="{{ path('admin_dashboard') }}" class="btn btn-primary btn-lg px-5">
+                        Go to Admin Panel
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="container py-5">
+            <div class="row g-4">
+                {% for page in pages %}
+                    <div class="col-sm-6 col-lg-4">
+                        <div class="card h-100 shadow-sm border-0">
+                            <div class="card-body">
+                                <h5 class="card-title mb-2">{{ page.title }}</h5>
+                                <p class="card-text text-muted small">
+                                    {{- page.content|striptags|slice(0, 160) -}}
+                                    {%- if page.content|striptags|length > 160 %}…{% endif %}
+                                </p>
+                            </div>
+                            <div class="card-footer bg-transparent border-0 pb-3">
+                                <a href="{{ path('frontend_page', { slug: page.slug }) }}" class="btn btn-outline-primary btn-sm">
+                                    Read more
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

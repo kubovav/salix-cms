@@ -29,13 +29,14 @@ class SiteSettingRepository extends ServiceEntityRepository
     {
         $setting = $this->findOneBy(['settingKey' => $key]);
 
-        if ($setting === null) {
-            $setting = new SiteSetting($key, $value);
-            $this->getEntityManager()->persist($setting);
+        if (null === $value) {
+            if (null !== $setting) {
+                $this->getEntityManager()->remove($setting);
+            }
+        } elseif (null === $setting) {
+            $this->getEntityManager()->persist(new SiteSetting($key, $value));
         } else {
             $setting->setSettingValue($value);
         }
-
-        $this->getEntityManager()->flush();
     }
 }

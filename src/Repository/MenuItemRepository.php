@@ -17,15 +17,20 @@ class MenuItemRepository extends ServiceEntityRepository
     }
 
     /**
-     * @return MenuItem[] root items (no parent) for a given menu, ordered by position
+     * @return MenuItem[] enabled root items (no parent) for a given menu, with children eager-loaded, ordered by position
      */
-    public function findRootItemsForMenu(string $menuName): array
+    public function findEnabledRootItemsForMenu(string $menuName): array
     {
         return $this->createQueryBuilder('m')
+            ->leftJoin('m.children', 'c')
+            ->addSelect('c')
             ->where('m.parent IS NULL')
             ->andWhere('m.menuName = :name')
+            ->andWhere('m.enabled = :enabled')
             ->setParameter('name', $menuName)
+            ->setParameter('enabled', true)
             ->orderBy('m.position', 'ASC')
+            ->addOrderBy('c.position', 'ASC')
             ->getQuery()
             ->getResult();
     }

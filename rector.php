@@ -5,6 +5,8 @@ declare(strict_types=1);
 use Rector\Config\RectorConfig;
 use Rector\ValueObject\PhpVersion;
 use Rector\Php53\Rector\Ternary\TernaryToElvisRector;
+use Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector;
+
 
 return RectorConfig::configure()
     ->withPaths([
@@ -16,7 +18,10 @@ return RectorConfig::configure()
     ->withImportNames()
     ->withPhpVersion(PhpVersion::PHP_85)
     ->withSkip([
-        TernaryToElvisRector::class, // nemame zaujem - zbytocne by sme sli dole s typovanim
+        TernaryToElvisRector::class,
+        ClassPropertyAssignToConstructorPromotionRector::class => [
+            __DIR__ . '/src/Entity',
+        ],
     ])
     ->withImportNames(removeUnusedImports: true, importShortClasses: false)
     ->withPreparedSets(
