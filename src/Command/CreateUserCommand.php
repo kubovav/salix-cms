@@ -10,6 +10,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+
 #[AsCommand(
     name: 'app:create-user',
     description: 'Create a new user',
@@ -17,7 +18,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class CreateUserCommand extends Command
 {
     public function __construct(
-        private EntityManagerInterface $entityManager,
+        private readonly EntityManagerInterface $entityManager,
     ) {
         parent::__construct();
     }
@@ -35,20 +36,23 @@ class CreateUserCommand extends Command
         $email = $input->getArgument('email');
 
         $existingUser = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
-        if ($existingUser) {
+        if ($existingUser instanceof User) {
             $io->error(sprintf('User with email "%s" already exists.', $email));
+
             return Command::FAILURE;
         }
 
         $password = $io->askHidden('Password');
         if (!$password) {
             $io->error('Password cannot be empty.');
+
             return Command::FAILURE;
         }
 
         $confirmPassword = $io->askHidden('Confirm password');
         if ($password !== $confirmPassword) {
             $io->error('Passwords do not match.');
+
             return Command::FAILURE;
         }
 

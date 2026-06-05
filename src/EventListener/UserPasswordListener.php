@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\EventListener;
 
 use App\Entity\User;
@@ -12,8 +14,9 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 class UserPasswordListener
 {
     public function __construct(
-        private UserPasswordHasherInterface $passwordHasher,
-    ) {}
+        private readonly UserPasswordHasherInterface $passwordHasher,
+    ) {
+    }
 
     public function prePersist(User $user): void
     {
@@ -28,7 +31,7 @@ class UserPasswordListener
     private function hashPassword(User $user): void
     {
         $plainPassword = $user->getPlainPassword();
-        if ($plainPassword === null) {
+        if (null === $plainPassword) {
             return;
         }
 

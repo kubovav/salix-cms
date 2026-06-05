@@ -6,6 +6,7 @@ use App\Entity\ContentPage;
 use App\Entity\MenuItem;
 use App\Repository\ContentPageRepository;
 use App\Repository\MenuItemRepository;
+use Doctrine\ORM\QueryBuilder;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
@@ -46,7 +47,7 @@ class MenuItemType extends AbstractType
                 'choice_label' => 'title',
                 'placeholder' => '— link to a CMS page —',
                 'required' => false,
-                'query_builder' => fn (ContentPageRepository $repo) => $repo->createQueryBuilder('p')
+                'query_builder' => fn (ContentPageRepository $repo): QueryBuilder => $repo->createQueryBuilder('p')
                     ->orderBy('p.title', 'ASC'),
                 'attr' => ['class' => 'form-select'],
                 'help' => 'Choose a CMS page, or leave empty and fill in the URL field below.',
@@ -59,16 +60,16 @@ class MenuItemType extends AbstractType
             ])
             ->add('parent', EntityType::class, [
                 'class' => MenuItem::class,
-                'choice_label' => fn (MenuItem $item) => '[' . $item->getMenuName() . '] ' . $item->getLabel(),
+                'choice_label' => fn (MenuItem $item): string => '['.$item->getMenuName().'] '.$item->getLabel(),
                 'placeholder' => '— top-level item —',
                 'required' => false,
-                'query_builder' => function (MenuItemRepository $repo) use ($currentId) {
+                'query_builder' => function (MenuItemRepository $repo) use ($currentId): QueryBuilder {
                     $qb = $repo->createQueryBuilder('m')
                         ->where('m.parent IS NULL')
                         ->orderBy('m.menuName', 'ASC')
                         ->addOrderBy('m.position', 'ASC');
 
-                    if ($currentId !== null) {
+                    if (null !== $currentId) {
                         $qb->andWhere('m.id != :self')->setParameter('self', $currentId);
                     }
 

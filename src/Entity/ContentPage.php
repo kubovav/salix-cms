@@ -128,11 +128,9 @@ class ContentPage
 
     public function removeMenuItem(MenuItem $menuItem): static
     {
-        if ($this->menuItems->removeElement($menuItem)) {
-            // set the owning side to null (unless already changed)
-            if ($menuItem->getPage() === $this) {
-                $menuItem->setPage(null);
-            }
+        // set the owning side to null (unless already changed)
+        if ($this->menuItems->removeElement($menuItem) && $menuItem->getPage() === $this) {
+            $menuItem->setPage(null);
         }
 
         return $this;

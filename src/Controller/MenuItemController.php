@@ -7,6 +7,7 @@ use App\Form\MenuItemType;
 use App\Repository\MenuItemRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -66,9 +67,9 @@ final class MenuItemController extends AbstractController
     }
 
     #[Route('/{id}/delete', name: 'admin_menu_delete', requirements: ['id' => '\d+'], methods: ['POST'])]
-    public function delete(MenuItem $item, Request $request, EntityManagerInterface $em): Response
+    public function delete(MenuItem $item, Request $request, EntityManagerInterface $em): RedirectResponse
     {
-        if ($this->isCsrfTokenValid('delete_menu_item_' . $item->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete_menu_item_'.$item->getId(), $request->request->get('_token'))) {
             $em->remove($item);
             $em->flush();
 

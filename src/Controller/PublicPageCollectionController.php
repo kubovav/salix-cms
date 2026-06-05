@@ -14,14 +14,12 @@ final class PublicPageCollectionController
     {
         $pages = $contentPageRepository->findPublishedOrdered();
 
-        $data = array_map(static function (ContentPage $page): array {
-            return [
-                'slug' => $page->getSlug(),
-                'title' => $page->getTitle(),
-                'content' => $page->getContent(),
-                'updatedAt' => $page->getUpdatedAt()?->format(\DateTimeInterface::RFC3339),
-            ];
-        }, $pages);
+        $data = array_map(static fn (ContentPage $page): array => [
+            'slug' => $page->getSlug(),
+            'title' => $page->getTitle(),
+            'content' => $page->getContent(),
+            'updatedAt' => $page->getUpdatedAt()?->format(\DateTimeInterface::RFC3339),
+        ], $pages);
 
         return new JsonResponse($data);
     }

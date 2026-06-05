@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\ContentPage;
 use App\Repository\ContentPageRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -13,7 +14,7 @@ final class PublicPageItemController
     public function __invoke(string $slug, ContentPageRepository $contentPageRepository): JsonResponse
     {
         $page = $contentPageRepository->findPublishedBySlug($slug);
-        if ($page === null) {
+        if (!$page instanceof ContentPage) {
             throw new NotFoundHttpException('Page not found.');
         }
 

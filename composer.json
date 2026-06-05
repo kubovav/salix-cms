@@ -71,7 +71,11 @@
         ],
         "post-update-cmd": [
             "@auto-scripts"
-        ]
+        ],
+        "cs-fix": "./vendor/bin/php-cs-fixer fix",
+        "rector": "./vendor/bin/rector process --dry-run",
+        "rector-fix": "./vendor/bin/rector process",
+        "phpstan": "./vendor/bin/phpstan --memory-limit=8G"
     },
     "conflict": {
         "symfony/symfony": "*"
@@ -83,6 +87,13 @@
         }
     },
     "require-dev": {
-        "symfony/maker-bundle": "^1.67"
+        "friendsofphp/php-cs-fixer": "^3.95",
+        "phpstan/phpstan-deprecation-rules": "^2.0",
+        "phpstan/phpstan-strict-rules": "^2.0",
+        "phpstan/phpstan-symfony": "^2.0",
+        "rector/rector": "^2.4",
+        "spaze/phpstan-disallowed-calls": "^4.12",
+        "symfony/maker-bundle": "^1.67",
+        "tomasvotruba/unused-public": "^2.2"
     }
 }

@@ -17,7 +17,7 @@ class MenuItemRepository extends ServiceEntityRepository
     }
 
     /**
-     * @return MenuItem[] Root items (no parent) for a given menu, ordered by position.
+     * @return MenuItem[] root items (no parent) for a given menu, ordered by position
      */
     public function findRootItemsForMenu(string $menuName): array
     {
@@ -31,7 +31,7 @@ class MenuItemRepository extends ServiceEntityRepository
     }
 
     /**
-     * @return MenuItem[] All items across all menus, ordered for admin listing.
+     * @return MenuItem[] all items across all menus, ordered for admin listing
      */
     public function findAllOrdered(): array
     {
