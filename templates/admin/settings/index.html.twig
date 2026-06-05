@@ -1,0 +1,45 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block title %}Settings{% endblock %}
+
+{% block page_title %}Settings{% endblock %}
+
+{% block breadcrumbs %}
+  <li class="breadcrumb-item active" aria-current="page">Settings</li>
+{% endblock %}
+
+{% block content %}
+  {% for flash in app.flashes('success') %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+      {{ flash }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  {% endfor %}
+
+  <div class="row">
+    <div class="col-lg-6">
+      <div class="card card-primary card-outline">
+        <div class="card-header">
+          <h3 class="card-title">Site Settings</h3>
+        </div>
+        {{ form_start(form) }}
+        <div class="card-body">
+
+          <div class="mb-3">
+            {{ form_label(form.home_page_slug, null, { label_attr: { class: 'form-label fw-semibold' } }) }}
+            {{ form_widget(form.home_page_slug) }}
+            <div class="form-text text-muted">The page displayed at <code>/</code>. Choose "none" to show the full page listing instead.</div>
+            {{ form_errors(form.home_page_slug) }}
+          </div>
+
+        </div>
+        <div class="card-footer">
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-check-lg me-1"></i> Save Settings
+          </button>
+        </div>
+        {{ form_end(form) }}
+      </div>
+    </div>
+  </div>
+{% endblock %}
