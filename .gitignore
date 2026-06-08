@@ -1,6 +1,9 @@
 # Runtime
 supervisord.pid
 
+# Uploaded files
+/public/uploads/
+
 # Docker
 docker/temp/
 docker-compose.yml
