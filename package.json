@@ -1,7 +1,7 @@
 {
   "scripts": {
-    "sass:build": "sass assets/styles/app.scss assets/styles/app.css --no-source-map",
-    "sass:watch": "sass assets/styles/app.scss assets/styles/app.css --no-source-map --watch"
+"sass:build": "sass assets/styles/frontend.scss:assets/styles/frontend.css assets/styles/admin.scss:assets/styles/admin.css --no-source-map",
+"sass:watch": "sass assets/styles/frontend.scss:assets/styles/frontend.css assets/styles/admin.scss:assets/styles/admin.css --no-source-map --watch"
   },
   "dependencies": {
     "admin-lte": "^4.0.0"

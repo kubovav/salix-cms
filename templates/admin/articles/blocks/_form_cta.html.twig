@@ -1,0 +1,17 @@
+<div class="mb-3">
+  {{ form_label(form.heading, null, { label_attr: { class: 'form-label fw-semibold' } }) }}
+  {{ form_widget(form.heading) }}
+  {{ form_errors(form.heading) }}
+</div>
+
+<div class="mb-3">
+  {{ form_label(form.button_text, null, { label_attr: { class: 'form-label fw-semibold' } }) }}
+  {{ form_widget(form.button_text) }}
+  {{ form_errors(form.button_text) }}
+</div>
+
+<div class="mb-3">
+  {{ form_label(form.button_url, null, { label_attr: { class: 'form-label fw-semibold' } }) }}
+  {{ form_widget(form.button_url) }}
+  {{ form_errors(form.button_url) }}
+</div>

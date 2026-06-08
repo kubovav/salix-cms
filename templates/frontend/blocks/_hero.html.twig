@@ -1,0 +1,16 @@
+{% set hasImage = block.data.filename is defined and block.data.filename %}
+<section class="block block-hero py-5 mb-4 text-white text-center{% if not hasImage %} bg-primary{% endif %}"
+  {% if hasImage %}
+    style="background: linear-gradient(rgba(0,0,0,.5), rgba(0,0,0,.5)) center/cover no-repeat, url('{{ '/uploads/images/' ~ block.data.filename }}') center/cover no-repeat;"
+  {% endif %}
+>
+  <div class="container">
+    <h1 class="display-5 fw-bold mb-3">{{ block.data.heading }}</h1>
+    {% if block.data.subtext is defined and block.data.subtext %}
+      <p class="lead mb-4">{{ block.data.subtext }}</p>
+    {% endif %}
+    {% if block.data.cta_text is defined and block.data.cta_text and block.data.cta_url is defined and block.data.cta_url %}
+      <a href="{{ block.data.cta_url }}" class="btn btn-light btn-lg">{{ block.data.cta_text }}</a>
+    {% endif %}
+  </div>
+</section>

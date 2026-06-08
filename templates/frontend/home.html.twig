@@ -27,10 +27,6 @@
                         <div class="card h-100 shadow-sm border-0">
                             <div class="card-body">
                                 <h5 class="card-title mb-2">{{ page.title }}</h5>
-                                <p class="card-text text-muted small">
-                                    {{- page.content|striptags|slice(0, 160) -}}
-                                    {%- if page.content|striptags|length > 160 %}…{% endif %}
-                                </p>
                             </div>
                             <div class="card-footer bg-transparent border-0 pb-3">
                                 <a href="{{ path('frontend_page', { slug: page.slug }) }}" class="btn btn-outline-primary btn-sm">

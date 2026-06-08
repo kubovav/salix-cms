@@ -1,0 +1,25 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Config;
+
+enum BlockType: string
+{
+    case RICH_TEXT = 'rich_text';
+    case IMAGE = 'image';
+    case HERO = 'hero';
+    case TEXT_IMAGE = 'text_image';
+    case CTA = 'cta';
+
+    public function label(): string
+    {
+        return match($this) {
+            self::RICH_TEXT => 'Rich Text',
+            self::IMAGE => 'Image',
+            self::HERO => 'Hero',
+            self::TEXT_IMAGE => 'Text + Image',
+            self::CTA => 'Call to Action',
+        };
+    }
+}

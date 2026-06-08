@@ -1,0 +1,15 @@
+{% set imageOnLeft = (block.data.image_side|default('left')) == 'left' %}
+<div class="block block-text-image mb-4">
+  <div class="row align-items-center g-4{% if not imageOnLeft %} flex-row-reverse{% endif %}">
+    <div class="col-md-5 text-center">
+      <img
+        src="{{ '/uploads/images/' ~ block.data.filename }}"
+        alt="{{ block.data.image_alt|default('') }}"
+        class="img-fluid rounded"
+      >
+    </div>
+    <div class="col-md-7">
+      {{ block.data.html|raw }}
+    </div>
+  </div>
+</div>

@@ -11,6 +11,7 @@ use App\Repository\SiteSettingRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -47,12 +48,59 @@ final class AdminController extends AbstractController
 
             $this->addFlash('success', 'Article created successfully.');
 
-            return $this->redirectToRoute('admin_articles_index');
+            return $this->redirectToRoute('admin_articles_edit', ['id' => $page->getId()]);
         }
 
         return $this->render('admin/articles/new.html.twig', [
             'form' => $form,
         ]);
+    }
+
+    #[Route('/articles/{id}/edit', name: 'admin_articles_edit')]
+    public function articlesEdit(int $id, Request $request, EntityManagerInterface $em, ContentPageRepository $repository): Response
+    {
+        $page = $repository->find($id);
+        if (null === $page) {
+            throw $this->createNotFoundException('Article not found.');
+        }
+
+        $form = $this->createForm(ContentPageType::class, $page);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em->flush();
+
+            $this->addFlash('success', 'Article updated.');
+
+            return $this->redirectToRoute('admin_articles_edit', ['id' => $id]);
+        }
+
+        return $this->render('admin/articles/edit.html.twig', [
+            'page' => $page,
+            'form' => $form,
+        ]);
+    }
+
+    #[Route('/articles/{id}/delete', name: 'admin_articles_delete', methods: ['POST'])]
+    public function articlesDelete(int $id, Request $request, EntityManagerInterface $em, ContentPageRepository $repository): RedirectResponse
+    {
+        $page = $repository->find($id);
+        if (null === $page) {
+            throw $this->createNotFoundException('Article not found.');
+        }
+
+        if (!$this->isCsrfTokenValid('delete_article_'.$id, (string) $request->request->get('_token'))) {
+            $this->addFlash('error', 'Invalid CSRF token.');
+
+            return $this->redirectToRoute('admin_articles_index');
+        }
+
+        $em->remove($page);
+        $em->flush();
+
+        $this->addFlash('success', 'Article deleted.');
+
+        return $this->redirectToRoute('admin_articles_index');
     }
 
     #[Route('/settings', name: 'admin_settings')]

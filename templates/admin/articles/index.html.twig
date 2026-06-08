@@ -34,8 +34,10 @@
             <tr>
               <th>Title</th>
               <th>Slug</th>
+              <th>Blocks</th>
               <th>Status</th>
               <th>Updated</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -43,6 +45,7 @@
               <tr>
                 <td>{{ article.title }}</td>
                 <td><code>{{ article.slug }}</code></td>
+                <td class="text-muted">{{ article.blocks|length }}</td>
                 <td>
                   {% if article.published %}
                     <span class="badge text-bg-success">Published</span>
@@ -51,6 +54,17 @@
                   {% endif %}
                 </td>
                 <td>{{ article.updatedAt ? article.updatedAt|date('Y-m-d H:i') : '—' }}</td>
+                <td class="text-end">
+                  <a href="{{ path('admin_articles_edit', {id: article.id}) }}" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-pencil"></i>
+                  </a>
+                  <form method="post" action="{{ path('admin_articles_delete', {id: article.id}) }}" class="d-inline" onsubmit="return confirm('Delete this article and all its blocks?');">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete_article_' ~ article.id) }}">
+                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </form>
+                </td>
               </tr>
             {% endfor %}
           </tbody>

@@ -7,7 +7,6 @@ namespace App\Form;
 use App\Entity\ContentPage;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -37,12 +36,6 @@ class ContentPageType extends AbstractType
                     ),
                 ],
                 'attr' => ['class' => 'form-control', 'placeholder' => 'my-article-slug'],
-            ])
-            ->add('content', TextareaType::class, [
-                'constraints' => [
-                    new NotBlank(message: 'Content is required.'),
-                ],
-                'attr' => ['class' => 'form-control', 'rows' => 12],
             ])
             ->add('published', CheckboxType::class, [
                 'required' => false,

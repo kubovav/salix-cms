@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Repository\ContentPageRepository;
@@ -23,9 +25,6 @@ class ContentPage
     #[ORM\Column(length: 255)]
     private ?string $title = null;
 
-    #[ORM\Column(type: 'text')]
-    private ?string $content = null;
-
     #[ORM\Column]
     private bool $published = false;
 
@@ -38,9 +37,17 @@ class ContentPage
     #[ORM\OneToMany(targetEntity: MenuItem::class, mappedBy: 'page')]
     private Collection $menuItems;
 
+    /**
+     * @var Collection<int, ContentBlock>
+     */
+    #[ORM\OneToMany(targetEntity: ContentBlock::class, mappedBy: 'page', cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[ORM\OrderBy(['position' => 'ASC'])]
+    private Collection $blocks;
+
     public function __construct()
     {
         $this->menuItems = new ArrayCollection();
+        $this->blocks = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -68,18 +75,6 @@ class ContentPage
     public function setTitle(string $title): static
     {
         $this->title = $title;
-
-        return $this;
-    }
-
-    public function getContent(): ?string
-    {
-        return $this->content;
-    }
-
-    public function setContent(string $content): static
-    {
-        $this->content = $content;
 
         return $this;
     }
@@ -131,6 +126,33 @@ class ContentPage
         // set the owning side to null (unless already changed)
         if ($this->menuItems->removeElement($menuItem) && $menuItem->getPage() === $this) {
             $menuItem->setPage(null);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ContentBlock>
+     */
+    public function getBlocks(): Collection
+    {
+        return $this->blocks;
+    }
+
+    public function addBlock(ContentBlock $block): static
+    {
+        if (!$this->blocks->contains($block)) {
+            $this->blocks->add($block);
+            $block->setPage($this);
+        }
+
+        return $this;
+    }
+
+    public function removeBlock(ContentBlock $block): static
+    {
+        if ($this->blocks->removeElement($block) && $block->getPage() === $this) {
+            $block->setPage(null);
         }
 
         return $this;

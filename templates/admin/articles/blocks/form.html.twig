@@ -1,0 +1,94 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block title %}{{ isEdit ? 'Edit' : 'Add' }} Block — {{ page.title }}{% endblock %}
+
+{% block page_title %}{{ isEdit ? 'Edit' : 'Add' }} {{ blockType.label() }} Block{% endblock %}
+
+{% block breadcrumbs %}
+  <li class="breadcrumb-item"><a href="{{ path('admin_articles_index') }}">Articles</a></li>
+  <li class="breadcrumb-item"><a href="{{ path('admin_articles_edit', {id: page.id}) }}">{{ page.title }}</a></li>
+  <li class="breadcrumb-item active" aria-current="page">{{ isEdit ? 'Edit' : 'Add' }} Block</li>
+{% endblock %}
+
+{% block stylesheets %}
+  {% if blockType.value in ['rich_text', 'text_image'] %}
+    <link href="https://cdn.jsdelivr.net/npm/quill@2/dist/quill.snow.css" rel="stylesheet">
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-lg-8">
+      <div class="card card-primary card-outline">
+        <div class="card-header">
+          <h3 class="card-title">{{ blockType.label() }} Block</h3>
+        </div>
+        {{ form_start(form, { attr: { novalidate: 'novalidate', enctype: 'multipart/form-data', id: 'block-form' } }) }}
+        <div class="card-body">
+
+          {% for flash in app.flashes('error') %}
+            <div class="alert alert-danger">{{ flash }}</div>
+          {% endfor %}
+
+          {% if blockType.value == 'rich_text' %}
+            {% include 'admin/articles/blocks/_form_rich_text.html.twig' %}
+          {% elseif blockType.value == 'image' %}
+            {% include 'admin/articles/blocks/_form_image.html.twig' %}
+          {% elseif blockType.value == 'hero' %}
+            {% include 'admin/articles/blocks/_form_hero.html.twig' %}
+          {% elseif blockType.value == 'text_image' %}
+            {% include 'admin/articles/blocks/_form_text_image.html.twig' %}
+          {% elseif blockType.value == 'cta' %}
+            {% include 'admin/articles/blocks/_form_cta.html.twig' %}
+          {% endif %}
+
+        </div>
+        <div class="card-footer d-flex gap-2">
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-check-lg me-1"></i> {{ isEdit ? 'Save Changes' : 'Add Block' }}
+          </button>
+          <a href="{{ path('admin_articles_edit', {id: page.id}) }}" class="btn btn-secondary">Cancel</a>
+        </div>
+        {{ form_end(form) }}
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block javascripts %}
+  {% if blockType.value in ['rich_text', 'text_image'] %}
+    <script src="https://cdn.jsdelivr.net/npm/quill@2/dist/quill.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.quill-editor-wrapper').forEach(function (wrapper) {
+          var editorEl = wrapper.querySelector('.quill-editor');
+          var targetEl = wrapper.querySelector('.quill-target');
+          var quill = new Quill(editorEl, {
+            theme: 'snow',
+            modules: {
+              toolbar: [
+                [{ header: [1, 2, 3, false] }],
+                ['bold', 'italic', 'underline', 'strike'],
+                [{ list: 'ordered' }, { list: 'bullet' }],
+                ['blockquote', 'code-block'],
+                ['link'],
+                ['clean']
+              ]
+            }
+          });
+
+          // Pre-fill editor from the hidden textarea
+          if (targetEl.value) {
+            quill.clipboard.dangerouslyPasteHTML(targetEl.value);
+          }
+
+          // On submit: copy Quill HTML to the hidden textarea
+          var form = document.getElementById('block-form');
+          form.addEventListener('submit', function () {
+            targetEl.value = quill.getSemanticHTML();
+          });
+        });
+      });
+    </script>
+  {% endif %}
+{% endblock %}

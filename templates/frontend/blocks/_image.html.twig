@@ -1,0 +1,10 @@
+<figure class="block block-image text-center mb-4">
+  <img
+    src="{{ '/uploads/images/' ~ block.data.filename }}"
+    alt="{{ block.data.alt|default('') }}"
+    class="img-fluid rounded"
+  >
+  {% if block.data.caption is defined and block.data.caption %}
+    <figcaption class="text-muted mt-2 small">{{ block.data.caption }}</figcaption>
+  {% endif %}
+</figure>

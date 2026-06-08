@@ -1,0 +1,8 @@
+<div class="mb-3">
+  {{ form_label(form.html, 'Content', { label_attr: { class: 'form-label fw-semibold' } }) }}
+  <div class="quill-editor-wrapper">
+    <div class="quill-editor" style="min-height:220px;"></div>
+    {{ form_widget(form.html, { attr: { class: 'quill-target d-none' } }) }}
+  </div>
+  {{ form_errors(form.html) }}
+</div>
