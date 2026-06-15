@@ -73,11 +73,13 @@
 
       {# ── Content blocks ── #}
       <div class="card card-outline mb-4">
-        <div class="card-header d-flex align-items-center justify-content-between">
+        <div class="card-header">
           <h3 class="card-title mb-0">Content Blocks</h3>
-          <a href="{{ path('admin_block_new', {pageId: page.id}) }}" class="btn btn-primary btn-sm">
-            <i class="bi bi-plus-lg me-1"></i> Add Block
-          </a>
+          <div class="card-tools">
+            <a href="{{ path('admin_block_new', {pageId: page.id}) }}" class="btn btn-primary btn-sm">
+              <i class="bi bi-plus-lg me-1"></i> Add Block
+            </a>
+          </div>
         </div>
         <div class="card-body p-0">
           {% if page.blocks is empty %}

@@ -17,11 +17,13 @@
   {% endfor %}
 
   <div class="card">
-    <div class="card-header d-flex align-items-center justify-content-between">
+    <div class="card-header">
       <h3 class="card-title mb-0">All Menu Items</h3>
-      <a href="{{ path('admin_menu_new') }}" class="btn btn-primary btn-sm">
-        <i class="bi bi-plus-lg me-1"></i> New Item
-      </a>
+      <div class="card-tools">
+        <a href="{{ path('admin_menu_new') }}" class="btn btn-primary btn-sm">
+          <i class="bi bi-plus-lg me-1"></i> New Item
+        </a>
+      </div>
     </div>
     <div class="card-body p-0">
       {% if items is empty %}
