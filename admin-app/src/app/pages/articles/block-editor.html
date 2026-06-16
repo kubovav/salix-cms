@@ -1,0 +1,156 @@
+<div class="modal-header">
+  <h5 class="modal-title">{{ isEdit ? 'Edit Block' : 'Add Block' }}</h5>
+  <button type="button" class="btn-close" (click)="modal.dismiss()"></button>
+</div>
+
+<div class="modal-body">
+  @if (error()) {
+    <div class="alert alert-danger py-2">{{ error() }}</div>
+  }
+
+  @if (!type()) {
+    <p class="text-muted">Choose a block type:</p>
+    <div class="d-grid gap-2">
+      @for (opt of blockTypes; track opt.value) {
+        <button
+          type="button"
+          class="btn btn-outline-primary text-start"
+          (click)="selectType(opt.value)"
+        >
+          <i class="bi bi-plus-square me-2"></i>{{ opt.label }}
+        </button>
+      }
+    </div>
+  } @else if (form) {
+    <form [formGroup]="form">
+      <!-- Rich text / text content -->
+      @if (isRichText) {
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Text content</label>
+          <quill-editor
+            formControlName="html"
+            [styles]="{ minHeight: '180px' }"
+            class="d-block"
+          ></quill-editor>
+        </div>
+      }
+
+      <!-- Hero / CTA heading -->
+      @if (form.get('heading')) {
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Heading</label>
+          <input type="text" class="form-control" formControlName="heading" />
+        </div>
+      }
+      @if (form.get('subtext')) {
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Subtext (optional)</label>
+          <textarea class="form-control" rows="2" formControlName="subtext"></textarea>
+        </div>
+      }
+      @if (form.get('cta_text')) {
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-semibold">CTA button text (optional)</label>
+            <input type="text" class="form-control" formControlName="cta_text" />
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-semibold">CTA button URL (optional)</label>
+            <input type="text" class="form-control" formControlName="cta_url" />
+          </div>
+        </div>
+      }
+      @if (form.get('button_text')) {
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-semibold">Button text</label>
+            <input type="text" class="form-control" formControlName="button_text" />
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-semibold">Button URL</label>
+            <input type="text" class="form-control" formControlName="button_url" />
+          </div>
+        </div>
+      }
+
+      <!-- Image side -->
+      @if (form.get('image_side')) {
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Image position</label>
+          <select class="form-select" formControlName="image_side">
+            <option value="left">Image on left</option>
+            <option value="right">Image on right</option>
+          </select>
+        </div>
+      }
+
+      <!-- Image alt (image block) -->
+      @if (form.get('alt')) {
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Alt text</label>
+          <input type="text" class="form-control" formControlName="alt" />
+        </div>
+      }
+      @if (form.get('caption')) {
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Caption (optional)</label>
+          <input type="text" class="form-control" formControlName="caption" />
+        </div>
+      }
+      @if (form.get('image_alt')) {
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Image alt text</label>
+          <input type="text" class="form-control" formControlName="image_alt" />
+        </div>
+      }
+
+      <!-- Image upload -->
+      @if (allowsImage) {
+        <div class="mb-3">
+          <label class="form-label fw-semibold">
+            Image {{ requiresImage ? '' : '(optional)' }}
+          </label>
+          @if (imagePreview) {
+            <div class="mb-2">
+              <img
+                [src]="imagePreview"
+                alt="Preview"
+                class="img-thumbnail"
+                style="max-height: 140px"
+              />
+            </div>
+          }
+          <input
+            type="file"
+            class="form-control"
+            accept="image/*"
+            (change)="onFileSelected($event)"
+            [disabled]="uploading()"
+          />
+          @if (uploading()) {
+            <div class="form-text">
+              <span class="spinner-border spinner-border-sm me-1"></span>Uploading…
+            </div>
+          }
+        </div>
+      }
+    </form>
+  }
+</div>
+
+<div class="modal-footer">
+  <button type="button" class="btn btn-outline-secondary" (click)="modal.dismiss()">Cancel</button>
+  @if (type()) {
+    <button
+      type="button"
+      class="btn btn-primary"
+      (click)="save()"
+      [disabled]="saving() || uploading()"
+    >
+      @if (saving()) {
+        <span class="spinner-border spinner-border-sm me-1"></span>
+      }
+      Save Block
+    </button>
+  }
+</div>

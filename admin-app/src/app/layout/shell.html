@@ -1,0 +1,55 @@
+<div class="salix-wrapper">
+  <aside class="salix-sidebar d-flex flex-column" data-bs-theme="dark">
+    <div class="d-flex align-items-center gap-2 px-3 py-3 border-bottom border-secondary">
+      <i class="bi bi-layers-fill fs-4 text-white"></i>
+      <span class="brand">Salix CMS</span>
+    </div>
+    <ul class="nav nav-pills flex-column gap-1 p-2">
+      <li class="nav-item">
+        <a routerLink="/dashboard" routerLinkActive="active" class="nav-link">
+          <i class="bi bi-speedometer2 me-2"></i>Dashboard
+        </a>
+      </li>
+      <li class="nav-item">
+        <a routerLink="/articles" routerLinkActive="active" class="nav-link">
+          <i class="bi bi-file-earmark-text me-2"></i>Articles
+        </a>
+      </li>
+      <li class="nav-item">
+        <a routerLink="/menu" routerLinkActive="active" class="nav-link">
+          <i class="bi bi-list-nested me-2"></i>Menu
+        </a>
+      </li>
+      <li class="nav-item">
+        <a routerLink="/settings" routerLinkActive="active" class="nav-link">
+          <i class="bi bi-gear me-2"></i>Settings
+        </a>
+      </li>
+    </ul>
+  </aside>
+
+  <div class="salix-main">
+    <nav class="navbar navbar-expand bg-body border-bottom px-3">
+      <div class="container-fluid">
+        <span class="navbar-brand mb-0 h6 text-muted">Administration</span>
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item" ngbDropdown placement="bottom-end">
+            <a class="nav-link" ngbDropdownToggle role="button">
+              <i class="bi bi-person-circle me-1"></i>
+              {{ user()?.email }}
+            </a>
+            <div ngbDropdownMenu>
+              <button type="button" class="dropdown-item text-danger" (click)="logout()">
+                <i class="bi bi-box-arrow-right me-2"></i>Logout
+              </button>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="salix-content">
+      <router-outlet />
+    </div>
+  </div>
+</div>

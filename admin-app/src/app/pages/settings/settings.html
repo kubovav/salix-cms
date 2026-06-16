@@ -1,0 +1,37 @@
+<h3 class="mb-4">Settings</h3>
+
+<div class="row">
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-header"><strong>Site Settings</strong></div>
+      <form [formGroup]="form" (ngSubmit)="save()">
+        <div class="card-body">
+          @if (saved()) {
+            <div class="alert alert-success py-2">Settings saved.</div>
+          }
+          @if (error()) {
+            <div class="alert alert-danger py-2">{{ error() }}</div>
+          }
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Home page</label>
+            <select class="form-select" formControlName="home_page_slug">
+              <option value="">— none —</option>
+              @for (page of pages(); track page.slug) {
+                <option [value]="page.slug">{{ page.title }}</option>
+              }
+            </select>
+            <div class="form-text">The published page shown at the site root.</div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <button type="submit" class="btn btn-primary" [disabled]="saving()">
+            @if (saving()) {
+              <span class="spinner-border spinner-border-sm me-1"></span>
+            }
+            <i class="bi bi-check-lg me-1"></i> Save
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

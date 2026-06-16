@@ -1,0 +1,84 @@
+<div class="modal-header">
+  <h5 class="modal-title">{{ isEdit ? 'Edit Menu Item' : 'Add Menu Item' }}</h5>
+  <button type="button" class="btn-close" (click)="modal.dismiss()"></button>
+</div>
+
+<form [formGroup]="form" (ngSubmit)="save()">
+  <div class="modal-body">
+    @if (error()) {
+      <div class="alert alert-danger py-2">{{ error() }}</div>
+    }
+
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Label</label>
+      <input type="text" class="form-control" formControlName="label" placeholder="e.g. About Us" />
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Menu</label>
+      <select class="form-select" formControlName="menuName">
+        <option value="main">Main navigation</option>
+        <option value="footer">Footer</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Linked page</label>
+      <select class="form-select" formControlName="page">
+        <option value="">— link to a CMS page —</option>
+        @for (page of pages; track page.id) {
+          <option [value]="page['@id']">{{ page.title }}</option>
+        }
+      </select>
+      <div class="form-text">
+        Choose a CMS page, or leave empty and fill in the URL field below.
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label fw-semibold">URL</label>
+      <input
+        type="text"
+        class="form-control"
+        formControlName="url"
+        placeholder="https://example.com or /custom-path"
+      />
+      <div class="form-text">Used when no CMS page is selected.</div>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Parent item</label>
+      <select class="form-select" formControlName="parent">
+        <option value="">— top-level item —</option>
+        @for (parent of parents; track parent.id) {
+          <option [value]="parent['@id']">[{{ parent.menuName }}] {{ parent.label }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="row">
+      <div class="col-6 mb-3">
+        <label class="form-label fw-semibold">Position</label>
+        <input type="number" min="0" class="form-control" formControlName="position" />
+      </div>
+      <div class="col-6 d-flex align-items-end mb-3">
+        <div class="form-check">
+          <input id="enabled" type="checkbox" class="form-check-input" formControlName="enabled" />
+          <label class="form-check-label" for="enabled">Enabled</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-secondary" (click)="modal.dismiss()">
+      Cancel
+    </button>
+    <button type="submit" class="btn btn-primary" [disabled]="saving()">
+      @if (saving()) {
+        <span class="spinner-border spinner-border-sm me-1"></span>
+      }
+      Save
+    </button>
+  </div>
+</form>

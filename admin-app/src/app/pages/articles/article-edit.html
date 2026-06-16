@@ -1,0 +1,109 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h3 class="mb-0">{{ isNew ? 'New Article' : 'Edit Article' }}</h3>
+  <a routerLink="/articles" class="btn btn-outline-secondary">
+    <i class="bi bi-arrow-left me-1"></i> Back
+  </a>
+</div>
+
+<div class="row">
+  <div class="col-lg-8">
+    <!-- Settings -->
+    <div class="card mb-4">
+      <div class="card-header"><strong>Article Settings</strong></div>
+      <form [formGroup]="form" (ngSubmit)="saveSettings()">
+        <div class="card-body">
+          @if (saved()) {
+            <div class="alert alert-success py-2">Saved.</div>
+          }
+          @if (settingsError()) {
+            <div class="alert alert-danger py-2">{{ settingsError() }}</div>
+          }
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold" for="title">Title</label>
+            <input id="title" type="text" class="form-control" formControlName="title" />
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold" for="slug">Slug</label>
+            <div class="input-group">
+              <span class="input-group-text text-muted">/</span>
+              <input id="slug" type="text" class="form-control" formControlName="slug" />
+            </div>
+            <div class="form-text">Lowercase letters, numbers, and hyphens only.</div>
+          </div>
+
+          <div class="form-check">
+            <input
+              id="published"
+              type="checkbox"
+              class="form-check-input"
+              formControlName="published"
+            />
+            <label class="form-check-label" for="published">Published</label>
+          </div>
+        </div>
+        <div class="card-footer d-flex gap-2">
+          <button type="submit" class="btn btn-primary" [disabled]="saving()">
+            @if (saving()) {
+              <span class="spinner-border spinner-border-sm me-1"></span>
+            }
+            <i class="bi bi-check-lg me-1"></i> Save Settings
+          </button>
+          @if (article()?.published) {
+            <a [href]="'/' + article()!.slug" target="_blank" class="btn btn-outline-secondary">
+              <i class="bi bi-box-arrow-up-right me-1"></i> View page
+            </a>
+          }
+        </div>
+      </form>
+    </div>
+
+    <!-- Blocks -->
+    @if (!isNew && article()) {
+      <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <strong>Content Blocks</strong>
+          <button type="button" class="btn btn-primary btn-sm" (click)="addBlock()">
+            <i class="bi bi-plus-lg me-1"></i> Add Block
+          </button>
+        </div>
+        <div class="card-body">
+          @if (blocks().length === 0) {
+            <p class="text-muted mb-0">
+              No blocks yet. Use <strong>Add Block</strong> to add content.
+            </p>
+          } @else {
+            <div cdkDropList (cdkDropListDropped)="drop($event)" class="list-group">
+              @for (block of blocks(); track block.id) {
+                <div class="list-group-item d-flex align-items-center gap-2" cdkDrag>
+                  <i class="bi bi-grip-vertical text-muted block-handle" cdkDragHandle></i>
+                  <span class="badge text-bg-secondary">{{ typeLabel(block.type) }}</span>
+                  <span class="text-muted small text-truncate flex-grow-1">{{
+                    preview(block)
+                  }}</span>
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-secondary"
+                    (click)="editBlock(block)"
+                  >
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-danger"
+                    (click)="deleteBlock(block)"
+                  >
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    } @else {
+      <p class="text-muted">Save the article settings first to start adding content blocks.</p>
+    }
+  </div>
+</div>

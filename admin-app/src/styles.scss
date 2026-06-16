@@ -1,0 +1,76 @@
+/* Bootstrap 5 (admin theme). Icon font and Quill theme are added via angular.json styles. */
+@use 'bootstrap/scss/bootstrap';
+
+:root {
+  --salix-sidebar-width: 250px;
+  --salix-sidebar-bg: #343a40;
+  --salix-sidebar-color: #c2c7d0;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: #f4f6f9;
+}
+
+/* Layout shell */
+.salix-wrapper {
+  display: flex;
+  min-height: 100vh;
+}
+
+.salix-sidebar {
+  width: var(--salix-sidebar-width);
+  background-color: var(--salix-sidebar-bg);
+  color: var(--salix-sidebar-color);
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.salix-sidebar .brand {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.salix-sidebar .nav-link {
+  color: var(--salix-sidebar-color);
+  border-radius: 0.25rem;
+}
+
+.salix-sidebar .nav-link:hover,
+.salix-sidebar .nav-link.active {
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.salix-main {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.salix-content {
+  padding: 1.5rem;
+  flex: 1 1 auto;
+}
+
+.block-handle {
+  cursor: grab;
+}
+
+.cdk-drag-preview {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.2);
+}
+
+.cdk-drag-placeholder {
+  opacity: 0.4;
+}

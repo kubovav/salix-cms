@@ -36,32 +36,31 @@ Everything runs in a single `salix_app` Docker container managed by Supervisor:
 - Twig templates go in `templates/` following the `templates/{controller}/action.html.twig` convention
 - Repositories go in `src/Repository/` and extend `ServiceEntityRepository`
 - Database migrations go in `migrations/` — always generate via `bin/console doctrine:migrations:diff`
-- Admin routes use the prefix `/admin/` and require `ROLE_ADMIN`
-- Public routes are open
+- The admin UI is a separate **Angular SPA** (see below); the Symfony app exposes a JSON **API** for it under `/api`
+- Public (frontend) routes are open and rendered server-side with Twig
 
-### Admin UI — AdminLTE 4
-- The admin section uses **AdminLTE 4** (Bootstrap 5-based theme) installed via npm (`node_modules/admin-lte`)
-- AdminLTE CSS and JS are served via **Symfony AssetMapper** — do NOT use a CDN for AdminLTE
-- All admin pages must extend `templates/admin/layout.html.twig`, never `base.html.twig`
-- AdminLTE bundles Bootstrap 5 inside `adminlte.min.css` — do NOT add a separate Bootstrap link in admin templates
-- Bootstrap Icons are loaded from CDN in the layout — use `<i class="bi bi-..."></i>` for icons
-- Available Twig blocks in `admin/layout.html.twig`:
-  - `title` — page `<title>` text
-  - `page_title` — heading shown in the content header bar
-  - `breadcrumbs` — `<li class="breadcrumb-item">` items appended after "Home"
-  - `sidebar_menu` — additional `<li>` nav items added to the sidebar
-  - `content` — main page body rendered inside `.container-fluid`
-  - `stylesheets` / `javascripts` — extra per-page CSS/JS
-- **Documentation:** https://adminlte.io/docs/4.x/ — components, layout options, widgets
-- **Live examples:** `node_modules/admin-lte/dist/index.html` and `node_modules/admin-lte/dist/pages/`
+### Admin UI — Angular SPA + API Platform
+- The admin section is an **Angular standalone app** living in `admin-app/`, built into `public/admin/` and served by Nginx at `/admin` (same-origin).
+- The backend exposes a REST API via **API Platform** under `/api` (config in `config/packages/api_platform.yaml`). Entities are exposed with `#[ApiResource]` + serialization groups + validation constraints. API responses are **plain JSON** (`formats: json`), so collections are plain arrays.
+- **Auth is session-cookie based, same-origin** (reuses Symfony Security — no JWT). The `api` firewall uses `json_login` (`POST /api/auth/login` with `{email, password}`), `POST /api/auth/logout`, and `GET /api/auth/me`. Custom handlers return JSON instead of HTML redirects (`src/Security/`).
+- API Platform defaults: `stateless: false` (session auth), `pagination_enabled: false`, `extra_properties.standard_put: false` (so PUT populates the managed entity and `UniqueEntity` works).
+- Custom API endpoints live in `src/Controller/Api/` (uploads, block reorder, settings, meta).
+- **Frontend dev workflow** (in `admin-app/`):
+  - `npm install` then `npx ng serve` (uses `proxy.conf.json` to proxy `/api` + `/uploads` to `http://localhost:8000`)
+  - `npx ng build` — outputs to `public/admin/` with `baseHref: /admin/`
+- Angular stack: standalone components, zoneless change detection, Reactive Forms, **ng-bootstrap** (Bootstrap 5), **bootstrap-icons**, **ngx-quill** (rich text), **@angular/cdk** drag-drop (block reorder). Bootstrap is compiled from SCSS in `src/styles.scss`; vendor CSS (icons, Quill) is added via `angular.json` `styles`.
+- The HTTP interceptor (`src/app/core/auth.interceptor.ts`) sends `withCredentials: true` + `Accept: application/json` and redirects to `/login` on 401.
 
 ### Security
-- Admin controllers/routes are secured with `#[IsGranted('ROLE_ADMIN')]` or firewall config
+- API admin routes are secured with `#[IsGranted('ROLE_ADMIN')]` and the `^/api` access-control rule (`ROLE_ADMIN`), except `^/api/auth/login` and `^/api/public` which are public.
 - Passwords are hashed via `UserPasswordListener` (event listener pattern, not a subscriber)
 - Users are created via `bin/console app:create-user`
 
 ### Current Entities
-- **`ContentPage`** — slug (unique), title, content (text), published (bool), updatedAt
+- **`ContentPage`** (API shortName `Article`) — slug (unique), title, published (bool), updatedAt, ordered `blocks`
+- **`ContentBlock`** (API shortName `Block`) — type, position, data (JSON), belongs to a page; per-type validation via `ValidBlockData`
+- **`MenuItem`** — label, url, menuName (`main`/`footer`), position, enabled, optional `page` and `parent`
+- **`SiteSetting`** — key/value store (e.g. home page slug)
 - **`User`** — email (unique), roles (array), password (hashed)
 
 ## Development Commands
@@ -85,17 +84,25 @@ php bin/console doctrine:migrations:migrate
 php bin/console doctrine:migrations:diff
 ```
 
+### Admin SPA (Angular) commands
+
+```bash
+cd admin-app
+npm install            # install Angular + UI dependencies
+npx ng serve           # dev server (proxies /api and /uploads to :8000)
+npx ng build           # production build into ../public/admin
+```
+
 ## What to Build Next
 
 The project is a work in progress. Likely next steps:
-- Authentication flow (login/logout with Symfony Security)
-- Admin UI for managing `ContentPage` records (Twig-rendered forms)
-- Richer content model (blocks, media, SEO fields)
-- Production Docker setup
+- Richer content model (more block types, media library, SEO fields)
+- Production Docker setup that builds the Angular admin app
+- Public-facing API hardening
 
 ## General Guidelines
 
 - Prefer Symfony attributes over YAML/XML configuration
-- Templates live in `templates/` — follow the existing `base.html.twig` layout
+- Frontend (public) templates live in `templates/` — follow the existing `frontend/layout.html.twig` layout
 - Follow existing naming patterns for new entities, controllers, and repositories
-- There is no separate API layer or JavaScript frontend — all rendering is done server-side via Twig
+- The **admin UI is an Angular SPA** in `admin-app/` talking to the **API Platform** API under `/api`; the public frontend is rendered server-side via Twig

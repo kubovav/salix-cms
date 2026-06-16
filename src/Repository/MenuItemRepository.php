@@ -34,20 +34,4 @@ class MenuItemRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
-
-    /**
-     * @return MenuItem[] all items across all menus, ordered for admin listing
-     */
-    public function findAllOrdered(): array
-    {
-        return $this->createQueryBuilder('m')
-            ->addSelect('COALESCE(IDENTITY(m.parent), m.id) AS HIDDEN sort_group')
-            ->leftJoin('m.parent', 'p')
-            ->orderBy('m.menuName', 'ASC')
-            ->addOrderBy('sort_group', 'ASC')
-            ->addOrderBy('p.id', 'ASC')
-            ->addOrderBy('m.position', 'ASC')
-            ->getQuery()
-            ->getResult();
-    }
 }
