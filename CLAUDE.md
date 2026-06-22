@@ -97,3 +97,4 @@ npx ng build           # production build into ../public/admin
 - Frontend (public) templates live in `templates/` — follow the existing `frontend/layout.html.twig` layout
 - Follow existing naming patterns for new entities, controllers, and repositories
 - The **admin UI is an Angular SPA** in `admin-app/` talking to the **API Platform** API under `/api`; the public frontend is rendered server-side via Twig
+- Admin UI input fields have `autocomplete="off"` by default

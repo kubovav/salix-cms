@@ -39,7 +39,7 @@
       @if (form.get('heading')) {
         <div class="mb-3">
           <label class="form-label fw-semibold">Heading</label>
-          <input type="text" class="form-control" formControlName="heading" />
+          <input type="text" class="form-control" autocomplete="off" formControlName="heading" />
         </div>
       }
       @if (form.get('subtext')) {
@@ -52,11 +52,11 @@
         <div class="row">
           <div class="col-md-6 mb-3">
             <label class="form-label fw-semibold">CTA button text (optional)</label>
-            <input type="text" class="form-control" formControlName="cta_text" />
+            <input type="text" class="form-control" autocomplete="off" formControlName="cta_text" />
           </div>
           <div class="col-md-6 mb-3">
             <label class="form-label fw-semibold">CTA button URL (optional)</label>
-            <input type="text" class="form-control" formControlName="cta_url" />
+            <input type="text" class="form-control" autocomplete="off" formControlName="cta_url" />
           </div>
         </div>
       }
@@ -64,11 +64,11 @@
         <div class="row">
           <div class="col-md-6 mb-3">
             <label class="form-label fw-semibold">Button text</label>
-            <input type="text" class="form-control" formControlName="button_text" />
+            <input type="text" class="form-control" autocomplete="off" formControlName="button_text" />
           </div>
           <div class="col-md-6 mb-3">
             <label class="form-label fw-semibold">Button URL</label>
-            <input type="text" class="form-control" formControlName="button_url" />
+            <input type="text" class="form-control" autocomplete="off" formControlName="button_url" />
           </div>
         </div>
       }
@@ -88,19 +88,19 @@
       @if (form.get('alt')) {
         <div class="mb-3">
           <label class="form-label fw-semibold">Alt text</label>
-          <input type="text" class="form-control" formControlName="alt" />
+          <input type="text" class="form-control" autocomplete="off" formControlName="alt" />
         </div>
       }
       @if (form.get('caption')) {
         <div class="mb-3">
           <label class="form-label fw-semibold">Caption (optional)</label>
-          <input type="text" class="form-control" formControlName="caption" />
+          <input type="text" class="form-control" autocomplete="off" formControlName="caption" />
         </div>
       }
       @if (form.get('image_alt')) {
         <div class="mb-3">
           <label class="form-label fw-semibold">Image alt text</label>
-          <input type="text" class="form-control" formControlName="image_alt" />
+          <input type="text" class="form-control" autocomplete="off" formControlName="image_alt" />
         </div>
       }
 
