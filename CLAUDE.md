@@ -1,5 +1,3 @@
-# Salix CMS — Copilot Instructions
-
 ## Project Overview
 
 Salix CMS is a lightweight content management system built with Symfony and Twig. Both the backend logic and the frontend rendering live in a single Symfony application at the repository root.
@@ -57,11 +55,11 @@ Everything runs in a single `salix_app` Docker container managed by Supervisor:
 - Users are created via `bin/console app:create-user`
 
 ### Current Entities
-- **`ContentPage`** (API shortName `Article`) — slug (unique), title, published (bool), updatedAt, ordered `blocks`
-- **`ContentBlock`** (API shortName `Block`) — type, position, data (JSON), belongs to a page; per-type validation via `ValidBlockData`
-- **`MenuItem`** — label, url, menuName (`main`/`footer`), position, enabled, optional `page` and `parent`
-- **`SiteSetting`** — key/value store (e.g. home page slug)
-- **`User`** — email (unique), roles (array), password (hashed)
+- **`ContentPage`** (API shortName `Article`) — a page made of ordered content blocks
+- **`ContentBlock`** (API shortName `Block`) — a typed, ordered unit of content belonging to a page; data shape is validated per-type via `ValidBlockData`
+- **`MenuItem`** — nav entry for the `main`/`footer` menus; can link to a `page` and optionally nest under a `parent` item
+- **`SiteSetting`** — key/value store for site-wide config (e.g. home page slug)
+- **`User`** — login account with hashed password and roles
 
 ## Development Commands
 
@@ -92,13 +90,6 @@ npm install            # install Angular + UI dependencies
 npx ng serve           # dev server (proxies /api and /uploads to :8000)
 npx ng build           # production build into ../public/admin
 ```
-
-## What to Build Next
-
-The project is a work in progress. Likely next steps:
-- Richer content model (more block types, media library, SEO fields)
-- Production Docker setup that builds the Angular admin app
-- Public-facing API hardening
 
 ## General Guidelines
 
