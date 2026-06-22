@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { SettingsService } from '../../core/settings.service';
 import { PageOption } from '../../core/models';
 
@@ -18,7 +18,7 @@ export class SettingsComponent {
   readonly error = signal<string | null>(null);
 
   readonly form = this.fb.nonNullable.group({
-    home_page_slug: [''],
+    home_page_slug: ['', Validators.required],
   });
 
   constructor() {
@@ -29,13 +29,13 @@ export class SettingsComponent {
   }
 
   save(): void {
-    if (this.saving()) {
+    if (this.saving() || this.form.invalid) {
       return;
     }
     this.saving.set(true);
     this.saved.set(false);
     this.error.set(null);
-    const slug = this.form.getRawValue().home_page_slug || null;
+    const slug = this.form.getRawValue().home_page_slug;
     this.settings.update(slug).subscribe({
       next: (s) => {
         this.pages.set(s.available_pages);

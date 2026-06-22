@@ -41,6 +41,10 @@ final class SettingsController extends AbstractController
             $slug = $payload['home_page_slug'];
             $slug = \is_string($slug) && '' !== $slug ? $slug : null;
 
+            if (null === $slug && [] !== $pages->findPublishedOrdered()) {
+                return new JsonResponse(['error' => 'A home page must be selected.'], JsonResponse::HTTP_UNPROCESSABLE_ENTITY);
+            }
+
             if (null !== $slug && !$pages->findPublishedBySlug($slug) instanceof ContentPage) {
                 return new JsonResponse(['error' => 'Unknown published page slug.'], JsonResponse::HTTP_UNPROCESSABLE_ENTITY);
             }

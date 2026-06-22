@@ -14,17 +14,21 @@
           }
           <div class="mb-3">
             <label class="form-label fw-semibold">Home page</label>
-            <select class="form-select" formControlName="home_page_slug">
-              <option value="">— none —</option>
+            <select class="form-select" formControlName="home_page_slug" [attr.disabled]="pages().length === 0 ? '' : null">
+              <option value="" disabled>Select a page…</option>
               @for (page of pages(); track page.slug) {
                 <option [value]="page.slug">{{ page.title }}</option>
               }
             </select>
-            <div class="form-text">The published page shown at the site root.</div>
+            @if (pages().length === 0) {
+              <div class="form-text text-warning">Create and publish a page first to set it as the home page.</div>
+            } @else {
+              <div class="form-text">The published page shown at the site root. A home page must be selected.</div>
+            }
           </div>
         </div>
         <div class="card-footer">
-          <button type="submit" class="btn btn-primary" [disabled]="saving()">
+          <button type="submit" class="btn btn-primary" [disabled]="saving() || form.invalid">
             @if (saving()) {
               <span class="spinner-border spinner-border-sm me-1"></span>
             }
