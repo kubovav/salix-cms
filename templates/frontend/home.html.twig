@@ -3,40 +3,25 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-    {% if pages is empty %}
-        {# Default page shown when no published content pages exist #}
-        <div class="container py-5">
-            <div class="row justify-content-center">
-                <div class="col-lg-7 text-center">
-                    <div class="mb-4" style="font-size: 4rem;">🌿</div>
-                    <h1 class="display-5 fw-bold mb-3">Welcome to Salix CMS</h1>
+    {# CMS start page: shown whenever no page has been created yet, or a home page hasn't been chosen #}
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-7 text-center">
+                <div class="mb-4"><img width="200" src="{{ asset('images/salix-logo.png') }}"></div>
+                <h1 class="display-5 fw-bold mb-3">Welcome to Salix CMS</h1>
+                {% if pages is empty %}
                     <p class="lead text-muted mb-4">
                         Your site is live and ready. Get started by creating and publishing your first content page from the admin panel.
                     </p>
-                    <a href="{{ path('admin_dashboard') }}" class="btn btn-primary btn-lg px-5">
-                        Go to Admin Panel
-                    </a>
-                </div>
+                {% else %}
+                    <p class="lead text-muted mb-4">
+                        Your site has published pages, but no home page has been set yet. Open <strong>Settings</strong> in the admin panel and choose which page to display here.
+                    </p>
+                {% endif %}
+                <a href="/admin" class="btn btn-primary btn-lg px-5">
+                    Go to Admin Panel
+                </a>
             </div>
         </div>
-    {% else %}
-        <div class="container py-5">
-            <div class="row g-4">
-                {% for page in pages %}
-                    <div class="col-sm-6 col-lg-4">
-                        <div class="card h-100 shadow-sm border-0">
-                            <div class="card-body">
-                                <h5 class="card-title mb-2">{{ page.title }}</h5>
-                            </div>
-                            <div class="card-footer bg-transparent border-0 pb-3">
-                                <a href="{{ path('frontend_page', { slug: page.slug }) }}" class="btn btn-outline-primary btn-sm">
-                                    Read more
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-        </div>
-    {% endif %}
+    </div>
 {% endblock %}
