@@ -12,7 +12,7 @@ import { Article } from '@core/models';
   templateUrl: './article-list.html',
 })
 export class ArticleListComponent implements OnInit {
-  private articles = inject(ArticleService);
+  private articleService = inject(ArticleService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly items = signal<Article[]>([]);
@@ -24,7 +24,7 @@ export class ArticleListComponent implements OnInit {
 
   private load(): void {
     this.loading.set(true);
-    this.articles
+    this.articleService
       .list()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -40,7 +40,7 @@ export class ArticleListComponent implements OnInit {
     if (!article.id || !confirm(`Delete article "${article.title}"?`)) {
       return;
     }
-    this.articles
+    this.articleService
       .delete(article.id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.load());

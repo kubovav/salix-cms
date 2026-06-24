@@ -12,7 +12,7 @@ import { Article, MenuItem } from '@core/models';
 })
 export class MenuEditorModal {
   private fb = inject(FormBuilder);
-  private menu = inject(MenuService);
+  private readonly menuService = inject(MenuService);
   readonly modal = inject(NgbActiveModal);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -36,15 +36,7 @@ export class MenuEditorModal {
 
   init(): void {
     if (this.item) {
-      this.form.patchValue({
-        label: this.item.label,
-        menuName: this.item.menuName,
-        page: this.iri(this.item.page),
-        url: this.item.url ?? '',
-        parent: this.iri(this.item.parent),
-        position: this.item.position,
-        enabled: this.item.enabled,
-      });
+      this.form.patchValue(this.menuService.toFormValue(this.item));
     }
 
     this.syncParentState(this.form.controls.menuName.value);
@@ -68,40 +60,20 @@ export class MenuEditorModal {
     return this.item !== null;
   }
 
-  private iri(ref: unknown): string {
-    if (!ref) {
-      return '';
-    }
-    if (typeof ref === 'string') {
-      return ref;
-    }
-    const obj = ref as { '@id'?: string; id?: number };
-    return obj['@id'] ?? (obj.id != null ? `/api/menu_items/${obj.id}` : '');
-  }
-
   save(): void {
     if (this.form.invalid || this.saving()) {
       this.form.markAllAsTouched();
       return;
     }
-    const v = this.form.getRawValue();
-    const payload: Partial<MenuItem> = {
-      label: v.label,
-      menuName: v.menuName,
-      url: v.url || null,
-      page: v.page || null,
-      parent: v.parent || null,
-      position: Number(v.position),
-      enabled: v.enabled,
-    };
+    const payload = this.menuService.buildPayload(this.form.getRawValue());
 
     this.saving.set(true);
     this.error.set(null);
 
     const request =
       this.item && this.item.id
-        ? this.menu.update(this.item.id, payload)
-        : this.menu.create(payload);
+        ? this.menuService.update(this.item.id, payload)
+        : this.menuService.create(payload);
 
     request.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (result) => {

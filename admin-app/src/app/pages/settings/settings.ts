@@ -11,7 +11,7 @@ import { PageOption } from '@core/models';
   templateUrl: './settings.html',
 })
 export class SettingsComponent implements OnInit {
-  private settings = inject(SettingsService);
+  private settingsService = inject(SettingsService);
   private fb = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -25,7 +25,7 @@ export class SettingsComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.settings
+    this.settingsService
       .get()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((s) => {
@@ -42,7 +42,7 @@ export class SettingsComponent implements OnInit {
     this.saved.set(false);
     this.error.set(null);
     const slug = this.form.getRawValue().home_page_slug;
-    this.settings
+    this.settingsService
       .update(slug)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({

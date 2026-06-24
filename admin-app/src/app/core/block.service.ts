@@ -7,9 +7,11 @@ import { Block } from './models';
 export class BlockService {
   private http = inject(HttpClient);
   private base = '/api/blocks';
+  private articleBase = '/api/articles';
 
-  create(block: Partial<Block>): Observable<Block> {
-    return this.http.post<Block>(this.base, block);
+  /** Create a block on the given article; the owning-article IRI is built here from the raw id. */
+  create(block: Partial<Block>, articleId: number): Observable<Block> {
+    return this.http.post<Block>(this.base, { ...block, page: `${this.articleBase}/${articleId}` });
   }
 
   update(id: number, block: Partial<Block>): Observable<Block> {

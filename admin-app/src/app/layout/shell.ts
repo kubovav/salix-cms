@@ -9,13 +9,13 @@ import { AuthService } from '@core/auth.service';
   templateUrl: './shell.html',
 })
 export class ShellComponent {
-  private auth = inject(AuthService);
+  private authService = inject(AuthService);
   private router = inject(Router);
 
-  readonly user = this.auth.user;
+  readonly user = this.authService.user;
 
   logout(): void {
-    this.auth.logout().subscribe({
+    this.authService.logout().subscribe({
       next: () => this.router.navigate(['/login']),
       error: () => this.router.navigate(['/login']),
     });

@@ -11,7 +11,7 @@ import { AuthService } from '@core/auth.service';
 })
 export class LoginComponent {
   private fb = inject(FormBuilder);
-  private auth = inject(AuthService);
+  private authService = inject(AuthService);
   private router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -30,7 +30,7 @@ export class LoginComponent {
     this.error.set(null);
     this.submitting.set(true);
     const { email, password } = this.form.getRawValue();
-    this.auth
+    this.authService
       .login(email, password)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({

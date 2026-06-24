@@ -18,9 +18,9 @@ import { BlockEditorModal } from './block-editor-modal';
 })
 export class ArticleEditComponent implements OnInit {
   private fb = inject(FormBuilder);
-  private articles = inject(ArticleService);
+  private articleService = inject(ArticleService);
   private blockService = inject(BlockService);
-  private meta = inject(MetaService);
+  private metaService = inject(MetaService);
   private modal = inject(NgbModal);
   private router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
@@ -43,7 +43,7 @@ export class ArticleEditComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.meta
+    this.metaService
       .get()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((m) => (this.blockTypes = m.blockTypes));
@@ -58,7 +58,7 @@ export class ArticleEditComponent implements OnInit {
   }
 
   private loadArticle(id: number): void {
-    this.articles
+    this.articleService
       .get(id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((article) => {
@@ -75,7 +75,7 @@ export class ArticleEditComponent implements OnInit {
   private reloadBlocks(): void {
     const id = this.article()?.id;
     if (id) {
-      this.articles
+      this.articleService
         .get(id)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe((article) => {
@@ -97,8 +97,8 @@ export class ArticleEditComponent implements OnInit {
     const existing = this.article();
 
     const request = existing?.id
-      ? this.articles.update(existing.id, payload)
-      : this.articles.create(payload);
+      ? this.articleService.update(existing.id, payload)
+      : this.articleService.create(payload);
 
     request.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (article) => {
@@ -118,13 +118,13 @@ export class ArticleEditComponent implements OnInit {
   }
 
   addBlock(): void {
-    const article = this.article();
-    if (!article?.['@id']) {
+    const articleId = this.article()?.id;
+    if (!articleId) {
       return;
     }
     const ref = this.modal.open(BlockEditorModal, { size: 'lg' });
     const editor = ref.componentInstance as BlockEditorModal;
-    editor.articleIri = article['@id'];
+    editor.articleId = articleId;
     editor.position = this.blocks().length;
     editor.blockTypes = this.blockTypes;
     editor.init();
@@ -135,14 +135,14 @@ export class ArticleEditComponent implements OnInit {
   }
 
   editBlock(block: Block): void {
-    const article = this.article();
-    if (!article?.['@id']) {
+    const articleId = this.article()?.id;
+    if (!articleId) {
       return;
     }
     const ref = this.modal.open(BlockEditorModal, { size: 'lg' });
     const editor = ref.componentInstance as BlockEditorModal;
     editor.block = block;
-    editor.articleIri = article['@id'];
+    editor.articleId = articleId;
     editor.blockTypes = this.blockTypes;
     editor.init();
     ref.result.then(
@@ -172,7 +172,7 @@ export class ArticleEditComponent implements OnInit {
     const articleId = this.article()?.id;
     const ids = current.map((b) => b.id).filter((id): id is number => id != null);
     if (articleId) {
-      this.articles
+      this.articleService
         .reorderBlocks(articleId, ids)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe();

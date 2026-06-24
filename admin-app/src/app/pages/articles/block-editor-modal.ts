@@ -14,14 +14,14 @@ import { UploadService } from '@core/upload.service';
 })
 export class BlockEditorModal {
   private fb = inject(FormBuilder);
-  private blocks = inject(BlockService);
-  private uploads = inject(UploadService);
+  private blockService = inject(BlockService);
+  private uploadService = inject(UploadService);
   readonly modal = inject(NgbActiveModal);
   private readonly destroyRef = inject(DestroyRef);
 
   /** Provided by the opener */
   block: Block | null = null;
-  articleIri = '';
+  articleId = 0;
   position = 0;
   blockTypes: BlockTypeOption[] = [];
 
@@ -116,7 +116,7 @@ export class BlockEditorModal {
     }
     this.uploading.set(true);
     this.error.set(null);
-    this.uploads
+    this.uploadService
       .upload(file)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -156,8 +156,8 @@ export class BlockEditorModal {
 
     const request =
       this.block && this.block.id
-        ? this.blocks.update(this.block.id, payload)
-        : this.blocks.create({ ...payload, position: this.position, page: this.articleIri });
+        ? this.blockService.update(this.block.id, payload)
+        : this.blockService.create({ ...payload, position: this.position }, this.articleId);
 
     request.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (result) => {

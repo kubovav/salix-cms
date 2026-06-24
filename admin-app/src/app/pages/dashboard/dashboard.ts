@@ -10,14 +10,14 @@ import { ArticleService } from '@core/article.service';
   templateUrl: './dashboard.html',
 })
 export class DashboardComponent implements OnInit {
-  private articles = inject(ArticleService);
+  private articleService = inject(ArticleService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly count = signal<number | null>(null);
   readonly published = signal<number | null>(null);
 
   ngOnInit(): void {
-    this.articles
+    this.articleService
       .list()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((items) => {

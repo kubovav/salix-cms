@@ -27,7 +27,7 @@
       <select class="form-select" formControlName="page">
         <option value="">— link to a CMS page —</option>
         @for (page of pages; track page.id) {
-          <option [value]="page['@id']">{{ page.title }}</option>
+          <option [value]="page.id">{{ page.title }}</option>
         }
       </select>
       <div class="form-text">
@@ -52,7 +52,7 @@
       <select class="form-select" formControlName="parent">
         <option value="">— top-level item —</option>
         @for (parent of parents; track parent.id) {
-          <option [value]="parent['@id']">[{{ parent.menuName }}] {{ parent.label }}</option>
+          <option [value]="parent.id">[{{ parent.menuName }}] {{ parent.label }}</option>
         }
       </select>
       @if (form.controls.parent.disabled) {

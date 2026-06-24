@@ -67,6 +67,14 @@ Everything runs in a single `salix_app` Docker container managed by Supervisor:
 
 - **State is held in signals** (`signal`, `computed`); derive composite flags with `computed` (e.g. an overall `loading` from per-request loading signals) rather than tracking them by hand. The app uses zoneless change detection, so never rely on Zone.js to pick up mutations made outside signals.
 
+- **Inject services into a field named after the service** in full, lower-camelCased: `inject(MenuService)` → `menuService`, `inject(ArticleService)` → `articleService` — never abbreviated (`menu`, `articles`). This keeps usages self-documenting and consistent across components.
+
+- **HTTP/IRI concerns belong in the service, not the component.** Forms and templates work with **raw values** (entity ids, plain strings); the service owns the API base paths and all IRI parsing/building, kept **private**. Components never hand-build `/api/...` strings, read `entity['@id']`, or pass IRIs around. Concretely, a `*Service` exposes a pair of mapping methods and keeps the IRI work internal:
+  - `toFormValue(entity)` maps a stored entity (whose relations come back as plain-JSON IRI strings or nested objects) to the raw form value — relation fields become bare ids. The component just does `form.patchValue(service.toFormValue(item))`.
+  - `buildPayload(formValue)` maps the raw form value to the write body — bare ids become IRIs (`${base}/${id}`), empties become `null`. The component just does `service.create/update(service.buildPayload(form.getRawValue()))`.
+  - `<select>` options bind raw ids (`[value]="entity.id"`), not IRIs.
+  - The shared `idFromRef(ref)` helper in `core/iri.ts` (which normalizes a relation that comes back as either an IRI string or a nested object to a bare id) exists for services to use **internally** when mapping stored entities to form values. Do not call it from components.
+
 ### Security
 - API admin routes are secured with `#[IsGranted('ROLE_ADMIN')]` and the `^/api` access-control rule (`ROLE_ADMIN`), except `^/api/auth/login` and `^/api/public` which are public.
 - Passwords are hashed via `UserPasswordListener` (event listener pattern, not a subscriber)
