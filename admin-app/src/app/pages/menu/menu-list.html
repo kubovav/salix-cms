@@ -1,13 +1,13 @@
-<div class="d-flex justify-content-between align-items-center mb-4">
-  <h3 class="mb-0">Menu</h3>
-  <button type="button" class="btn btn-primary" (click)="add()">
-    <i class="bi bi-plus-lg me-1"></i> Add Item
-  </button>
-</div>
-
 @if (loading()) {
   <p class="text-muted">Loading…</p>
 } @else {
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="mb-0">Menu</h3>
+    <button type="button" class="btn btn-primary" (click)="add()">
+      <i class="bi bi-plus-lg me-1"></i> Add Item
+    </button>
+  </div>
+
   @for (
     group of [
       { name: 'Main navigation', nodes: main() },
@@ -35,21 +35,23 @@
                   </td>
                   <td class="text-muted small">{{ node.url || 'CMS page' }}</td>
                   <td class="text-muted small">pos {{ node.position }}</td>
-                  <td class="text-end" style="width: 8rem">
-                    <button
-                      type="button"
-                      class="btn btn-sm btn-outline-secondary"
-                      (click)="edit(node)"
-                    >
-                      <i class="bi bi-pencil"></i>
-                    </button>
-                    <button
-                      type="button"
-                      class="btn btn-sm btn-outline-danger"
-                      (click)="remove(node)"
-                    >
-                      <i class="bi bi-trash"></i>
-                    </button>
+                  <td style="width: 8rem">
+                    <div class="d-flex gap-2 justify-content-end">
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-secondary"
+                        (click)="edit(node)"
+                      >
+                        <i class="bi bi-pencil"></i>
+                      </button>
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-danger"
+                        (click)="remove(node)"
+                      >
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </div>
                   </td>
                 </tr>
                 @for (child of node.treeChildren; track child.id) {
@@ -62,21 +64,23 @@
                     </td>
                     <td class="text-muted small">{{ child.url || 'CMS page' }}</td>
                     <td class="text-muted small">pos {{ child.position }}</td>
-                    <td class="text-end">
-                      <button
-                        type="button"
-                        class="btn btn-sm btn-outline-secondary"
-                        (click)="edit(child)"
-                      >
-                        <i class="bi bi-pencil"></i>
-                      </button>
-                      <button
-                        type="button"
-                        class="btn btn-sm btn-outline-danger"
-                        (click)="remove(child)"
-                      >
-                        <i class="bi bi-trash"></i>
-                      </button>
+                    <td>
+                      <div class="d-flex gap-2 justify-content-end">
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-secondary"
+                          (click)="edit(child)"
+                        >
+                          <i class="bi bi-pencil"></i>
+                        </button>
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-danger"
+                          (click)="remove(child)"
+                        >
+                          <i class="bi bi-trash"></i>
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 }

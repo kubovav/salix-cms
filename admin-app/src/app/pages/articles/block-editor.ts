@@ -1,4 +1,5 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { QuillModule } from 'ngx-quill';
@@ -16,6 +17,7 @@ export class BlockEditorComponent {
   private blocks = inject(BlockService);
   private uploads = inject(UploadService);
   readonly modal = inject(NgbActiveModal);
+  private readonly destroyRef = inject(DestroyRef);
 
   /** Provided by the opener */
   block: Block | null = null;
@@ -114,16 +116,19 @@ export class BlockEditorComponent {
     }
     this.uploading.set(true);
     this.error.set(null);
-    this.uploads.upload(file).subscribe({
-      next: (res) => {
-        this.filename.set(res.filename);
-        this.uploading.set(false);
-      },
-      error: () => {
-        this.error.set('Image upload failed.');
-        this.uploading.set(false);
-      },
-    });
+    this.uploads
+      .upload(file)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.filename.set(res.filename);
+          this.uploading.set(false);
+        },
+        error: () => {
+          this.error.set('Image upload failed.');
+          this.uploading.set(false);
+        },
+      });
   }
 
   save(): void {
@@ -154,7 +159,7 @@ export class BlockEditorComponent {
         ? this.blocks.update(this.block.id, payload)
         : this.blocks.create({ ...payload, position: this.position, page: this.articleIri });
 
-    request.subscribe({
+    request.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (result) => {
         this.saving.set(false);
         this.modal.close(result);

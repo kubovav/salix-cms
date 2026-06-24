@@ -1,4 +1,5 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { MenuService } from '../../core/menu.service';
@@ -13,6 +14,7 @@ export class MenuEditorComponent {
   private fb = inject(FormBuilder);
   private menu = inject(MenuService);
   readonly modal = inject(NgbActiveModal);
+  private readonly destroyRef = inject(DestroyRef);
 
   /** Provided by opener */
   item: MenuItem | null = null;
@@ -85,7 +87,7 @@ export class MenuEditorComponent {
         ? this.menu.update(this.item.id, payload)
         : this.menu.create(payload);
 
-    request.subscribe({
+    request.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (result) => {
         this.saving.set(false);
         this.modal.close(result);

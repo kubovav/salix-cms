@@ -1,4 +1,6 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { SettingsService } from '../../core/settings.service';
 import { PageOption } from '../../core/models';
@@ -8,9 +10,10 @@ import { PageOption } from '../../core/models';
   imports: [ReactiveFormsModule],
   templateUrl: './settings.html',
 })
-export class SettingsComponent {
+export class SettingsComponent implements OnInit {
   private settings = inject(SettingsService);
   private fb = inject(FormBuilder);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly pages = signal<PageOption[]>([]);
   readonly saving = signal(false);
@@ -21,11 +24,14 @@ export class SettingsComponent {
     home_page_slug: ['', Validators.required],
   });
 
-  constructor() {
-    this.settings.get().subscribe((s) => {
-      this.pages.set(s.available_pages);
-      this.form.patchValue({ home_page_slug: s.home_page_slug ?? '' });
-    });
+  ngOnInit(): void {
+    this.settings
+      .get()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((s) => {
+        this.pages.set(s.available_pages);
+        this.form.patchValue({ home_page_slug: s.home_page_slug ?? '' });
+      });
   }
 
   save(): void {
@@ -36,17 +42,20 @@ export class SettingsComponent {
     this.saved.set(false);
     this.error.set(null);
     const slug = this.form.getRawValue().home_page_slug;
-    this.settings.update(slug).subscribe({
-      next: (s) => {
-        this.pages.set(s.available_pages);
-        this.form.patchValue({ home_page_slug: s.home_page_slug ?? '' });
-        this.saving.set(false);
-        this.saved.set(true);
-      },
-      error: () => {
-        this.saving.set(false);
-        this.error.set('Could not save settings.');
-      },
-    });
+    this.settings
+      .update(slug)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (s) => {
+          this.pages.set(s.available_pages);
+          this.form.patchValue({ home_page_slug: s.home_page_slug ?? '' });
+          this.saving.set(false);
+          this.saved.set(true);
+        },
+        error: () => {
+          this.saving.set(false);
+          this.error.set('Could not save settings.');
+        },
+      });
   }
 }

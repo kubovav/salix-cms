@@ -39,20 +39,22 @@
                 }
               </td>
               <td class="text-muted small">{{ article.updatedAt | date: 'medium' }}</td>
-              <td class="text-end">
-                <a
-                  [routerLink]="['/articles', article.id]"
-                  class="btn btn-sm btn-outline-secondary"
-                >
-                  <i class="bi bi-pencil"></i>
-                </a>
-                <button
-                  type="button"
-                  class="btn btn-sm btn-outline-danger"
-                  (click)="remove(article)"
-                >
-                  <i class="bi bi-trash"></i>
-                </button>
+              <td>
+                <div class="d-flex gap-2 justify-content-end">
+                  <a
+                    [routerLink]="['/articles', article.id]"
+                    class="btn btn-sm btn-outline-secondary"
+                  >
+                    <i class="bi bi-pencil"></i>
+                  </a>
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-danger"
+                    (click)="remove(article)"
+                  >
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
               </td>
             </tr>
           }

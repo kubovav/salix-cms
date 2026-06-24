@@ -1,4 +1,6 @@
-import { Component, inject, input, signal } from '@angular/core';
+import { Component, DestroyRef, inject, input, signal } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
@@ -14,13 +16,14 @@ import { BlockEditorComponent } from './block-editor';
   imports: [ReactiveFormsModule, RouterLink, DragDropModule],
   templateUrl: './article-edit.html',
 })
-export class ArticleEditComponent {
+export class ArticleEditComponent implements OnInit {
   private fb = inject(FormBuilder);
   private articles = inject(ArticleService);
   private blockService = inject(BlockService);
   private meta = inject(MetaService);
   private modal = inject(NgbModal);
   private router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
 
   /** Route param, undefined for "new". */
   readonly id = input<string>();
@@ -39,8 +42,11 @@ export class ArticleEditComponent {
     published: [false],
   });
 
-  constructor() {
-    this.meta.get().subscribe((m) => (this.blockTypes = m.blockTypes));
+  ngOnInit(): void {
+    this.meta
+      .get()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((m) => (this.blockTypes = m.blockTypes));
     const id = this.id();
     if (id) {
       this.loadArticle(Number(id));
@@ -52,24 +58,30 @@ export class ArticleEditComponent {
   }
 
   private loadArticle(id: number): void {
-    this.articles.get(id).subscribe((article) => {
-      this.article.set(article);
-      this.form.patchValue({
-        title: article.title,
-        slug: article.slug,
-        published: article.published,
+    this.articles
+      .get(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((article) => {
+        this.article.set(article);
+        this.form.patchValue({
+          title: article.title,
+          slug: article.slug,
+          published: article.published,
+        });
+        this.blocks.set([...(article.blocks ?? [])].sort((a, b) => a.position - b.position));
       });
-      this.blocks.set([...(article.blocks ?? [])].sort((a, b) => a.position - b.position));
-    });
   }
 
   private reloadBlocks(): void {
     const id = this.article()?.id;
     if (id) {
-      this.articles.get(id).subscribe((article) => {
-        this.article.set(article);
-        this.blocks.set([...(article.blocks ?? [])].sort((a, b) => a.position - b.position));
-      });
+      this.articles
+        .get(id)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((article) => {
+          this.article.set(article);
+          this.blocks.set([...(article.blocks ?? [])].sort((a, b) => a.position - b.position));
+        });
     }
   }
 
@@ -88,7 +100,7 @@ export class ArticleEditComponent {
       ? this.articles.update(existing.id, payload)
       : this.articles.create(payload);
 
-    request.subscribe({
+    request.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (article) => {
         this.saving.set(false);
         this.saved.set(true);
@@ -143,7 +155,10 @@ export class ArticleEditComponent {
     if (!block.id || !confirm('Delete this block?')) {
       return;
     }
-    this.blockService.delete(block.id).subscribe(() => this.reloadBlocks());
+    this.blockService
+      .delete(block.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.reloadBlocks());
   }
 
   drop(event: CdkDragDrop<Block[]>): void {
@@ -157,7 +172,10 @@ export class ArticleEditComponent {
     const articleId = this.article()?.id;
     const ids = current.map((b) => b.id).filter((id): id is number => id != null);
     if (articleId) {
-      this.articles.reorderBlocks(articleId, ids).subscribe();
+      this.articles
+        .reorderBlocks(articleId, ids)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe();
     }
   }
 

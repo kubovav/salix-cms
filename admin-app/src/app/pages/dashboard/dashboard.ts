@@ -1,4 +1,6 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { ArticleService } from '../../core/article.service';
 
@@ -7,16 +9,20 @@ import { ArticleService } from '../../core/article.service';
   imports: [RouterLink],
   templateUrl: './dashboard.html',
 })
-export class DashboardComponent {
+export class DashboardComponent implements OnInit {
   private articles = inject(ArticleService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly count = signal<number | null>(null);
   readonly published = signal<number | null>(null);
 
-  constructor() {
-    this.articles.list().subscribe((items) => {
-      this.count.set(items.length);
-      this.published.set(items.filter((a) => a.published).length);
-    });
+  ngOnInit(): void {
+    this.articles
+      .list()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((items) => {
+        this.count.set(items.length);
+        this.published.set(items.filter((a) => a.published).length);
+      });
   }
 }

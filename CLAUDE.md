@@ -49,6 +49,24 @@ Everything runs in a single `salix_app` Docker container managed by Supervisor:
 - Angular stack: standalone components, zoneless change detection, Reactive Forms, **ng-bootstrap** (Bootstrap 5), **bootstrap-icons**, **ngx-quill** (rich text), **@angular/cdk** drag-drop (block reorder). Bootstrap is compiled from SCSS in `src/styles.scss`; vendor CSS (icons, Quill) is added via `angular.json` `styles`.
 - The HTTP interceptor (`src/app/core/auth.interceptor.ts`) sends `withCredentials: true` + `Accept: application/json` and redirects to `/login` on 401.
 
+#### Angular component conventions
+
+- **Component lifecycle:** keep the `constructor` for dependency injection only (`inject(...)` field initializers). Do all initial data loading and other startup side effects in `ngOnInit` (`implements OnInit`), not the constructor.
+- **Subscription cleanup is mandatory for every `.subscribe()`.** Pipe `takeUntilDestroyed(this.destroyRef)` onto the observable before subscribing, with `private readonly destroyRef = inject(DestroyRef);` as a class field. Apply it even to one-shot `HttpClient` calls: if the component is destroyed before the response arrives, this unsubscribes, aborts the in-flight request, and prevents the `next`/`error` callback from running against a dead component. Do **not** hand-roll `Subscription` containers + manual `OnDestroy`/`DestroyRef.onDestroy()` unsubscribe — `takeUntilDestroyed` is the standard because it can't be forgotten on one call while being applied to another.
+
+  ```typescript
+  private readonly service = inject(SomeService);
+  private readonly destroyRef = inject(DestroyRef);
+
+  ngOnInit(): void {
+    this.service.list()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((items) => this.items.set(items));
+  }
+  ```
+
+- **State is held in signals** (`signal`, `computed`); derive composite flags with `computed` (e.g. an overall `loading` from per-request loading signals) rather than tracking them by hand. The app uses zoneless change detection, so never rely on Zone.js to pick up mutations made outside signals.
+
 ### Security
 - API admin routes are secured with `#[IsGranted('ROLE_ADMIN')]` and the `^/api` access-control rule (`ROLE_ADMIN`), except `^/api/auth/login` and `^/api/public` which are public.
 - Passwords are hashed via `UserPasswordListener` (event listener pattern, not a subscriber)

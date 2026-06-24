@@ -1,4 +1,6 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { MenuService } from '../../core/menu.service';
 import { ArticleService } from '../../core/article.service';
@@ -10,32 +12,53 @@ import { MenuEditorComponent } from './menu-editor';
   imports: [],
   templateUrl: './menu-list.html',
 })
-export class MenuListComponent {
-  private menu = inject(MenuService);
-  private articles = inject(ArticleService);
+export class MenuListComponent implements OnInit {
+  private menuService = inject(MenuService);
+  private articleService = inject(ArticleService);
   private modal = inject(NgbModal);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly items = signal<MenuItem[]>([]);
-  readonly loading = signal(true);
   private pages: Article[] = [];
+
+  private readonly loadingMenuItems = signal(true);
+  private readonly loadingPages = signal(true);
+  readonly loading = computed(() => this.loadingMenuItems() || this.loadingPages());
 
   readonly main = computed(() => this.tree('main'));
   readonly footer = computed(() => this.tree('footer'));
 
-  constructor() {
-    this.articles.list().subscribe((p) => (this.pages = p));
-    this.load();
+  ngOnInit(): void {
+    this.loadMenuItems();
+    this.loadPages();
   }
 
-  private load(): void {
-    this.loading.set(true);
-    this.menu.list().subscribe({
-      next: (items) => {
-        this.items.set(items);
-        this.loading.set(false);
-      },
-      error: () => this.loading.set(false),
-    });
+  private loadMenuItems(): void {
+    this.loadingMenuItems.set(true);
+    this.menuService
+      .list()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (items) => {
+          this.items.set(items);
+          this.loadingMenuItems.set(false);
+        },
+        error: () => this.loadingMenuItems.set(false),
+      });
+  }
+
+  private loadPages(): void {
+    this.loadingPages.set(true);
+    this.articleService
+      .list()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (pages) => {
+          this.pages = pages;
+          this.loadingPages.set(false);
+        },
+        error: () => this.loadingPages.set(false),
+      });
   }
 
   private parentId(item: MenuItem): number | null {
@@ -70,7 +93,7 @@ export class MenuListComponent {
     editor.parents = this.items().filter((i) => this.parentId(i) === null && i.id !== item?.id);
     editor.init();
     ref.result.then(
-      () => this.load(),
+      () => this.loadMenuItems(),
       () => undefined
     );
   }
@@ -87,6 +110,9 @@ export class MenuListComponent {
     if (!item.id || !confirm(`Delete menu item "${item.label}"?`)) {
       return;
     }
-    this.menu.delete(item.id).subscribe(() => this.load());
+    this.menuService
+      .delete(item.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.loadMenuItems());
   }
 }
