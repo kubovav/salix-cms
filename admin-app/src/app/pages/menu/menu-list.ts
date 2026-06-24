@@ -5,7 +5,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { MenuService } from '@core/menu.service';
 import { ArticleService } from '@core/article.service';
 import { Article, MenuItem, MenuTreeNode } from '@core/models';
-import { MenuEditorComponent } from './menu-editor';
+import { MenuEditorModal } from './menu-editor-modal';
 
 @Component({
   selector: 'app-menu-list',
@@ -86,8 +86,8 @@ export class MenuListComponent implements OnInit {
   }
 
   private openEditor(item: MenuItem | null): void {
-    const ref = this.modal.open(MenuEditorComponent, { size: 'lg' });
-    const editor = ref.componentInstance as MenuEditorComponent;
+    const ref = this.modal.open(MenuEditorModal, { size: 'lg' });
+    const editor = ref.componentInstance as MenuEditorModal;
     editor.item = item;
     editor.pages = this.pages;
     editor.parents = this.items().filter((i) => this.parentId(i) === null && i.id !== item?.id);

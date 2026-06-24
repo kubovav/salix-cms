@@ -6,11 +6,11 @@ import { MenuService } from '@core/menu.service';
 import { Article, MenuItem } from '@core/models';
 
 @Component({
-  selector: 'app-menu-editor',
+  selector: 'app-menu-editor-modal',
   imports: [ReactiveFormsModule],
-  templateUrl: './menu-editor.html',
+  templateUrl: './menu-editor-modal.html',
 })
-export class MenuEditorComponent {
+export class MenuEditorModal {
   private fb = inject(FormBuilder);
   private menu = inject(MenuService);
   readonly modal = inject(NgbActiveModal);
@@ -45,6 +45,22 @@ export class MenuEditorComponent {
         position: this.item.position,
         enabled: this.item.enabled,
       });
+    }
+
+    this.syncParentState(this.form.controls.menuName.value);
+    this.form.controls.menuName.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((menuName) => this.syncParentState(menuName));
+  }
+
+  /** Footer items cannot be nested, so disable and clear the parent selector. */
+  private syncParentState(menuName: string): void {
+    const parent = this.form.controls.parent;
+    if (menuName === 'footer') {
+      parent.setValue('');
+      parent.disable({ emitEvent: false });
+    } else {
+      parent.enable({ emitEvent: false });
     }
   }
 

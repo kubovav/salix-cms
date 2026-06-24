@@ -9,7 +9,7 @@ import { ArticleService } from '@core/article.service';
 import { BlockService } from '@core/block.service';
 import { MetaService } from '@core/meta.service';
 import { Article, Block, BlockTypeOption } from '@core/models';
-import { BlockEditorComponent } from './block-editor';
+import { BlockEditorModal } from './block-editor-modal';
 
 @Component({
   selector: 'app-article-edit',
@@ -122,8 +122,8 @@ export class ArticleEditComponent implements OnInit {
     if (!article?.['@id']) {
       return;
     }
-    const ref = this.modal.open(BlockEditorComponent, { size: 'lg' });
-    const editor = ref.componentInstance as BlockEditorComponent;
+    const ref = this.modal.open(BlockEditorModal, { size: 'lg' });
+    const editor = ref.componentInstance as BlockEditorModal;
     editor.articleIri = article['@id'];
     editor.position = this.blocks().length;
     editor.blockTypes = this.blockTypes;
@@ -139,8 +139,8 @@ export class ArticleEditComponent implements OnInit {
     if (!article?.['@id']) {
       return;
     }
-    const ref = this.modal.open(BlockEditorComponent, { size: 'lg' });
-    const editor = ref.componentInstance as BlockEditorComponent;
+    const ref = this.modal.open(BlockEditorModal, { size: 'lg' });
+    const editor = ref.componentInstance as BlockEditorModal;
     editor.block = block;
     editor.articleIri = article['@id'];
     editor.blockTypes = this.blockTypes;

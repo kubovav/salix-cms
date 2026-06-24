@@ -55,6 +55,9 @@
           <option [value]="parent['@id']">[{{ parent.menuName }}] {{ parent.label }}</option>
         }
       </select>
+      @if (form.controls.parent.disabled) {
+        <div class="form-text">Footer items cannot be nested under a parent.</div>
+      }
     </div>
 
     <div class="row">

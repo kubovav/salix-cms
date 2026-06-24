@@ -8,11 +8,11 @@ import { BlockService } from '@core/block.service';
 import { UploadService } from '@core/upload.service';
 
 @Component({
-  selector: 'app-block-editor',
+  selector: 'app-block-editor-modal',
   imports: [ReactiveFormsModule, QuillModule],
-  templateUrl: './block-editor.html',
+  templateUrl: './block-editor-modal.html',
 })
-export class BlockEditorComponent {
+export class BlockEditorModal {
   private fb = inject(FormBuilder);
   private blocks = inject(BlockService);
   private uploads = inject(UploadService);
