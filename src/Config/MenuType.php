@@ -7,4 +7,5 @@ namespace App\Config;
 enum MenuType: string
 {
     case MAIN = 'main';
+    case FOOTER = 'footer';
 }

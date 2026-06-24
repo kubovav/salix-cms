@@ -65,6 +65,17 @@
 
         <footer class="bg-dark text-white py-4 mt-5">
             <div class="container text-center">
+                {% set enabledFooterItems = footerMenuItems|default([])|filter(item => item.enabled) %}
+                {% if enabledFooterItems|length > 0 %}
+                    <ul class="nav justify-content-center mb-3">
+                        {% for item in enabledFooterItems %}
+                            {% set itemUrl = item.url ?? (item.page ? path('frontend_page', { slug: item.page.slug }) : '#') %}
+                            <li class="nav-item">
+                                <a class="nav-link text-white-50" href="{{ itemUrl }}">{{ item.label }}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
                 <small class="text-secondary">&copy; {{ "now"|date("Y") }} {{ site_name|default('Salix CMS') }}</small>
             </div>
         </footer>

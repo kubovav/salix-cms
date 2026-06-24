@@ -15,6 +15,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 #[ORM\Entity(repositoryClass: MenuItemRepository::class)]
 #[ApiResource(
@@ -83,6 +84,16 @@ class MenuItem
     public function __construct()
     {
         $this->children = new ArrayCollection();
+    }
+
+    #[Assert\Callback]
+    public function validateFooterHasNoParent(ExecutionContextInterface $context): void
+    {
+        if (MenuType::FOOTER->value === $this->menuName && null !== $this->parent) {
+            $context->buildViolation('Footer menu items cannot be nested under a parent item.')
+                ->atPath('parent')
+                ->addViolation();
+        }
     }
 
     public function getId(): ?int

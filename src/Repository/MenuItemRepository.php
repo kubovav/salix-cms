@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Config\MenuType;
 use App\Entity\MenuItem;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -19,7 +20,7 @@ class MenuItemRepository extends ServiceEntityRepository
     /**
      * @return MenuItem[] enabled root items (no parent) for a given menu, with children eager-loaded, ordered by position
      */
-    public function findEnabledRootItemsForMenu(string $menuName): array
+    public function findEnabledRootItemsForMenu(MenuType $menu): array
     {
         return $this->createQueryBuilder('m')
             ->leftJoin('m.children', 'c')
@@ -27,7 +28,7 @@ class MenuItemRepository extends ServiceEntityRepository
             ->where('m.parent IS NULL')
             ->andWhere('m.menuName = :name')
             ->andWhere('m.enabled = :enabled')
-            ->setParameter('name', $menuName)
+            ->setParameter('name', $menu->value)
             ->setParameter('enabled', true)
             ->orderBy('m.position', 'ASC')
             ->addOrderBy('c.position', 'ASC')

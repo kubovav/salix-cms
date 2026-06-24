@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Config\MenuType;
 use App\Entity\ContentPage;
 use App\Repository\ContentPageRepository;
 use App\Repository\MenuItemRepository;
@@ -21,7 +22,8 @@ final class FrontendController extends AbstractController
         MenuItemRepository $menuItemRepository,
         SiteSettingRepository $siteSettingRepository,
     ): Response {
-        $menuItems = $menuItemRepository->findEnabledRootItemsForMenu('main');
+        $menuItems = $menuItemRepository->findEnabledRootItemsForMenu(MenuType::MAIN);
+        $footerMenuItems = $menuItemRepository->findEnabledRootItemsForMenu(MenuType::FOOTER);
 
         $homeSlug = $siteSettingRepository->get('home_page_slug');
         if (null !== $homeSlug) {
@@ -30,6 +32,7 @@ final class FrontendController extends AbstractController
                 return $this->render('frontend/page.html.twig', [
                     'page' => $page,
                     'menuItems' => $menuItems,
+                    'footerMenuItems' => $footerMenuItems,
                 ]);
             }
         }
@@ -39,6 +42,7 @@ final class FrontendController extends AbstractController
         return $this->render('frontend/home.html.twig', [
             'pages' => $pages,
             'menuItems' => $menuItems,
+            'footerMenuItems' => $footerMenuItems,
         ]);
     }
 
@@ -53,11 +57,13 @@ final class FrontendController extends AbstractController
             throw new NotFoundHttpException('Page not found.');
         }
 
-        $menuItems = $menuItemRepository->findEnabledRootItemsForMenu('main');
+        $menuItems = $menuItemRepository->findEnabledRootItemsForMenu(MenuType::MAIN);
+        $footerMenuItems = $menuItemRepository->findEnabledRootItemsForMenu(MenuType::FOOTER);
 
         return $this->render('frontend/page.html.twig', [
             'page' => $page,
             'menuItems' => $menuItems,
+            'footerMenuItems' => $footerMenuItems,
         ]);
     }
 }
