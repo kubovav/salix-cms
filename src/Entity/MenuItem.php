@@ -96,6 +96,27 @@ class MenuItem
         }
     }
 
+    #[Assert\Callback]
+    public function validateUrl(ExecutionContextInterface $context): void
+    {
+        if (null === $this->url) {
+            return;
+        }
+
+        // Relative paths and in-page anchors are accepted as-is.
+        if (str_starts_with($this->url, '/') || str_starts_with($this->url, '#')) {
+            return;
+        }
+
+        // Anything else must normalize to a valid absolute http(s) URL.
+        if (!preg_match('#^https?://#i', $this->url) || false === filter_var($this->url, FILTER_VALIDATE_URL)) {
+            $context->buildViolation('The URL "{{ value }}" is not a valid URL.')
+                ->setParameter('{{ value }}', $this->url)
+                ->atPath('url')
+                ->addViolation();
+        }
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -120,9 +141,40 @@ class MenuItem
 
     public function setUrl(?string $url): static
     {
-        $this->url = $url;
+        $this->url = self::normalizeUrl($url);
 
         return $this;
+    }
+
+    /**
+     * Normalizes the URL: trims it, leaves relative paths and anchors ("/about",
+     * "#section") untouched, and prefixes "https://" to a scheme-less external
+     * value so it can be validated and resolved as an absolute external link.
+     */
+    private static function normalizeUrl(?string $url): ?string
+    {
+        if (null === $url) {
+            return null;
+        }
+
+        $url = trim($url);
+
+        if ('' === $url) {
+            return null;
+        }
+
+        // Relative path or in-page anchor — keep as typed.
+        if (str_starts_with($url, '/') || str_starts_with($url, '#')) {
+            return $url;
+        }
+
+        // Only prefix when the value has no scheme at all (don't mangle an
+        // explicit non-http scheme like "ftp://" — validation rejects those).
+        if (!preg_match('#^[a-z][a-z0-9+.-]*://#i', $url)) {
+            $url = 'https://'.$url;
+        }
+
+        return $url;
     }
 
     public function getPage(): ?ContentPage

@@ -43,7 +43,11 @@
         class="form-control"
         formControlName="url"
         placeholder="https://example.com or /custom-path"
+        [class.is-invalid]="form.controls.url.invalid && form.controls.url.touched"
       />
+      @if (form.controls.url.invalid && form.controls.url.touched) {
+        <div class="invalid-feedback">Enter a valid URL or a relative path starting with “/”.</div>
+      }
       <div class="form-text">Used when no CMS page is selected.</div>
     </div>
 

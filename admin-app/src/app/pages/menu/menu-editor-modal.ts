@@ -1,9 +1,51 @@
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormBuilder,
+  ReactiveFormsModule,
+  ValidationErrors,
+  Validators,
+} from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { MenuService } from '@core/menu.service';
 import { Article, MenuItem } from '@core/models';
+
+/**
+ * Accepts an empty value (URL is optional), a relative path ("/about") or
+ * in-page anchor ("#section"), or an external URL. The scheme is optional
+ * because the backend prefixes "https://" when it is missing; a value with a
+ * scheme must use http/https.
+ */
+function urlValidator(control: AbstractControl): ValidationErrors | null {
+  const value = (control.value ?? '').trim();
+  if (value === '') {
+    return null;
+  }
+
+  // Relative path or in-page anchor, e.g. /about or #section
+  if (value.startsWith('/') || value.startsWith('#')) {
+    return null;
+  }
+
+  // Reject an explicit non-http(s) scheme (e.g. ftp:, javascript:).
+  if (/^[a-z][a-z0-9+.-]*:/i.test(value) && !/^https?:\/\//i.test(value)) {
+    return { url: true };
+  }
+
+  // Normalize the way the backend does, then validate as an absolute URL.
+  const candidate = /^https?:\/\//i.test(value) ? value : `https://${value}`;
+  try {
+    const parsed = new URL(candidate);
+    // Require a dot in the host so bare words ("foo") are rejected.
+    if (!parsed.hostname.includes('.')) {
+      return { url: true };
+    }
+    return null;
+  } catch {
+    return { url: true };
+  }
+}
 
 @Component({
   selector: 'app-menu-editor-modal',
@@ -28,7 +70,7 @@ export class MenuEditorModal {
     label: ['', [Validators.required]],
     menuName: ['main', [Validators.required]],
     page: [''],
-    url: [''],
+    url: ['', [urlValidator]],
     parent: [''],
     position: [0],
     enabled: [true],
