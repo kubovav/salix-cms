@@ -3,8 +3,8 @@ import type { OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { ArticleService } from '../../core/article.service';
-import { Article } from '../../core/models';
+import { ArticleService } from '@core/article.service';
+import { Article } from '@core/models';
 
 @Component({
   selector: 'app-article-list',

@@ -2,9 +2,9 @@ import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import type { OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { MenuService } from '../../core/menu.service';
-import { ArticleService } from '../../core/article.service';
-import { Article, MenuItem, MenuTreeNode } from '../../core/models';
+import { MenuService } from '@core/menu.service';
+import { ArticleService } from '@core/article.service';
+import { Article, MenuItem, MenuTreeNode } from '@core/models';
 import { MenuEditorComponent } from './menu-editor';
 
 @Component({

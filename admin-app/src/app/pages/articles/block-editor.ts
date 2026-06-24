@@ -3,9 +3,9 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { QuillModule } from 'ngx-quill';
-import { Block, BlockTypeOption } from '../../core/models';
-import { BlockService } from '../../core/block.service';
-import { UploadService } from '../../core/upload.service';
+import { Block, BlockTypeOption } from '@core/models';
+import { BlockService } from '@core/block.service';
+import { UploadService } from '@core/upload.service';
 
 @Component({
   selector: 'app-block-editor',

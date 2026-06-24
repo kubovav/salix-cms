@@ -5,10 +5,10 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ArticleService } from '../../core/article.service';
-import { BlockService } from '../../core/block.service';
-import { MetaService } from '../../core/meta.service';
-import { Article, Block, BlockTypeOption } from '../../core/models';
+import { ArticleService } from '@core/article.service';
+import { BlockService } from '@core/block.service';
+import { MetaService } from '@core/meta.service';
+import { Article, Block, BlockTypeOption } from '@core/models';
 import { BlockEditorComponent } from './block-editor';
 
 @Component({

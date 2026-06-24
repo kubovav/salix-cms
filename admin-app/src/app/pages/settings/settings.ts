@@ -2,8 +2,8 @@ import { Component, DestroyRef, inject, signal } from '@angular/core';
 import type { OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { SettingsService } from '../../core/settings.service';
-import { PageOption } from '../../core/models';
+import { SettingsService } from '@core/settings.service';
+import { PageOption } from '@core/models';
 
 @Component({
   selector: 'app-settings',

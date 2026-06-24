@@ -8,7 +8,7 @@ import { Article, MenuItem } from '@core/models';
 @Component({
   selector: 'app-menu-editor',
   imports: [ReactiveFormsModule],
-  templateUrl: './menu-editor.html',
+  templateUrl: './editor.html',
 })
 export class MenuEditorComponent {
   private fb = inject(FormBuilder);

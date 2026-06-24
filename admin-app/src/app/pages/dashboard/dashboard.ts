@@ -2,7 +2,7 @@ import { Component, DestroyRef, inject, signal } from '@angular/core';
 import type { OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
-import { ArticleService } from '../../core/article.service';
+import { ArticleService } from '@core/article.service';
 
 @Component({
   selector: 'app-dashboard',

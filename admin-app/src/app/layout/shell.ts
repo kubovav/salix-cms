@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
-import { AuthService } from '../core/auth.service';
+import { AuthService } from '@core/auth.service';
 
 @Component({
   selector: 'app-shell',
