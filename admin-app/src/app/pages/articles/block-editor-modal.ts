@@ -79,6 +79,7 @@ export class BlockEditorModal {
           alt: [s('alt'), Validators.required],
           caption: [s('caption')],
           size: [s('size') || 'full'],
+          link_full: [!!data['link_full']],
         });
         break;
       case 'hero':
@@ -96,6 +97,7 @@ export class BlockEditorModal {
           image_side: [s('image_side') || 'left', Validators.required],
           image_alt: [s('image_alt'), Validators.required],
           size: [s('size') || 'full'],
+          link_full: [!!data['link_full']],
         });
         break;
       case 'cta':

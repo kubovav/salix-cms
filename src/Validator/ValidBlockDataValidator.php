@@ -76,5 +76,14 @@ final class ValidBlockDataValidator extends ConstraintValidator
                 ->atPath('data.size')
                 ->addViolation();
         }
+
+        if (\in_array($type, [BlockType::IMAGE, BlockType::TEXT_IMAGE], true)
+            && isset($data['link_full'])
+            && !\is_bool($data['link_full'])
+        ) {
+            $this->context->buildViolation('Link to full-size image must be true or false.')
+                ->atPath('data.link_full')
+                ->addViolation();
+        }
     }
 }

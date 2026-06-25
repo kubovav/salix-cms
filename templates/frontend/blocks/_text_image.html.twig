@@ -8,11 +8,13 @@
 <div class="block block-text-image mb-5">
   <div class="row align-items-center {% if not imageOnLeft %} flex-row-reverse{% endif %}">
     <div class="col-md-5 text-center">
+      {% if block.data.link_full|default(false) %}<a href="{{ '/uploads/images/' ~ block.data.filename }}" target="_blank" rel="noopener">{% endif %}
       <img
         src="{{ '/uploads/images/' ~ block.data.filename }}"
         alt="{{ block.data.image_alt|default('') }}"
         class="img-fluid rounded {{ sizeClass }}"
       >
+      {% if block.data.link_full|default(false) %}</a>{% endif %}
     </div>
     <div class="col-md-7">
       {{ block.data.html|raw }}

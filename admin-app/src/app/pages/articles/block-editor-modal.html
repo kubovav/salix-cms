@@ -117,6 +117,21 @@
         </div>
       }
 
+      <!-- Link to full-size image -->
+      @if (form.get('link_full')) {
+        <div class="form-check mb-3">
+          <input
+            type="checkbox"
+            class="form-check-input"
+            id="link_full"
+            formControlName="link_full"
+          />
+          <label class="form-check-label" for="link_full">
+            Link to full-size image (opens in a new tab)
+          </label>
+        </div>
+      }
+
       <!-- Image upload -->
       @if (allowsImage) {
         <div class="mb-3">
