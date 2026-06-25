@@ -78,6 +78,7 @@ export class BlockEditorModal {
         this.form = this.fb.group({
           alt: [s('alt'), Validators.required],
           caption: [s('caption')],
+          size: [s('size') || 'full'],
         });
         break;
       case 'hero':
@@ -94,6 +95,7 @@ export class BlockEditorModal {
           html: [s('html')],
           image_side: [s('image_side') || 'left', Validators.required],
           image_alt: [s('image_alt'), Validators.required],
+          size: [s('size') || 'full'],
         });
         break;
       case 'cta':

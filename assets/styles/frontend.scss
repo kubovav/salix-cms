@@ -2,5 +2,9 @@
     overflow-wrap: break-word;
     word-break: break-word;
     min-width: 0;
+
+    &.block-text-image .col-md-7 > :last-child {
+    margin-bottom: 0;
+    }
 }
 

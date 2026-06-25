@@ -3,3 +3,6 @@
   word-break: break-word;
   min-width: 0;
 }
+.block.block-text-image .col-md-7 > :last-child {
+  margin-bottom: 0;
+}

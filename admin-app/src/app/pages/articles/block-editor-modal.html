@@ -104,6 +104,19 @@
         </div>
       }
 
+      <!-- Image size -->
+      @if (form.get('size')) {
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Image size</label>
+          <select class="form-select" formControlName="size">
+            <option value="small">Small (25%)</option>
+            <option value="medium">Medium (50%)</option>
+            <option value="large">Large (75%)</option>
+            <option value="full">Full width (100%)</option>
+          </select>
+        </div>
+      }
+
       <!-- Image upload -->
       @if (allowsImage) {
         <div class="mb-3">

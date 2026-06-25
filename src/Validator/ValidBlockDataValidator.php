@@ -25,6 +25,13 @@ final class ValidBlockDataValidator extends ConstraintValidator
         BlockType::RICH_TEXT->value => [],
     ];
 
+    /**
+     * Allowed (optional) `size` values for image-bearing blocks.
+     *
+     * @var list<string>
+     */
+    private const array ALLOWED_SIZES = ['small', 'medium', 'large', 'full'];
+
     public function validate(mixed $value, Constraint $constraint): void
     {
         if (!$constraint instanceof ValidBlockData) {
@@ -58,6 +65,15 @@ final class ValidBlockDataValidator extends ConstraintValidator
         ) {
             $this->context->buildViolation('Image position must be "left" or "right".')
                 ->atPath('data.image_side')
+                ->addViolation();
+        }
+
+        if (\in_array($type, [BlockType::IMAGE, BlockType::TEXT_IMAGE], true)
+            && isset($data['size'])
+            && !\in_array($data['size'], self::ALLOWED_SIZES, true)
+        ) {
+            $this->context->buildViolation('Invalid image size.')
+                ->atPath('data.size')
                 ->addViolation();
         }
     }
