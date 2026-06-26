@@ -22,16 +22,16 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 final class SettingsController extends AbstractController
 {
     #[Route('/api/admin/settings', name: 'api_admin_settings_get', methods: ['GET'])]
-    public function get(ContentPageRepository $pages, SiteSettingRepository $settings): JsonResponse
+    public function get(ContentPageRepository $pageRepository, SiteSettingRepository $settingsRepository): JsonResponse
     {
-        return new JsonResponse($this->buildPayload($pages, $settings));
+        return new JsonResponse($this->buildPayload($pageRepository, $settingsRepository));
     }
 
     #[Route('/api/admin/settings', name: 'api_admin_settings_update', methods: ['PUT'])]
     public function update(
         Request $request,
-        ContentPageRepository $pages,
-        SiteSettingRepository $settings,
+        ContentPageRepository $pageRepository,
+        SiteSettingRepository $settingsRepository,
         EntityManagerInterface $em,
     ): JsonResponse {
         /** @var array{home_page_slug?: mixed} $payload */
@@ -41,33 +41,33 @@ final class SettingsController extends AbstractController
             $slug = $payload['home_page_slug'];
             $slug = \is_string($slug) && '' !== $slug ? $slug : null;
 
-            if (null === $slug && [] !== $pages->findPublishedOrdered()) {
+            if (null === $slug && [] !== $pageRepository->findPublishedOrdered()) {
                 return new JsonResponse(['error' => 'A home page must be selected.'], JsonResponse::HTTP_UNPROCESSABLE_ENTITY);
             }
 
-            if (null !== $slug && !$pages->findPublishedBySlug($slug) instanceof ContentPage) {
+            if (null !== $slug && !$pageRepository->findPublishedBySlug($slug) instanceof ContentPage) {
                 return new JsonResponse(['error' => 'Unknown published page slug.'], JsonResponse::HTTP_UNPROCESSABLE_ENTITY);
             }
 
-            $settings->set('home_page_slug', $slug);
+            $settingsRepository->set('home_page_slug', $slug);
             $em->flush();
         }
 
-        return new JsonResponse($this->buildPayload($pages, $settings));
+        return new JsonResponse($this->buildPayload($pageRepository, $settingsRepository));
     }
 
     /**
      * @return array{home_page_slug: string|null, available_pages: list<array{slug: string, title: string}>}
      */
-    private function buildPayload(ContentPageRepository $pages, SiteSettingRepository $settings): array
+    private function buildPayload(ContentPageRepository $pageRepository, SiteSettingRepository $settingsRepository): array
     {
         $available = array_map(
             static fn (ContentPage $page): array => ['slug' => $page->getSlug(), 'title' => $page->getTitle()],
-            $pages->findPublishedOrdered(),
+            $pageRepository->findPublishedOrdered(),
         );
 
         return [
-            'home_page_slug' => $settings->get('home_page_slug'),
+            'home_page_slug' => $settingsRepository->get('home_page_slug'),
             'available_pages' => $available,
         ];
     }

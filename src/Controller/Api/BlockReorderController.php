@@ -24,11 +24,11 @@ final class BlockReorderController extends AbstractController
     public function __invoke(
         int $id,
         Request $request,
-        ContentPageRepository $pages,
-        ContentBlockRepository $blocks,
+        ContentPageRepository $pageRepository,
+        ContentBlockRepository $blockRepository,
         EntityManagerInterface $em,
     ): JsonResponse {
-        $page = $pages->find($id);
+        $page = $pageRepository->find($id);
         if (null === $page) {
             return new JsonResponse(['error' => 'Article not found.'], JsonResponse::HTTP_NOT_FOUND);
         }
@@ -40,7 +40,7 @@ final class BlockReorderController extends AbstractController
             return new JsonResponse(['error' => 'Expected an "ids" array.'], JsonResponse::HTTP_BAD_REQUEST);
         }
 
-        $pageBlocks = $blocks->findBy(['page' => $id]);
+        $pageBlocks = $blockRepository->findBy(['page' => $id]);
         $byId = [];
         foreach ($pageBlocks as $block) {
             $byId[$block->getId()] = $block;
