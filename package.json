@@ -1,12 +1,15 @@
 {
   "scripts": {
     "sass:build": "sass assets/styles/frontend.scss:assets/styles/frontend.css --no-source-map",
-    "sass:watch": "sass assets/styles/frontend.scss:assets/styles/frontend.css --no-source-map --watch"
+    "sass:watch": "sass assets/styles/frontend.scss:assets/styles/frontend.css --no-source-map --watch",
+    "admin:watch": "npm --prefix admin-app run watch",
+    "watch": "concurrently -n sass,admin -c blue,green \"npm:sass:watch\" \"npm:admin:watch\""
   },
   "dependencies": {
     "admin-lte": "^4.0.0"
   },
   "devDependencies": {
+    "concurrently": "^9.1.0",
     "sass": "^1.100.0"
   }
 }
