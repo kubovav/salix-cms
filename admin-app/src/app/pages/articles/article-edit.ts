@@ -57,6 +57,11 @@ export class ArticleEditComponent implements OnInit {
     return !this.id();
   }
 
+  showError(name: string): boolean {
+    const control = this.form.get(name);
+    return !!control && control.invalid && control.touched;
+  }
+
   private loadArticle(id: number): void {
     this.articleService
       .get(id)

@@ -14,12 +14,20 @@
           }
           <div class="mb-3">
             <label class="form-label fw-semibold">Home page</label>
-            <select class="form-select" formControlName="home_page_slug" [attr.disabled]="pages().length === 0 ? '' : null">
+            <select
+              class="form-select"
+              formControlName="home_page_slug"
+              [attr.disabled]="pages().length === 0 ? '' : null"
+              [class.is-invalid]="showError('home_page_slug')"
+            >
               <option value="" disabled>Select a page…</option>
               @for (page of pages(); track page.slug) {
                 <option [value]="page.slug">{{ page.title }}</option>
               }
             </select>
+            @if (showError('home_page_slug')) {
+              <div class="invalid-feedback">Please select a home page.</div>
+            }
             @if (pages().length === 0) {
               <div class="form-text text-warning">Create and publish a page first to set it as the home page.</div>
             } @else {
@@ -28,7 +36,7 @@
           </div>
         </div>
         <div class="card-footer">
-          <button type="submit" class="btn btn-primary" [disabled]="saving() || form.invalid">
+          <button type="submit" class="btn btn-primary" [disabled]="saving()">
             @if (saving()) {
               <span class="spinner-border spinner-border-sm me-1"></span>
             }

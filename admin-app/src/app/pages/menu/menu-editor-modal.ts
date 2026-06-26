@@ -102,6 +102,11 @@ export class MenuEditorModal {
     return this.item !== null;
   }
 
+  showError(name: string): boolean {
+    const control = this.form.get(name);
+    return !!control && control.invalid && control.touched;
+  }
+
   save(): void {
     if (this.form.invalid || this.saving()) {
       this.form.markAllAsTouched();
