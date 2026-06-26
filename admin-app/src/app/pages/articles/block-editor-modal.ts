@@ -19,7 +19,6 @@ export class BlockEditorModal {
   readonly modal = inject(NgbActiveModal);
   private readonly destroyRef = inject(DestroyRef);
 
-  /** Provided by the opener */
   block: Block | null = null;
   articleId = 0;
   position = 0;
@@ -33,7 +32,6 @@ export class BlockEditorModal {
 
   form!: FormGroup;
 
-  /** Called by the opener after setting inputs. */
   init(): void {
     if (this.block) {
       this.type.set(this.block.type);
@@ -133,6 +131,11 @@ export class BlockEditorModal {
           this.uploading.set(false);
         },
       });
+  }
+
+  showError(name: string): boolean {
+    const control = this.form.get(name);
+    return !!control && control.invalid && control.touched;
   }
 
   save(): void {
