@@ -76,8 +76,19 @@
           } @else {
             <div cdkDropList (cdkDropListDropped)="drop($event)" class="list-group">
               @for (block of blocks(); track block.id) {
-                <div class="list-group-item d-flex align-items-center gap-2" cdkDrag>
-                  <i class="bi bi-grip-vertical text-muted block-handle" cdkDragHandle></i>
+                <div
+                  class="list-group-item d-flex align-items-center gap-2"
+                  cdkDrag
+                  [cdkDragDisabled]="block.type === 'hero'"
+                >
+                  @if (block.type === 'hero') {
+                    <i
+                      class="bi bi-pin-angle-fill text-muted"
+                      title="Hero sections are always shown at the top and can't be reordered"
+                    ></i>
+                  } @else {
+                    <i class="bi bi-grip-vertical text-muted block-handle" cdkDragHandle></i>
+                  }
                   <span class="badge text-bg-secondary">{{ typeLabel(block.type) }}</span>
                   <span class="text-muted small text-truncate flex-grow-1">{{
                     preview(block)

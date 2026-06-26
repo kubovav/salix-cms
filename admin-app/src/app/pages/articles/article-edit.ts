@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, input, signal } from '@angular/core';
+import { Component, DestroyRef, computed, inject, input, signal } from '@angular/core';
 import type { OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -25,11 +25,11 @@ export class ArticleEditComponent implements OnInit {
   private router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
-  /** Route param, undefined for "new". */
   readonly id = input<string>();
 
   readonly article = signal<Article | null>(null);
   readonly blocks = signal<Block[]>([]);
+  readonly heroBlocks = computed(() => this.blocks().filter((b) => b.type === 'hero'));
   readonly saving = signal(false);
   readonly settingsError = signal<string | null>(null);
   readonly saved = signal(false);
@@ -68,7 +68,7 @@ export class ArticleEditComponent implements OnInit {
           slug: article.slug,
           published: article.published,
         });
-        this.blocks.set([...(article.blocks ?? [])].sort((a, b) => a.position - b.position));
+        this.blocks.set(this.sortBlocks(article.blocks ?? []));
       });
   }
 
@@ -80,9 +80,16 @@ export class ArticleEditComponent implements OnInit {
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe((article) => {
           this.article.set(article);
-          this.blocks.set([...(article.blocks ?? [])].sort((a, b) => a.position - b.position));
+          this.blocks.set(this.sortBlocks(article.blocks ?? []));
         });
     }
+  }
+
+  private sortBlocks(blocks: Block[]): Block[] {
+    return [...blocks].sort(
+      (a, b) =>
+        Number(b.type === 'hero') - Number(a.type === 'hero') || a.position - b.position
+    );
   }
 
   saveSettings(): void {
@@ -162,11 +169,13 @@ export class ArticleEditComponent implements OnInit {
   }
 
   drop(event: CdkDragDrop<Block[]>): void {
-    if (event.previousIndex === event.currentIndex) {
+    const heroCount = this.heroBlocks().length;
+    const target = Math.max(event.currentIndex, heroCount);
+    if (event.previousIndex === target) {
       return;
     }
     const current = [...this.blocks()];
-    moveItemInArray(current, event.previousIndex, event.currentIndex);
+    moveItemInArray(current, event.previousIndex, target);
     this.blocks.set(current);
 
     const articleId = this.article()?.id;
