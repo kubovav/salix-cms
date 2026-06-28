@@ -27,10 +27,10 @@
               autocomplete="off"
               class="form-control"
               formControlName="title"
-              [class.is-invalid]="showError('title')"
+              [class.is-invalid]="getError('title')"
             />
-            @if (showError('title')) {
-              <div class="invalid-feedback">Title is required.</div>
+            @if (getError('title'); as error) {
+              <div class="invalid-feedback">{{ error }}</div>
             }
           </div>
 
@@ -44,19 +44,17 @@
                 autocomplete="off"
                 class="form-control"
                 formControlName="slug"
-                [class.is-invalid]="showError('slug')"
+                [class.is-invalid]="getError('slug')"
+                placeholder="Auto-generated from the title"
               />
-              @if (showError('slug')) {
-                <div class="invalid-feedback">
-                  @if (form.controls.slug.errors?.['required']) {
-                    Slug is required.
-                  } @else {
-                    Use lowercase letters, numbers, and hyphens only.
-                  }
-                </div>
+              @if (getError('slug'); as error) {
+                <div class="invalid-feedback">{{ error }}</div>
               }
             </div>
-            <div class="form-text">Lowercase letters, numbers, and hyphens only.</div>
+            <div class="form-text">
+              Leave blank to generate it from the title. Lowercase letters, numbers, and hyphens
+              only.
+            </div>
           </div>
 
           <div class="form-check">

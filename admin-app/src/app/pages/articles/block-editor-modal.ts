@@ -1,10 +1,12 @@
 import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { QuillModule } from 'ngx-quill';
 import { Block, BlockTypeOption } from '@core/models';
 import { BlockService } from '@core/block.service';
+import { applyApiViolations, resolveFieldError } from '@core/form-errors';
 import { UploadService } from '@core/upload.service';
 
 @Component({
@@ -133,9 +135,16 @@ export class BlockEditorModal {
       });
   }
 
-  showError(name: string): boolean {
-    const control = this.form.get(name);
-    return !!control && control.invalid && control.touched;
+  private readonly fieldMessages: Record<string, Record<string, string>> = {
+    heading: { required: 'Heading is required.' },
+    button_text: { required: 'Button text is required.' },
+    button_url: { required: 'Button URL is required.' },
+    alt: { required: 'Alt text is required.' },
+    image_alt: { required: 'Image alt text is required.' },
+  };
+
+  getError(name: string): string | null {
+    return resolveFieldError(this.form.get(name), this.fieldMessages[name]);
   }
 
   save(): void {
@@ -171,8 +180,14 @@ export class BlockEditorModal {
         this.saving.set(false);
         this.modal.close(result);
       },
-      error: () => {
-        this.error.set('Could not save the block. Please check the fields.');
+      error: (err: HttpErrorResponse) => {
+        this.error.set(
+          applyApiViolations(this.form, err, {
+            fallback: 'Could not save the block. Please check the fields.',
+            mapPath: (path) => (path.startsWith('data.') ? path.slice(5) : path),
+            displayFields: ['heading', 'button_text', 'button_url', 'alt', 'image_alt'],
+          })
+        );
         this.saving.set(false);
       },
     });

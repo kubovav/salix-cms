@@ -1,6 +1,8 @@
 import { Component, DestroyRef, computed, inject, input, signal } from '@angular/core';
 import type { OnInit } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { applyApiViolations, resolveFieldError } from '@core/form-errors';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
@@ -38,7 +40,7 @@ export class ArticleEditComponent implements OnInit {
 
   readonly form = this.fb.nonNullable.group({
     title: ['', [Validators.required]],
-    slug: ['', [Validators.required, Validators.pattern(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)]],
+    slug: ['', [Validators.pattern(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)]],
     published: [false],
   });
 
@@ -57,9 +59,13 @@ export class ArticleEditComponent implements OnInit {
     return !this.id();
   }
 
-  showError(name: string): boolean {
-    const control = this.form.get(name);
-    return !!control && control.invalid && control.touched;
+  private readonly fieldMessages: Record<string, Record<string, string>> = {
+    title: { required: 'Title is required.' },
+    slug: { pattern: 'Use lowercase letters, numbers, and hyphens only.' },
+  };
+
+  getError(name: string): string | null {
+    return resolveFieldError(this.form.get(name), this.fieldMessages[name]);
   }
 
   private loadArticle(id: number): void {
@@ -92,8 +98,7 @@ export class ArticleEditComponent implements OnInit {
 
   private sortBlocks(blocks: Block[]): Block[] {
     return [...blocks].sort(
-      (a, b) =>
-        Number(b.type === 'hero') - Number(a.type === 'hero') || a.position - b.position
+      (a, b) => Number(b.type === 'hero') - Number(a.type === 'hero') || a.position - b.position
     );
   }
 
@@ -122,9 +127,14 @@ export class ArticleEditComponent implements OnInit {
           this.article.set(article);
         }
       },
-      error: () => {
+      error: (err: HttpErrorResponse) => {
         this.saving.set(false);
-        this.settingsError.set('Could not save. The slug may already be in use or invalid.');
+        this.settingsError.set(
+          applyApiViolations(this.form, err, {
+            fallback: 'Could not save. The slug may already be in use or invalid.',
+            displayFields: ['title', 'slug'],
+          })
+        );
       },
     });
   }

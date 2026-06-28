@@ -1,8 +1,10 @@
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import type { OnInit } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { SettingsService } from '@core/settings.service';
+import { applyApiViolations, resolveFieldError } from '@core/form-errors';
 import { PageOption } from '@core/models';
 
 @Component({
@@ -34,9 +36,12 @@ export class SettingsComponent implements OnInit {
       });
   }
 
-  showError(name: string): boolean {
-    const control = this.form.get(name);
-    return !!control && control.invalid && control.touched;
+  private readonly fieldMessages: Record<string, Record<string, string>> = {
+    home_page_slug: { required: 'Please select a home page.' },
+  };
+
+  getError(name: string): string | null {
+    return resolveFieldError(this.form.get(name), this.fieldMessages[name]);
   }
 
   save(): void {
@@ -58,9 +63,14 @@ export class SettingsComponent implements OnInit {
           this.saving.set(false);
           this.saved.set(true);
         },
-        error: () => {
+        error: (err: HttpErrorResponse) => {
           this.saving.set(false);
-          this.error.set('Could not save settings.');
+          this.error.set(
+            applyApiViolations(this.form, err, {
+              fallback: 'Could not save settings.',
+              displayFields: [],
+            })
+          );
         },
       });
   }

@@ -17,10 +17,10 @@
         autocomplete="off"
         formControlName="label"
         placeholder="e.g. About Us"
-        [class.is-invalid]="showError('label')"
+        [class.is-invalid]="getError('label')"
       />
-      @if (showError('label')) {
-        <div class="invalid-feedback">Label is required.</div>
+      @if (getError('label'); as error) {
+        <div class="invalid-feedback">{{ error }}</div>
       }
     </div>
 
@@ -53,10 +53,10 @@
         class="form-control"
         formControlName="url"
         placeholder="https://example.com or /custom-path"
-        [class.is-invalid]="showError('url')"
+        [class.is-invalid]="getError('url')"
       />
-      @if (showError('url')) {
-        <div class="invalid-feedback">Enter a valid URL or a relative path starting with “/”.</div>
+      @if (getError('url'); as error) {
+        <div class="invalid-feedback">{{ error }}</div>
       }
       <div class="form-text">Used when no CMS page is selected.</div>
     </div>

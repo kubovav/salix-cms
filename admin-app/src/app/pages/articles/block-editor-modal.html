@@ -44,10 +44,10 @@
             class="form-control"
             autocomplete="off"
             formControlName="heading"
-            [class.is-invalid]="showError('heading')"
+            [class.is-invalid]="getError('heading')"
           />
-          @if (showError('heading')) {
-            <div class="invalid-feedback">Heading is required.</div>
+          @if (getError('heading'); as error) {
+            <div class="invalid-feedback">{{ error }}</div>
           }
         </div>
       }
@@ -78,10 +78,10 @@
               class="form-control"
               autocomplete="off"
               formControlName="button_text"
-              [class.is-invalid]="showError('button_text')"
+              [class.is-invalid]="getError('button_text')"
             />
-            @if (showError('button_text')) {
-              <div class="invalid-feedback">Button text is required.</div>
+            @if (getError('button_text'); as error) {
+              <div class="invalid-feedback">{{ error }}</div>
             }
           </div>
           <div class="col-md-6 mb-3">
@@ -91,10 +91,10 @@
               class="form-control"
               autocomplete="off"
               formControlName="button_url"
-              [class.is-invalid]="showError('button_url')"
+              [class.is-invalid]="getError('button_url')"
             />
-            @if (showError('button_url')) {
-              <div class="invalid-feedback">Button URL is required.</div>
+            @if (getError('button_url'); as error) {
+              <div class="invalid-feedback">{{ error }}</div>
             }
           </div>
         </div>
@@ -120,10 +120,10 @@
             class="form-control"
             autocomplete="off"
             formControlName="alt"
-            [class.is-invalid]="showError('alt')"
+            [class.is-invalid]="getError('alt')"
           />
-          @if (showError('alt')) {
-            <div class="invalid-feedback">Alt text is required.</div>
+          @if (getError('alt'); as error) {
+            <div class="invalid-feedback">{{ error }}</div>
           }
         </div>
       }
@@ -141,10 +141,10 @@
             class="form-control"
             autocomplete="off"
             formControlName="image_alt"
-            [class.is-invalid]="showError('image_alt')"
+            [class.is-invalid]="getError('image_alt')"
           />
-          @if (showError('image_alt')) {
-            <div class="invalid-feedback">Image alt text is required.</div>
+          @if (getError('image_alt'); as error) {
+            <div class="invalid-feedback">{{ error }}</div>
           }
         </div>
       }

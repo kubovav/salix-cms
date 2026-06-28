@@ -18,20 +18,24 @@
               class="form-select"
               formControlName="home_page_slug"
               [attr.disabled]="pages().length === 0 ? '' : null"
-              [class.is-invalid]="showError('home_page_slug')"
+              [class.is-invalid]="getError('home_page_slug')"
             >
               <option value="" disabled>Select a page…</option>
               @for (page of pages(); track page.slug) {
                 <option [value]="page.slug">{{ page.title }}</option>
               }
             </select>
-            @if (showError('home_page_slug')) {
-              <div class="invalid-feedback">Please select a home page.</div>
+            @if (getError('home_page_slug'); as error) {
+              <div class="invalid-feedback">{{ error }}</div>
             }
             @if (pages().length === 0) {
-              <div class="form-text text-warning">Create and publish a page first to set it as the home page.</div>
+              <div class="form-text text-warning">
+                Create and publish a page first to set it as the home page.
+              </div>
             } @else {
-              <div class="form-text">The published page shown at the site root. A home page must be selected.</div>
+              <div class="form-text">
+                The published page shown at the site root. A home page must be selected.
+              </div>
             }
           </div>
         </div>
