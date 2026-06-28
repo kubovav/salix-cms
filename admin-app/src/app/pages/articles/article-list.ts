@@ -4,7 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ArticleService } from '@core/article.service';
-import { Article } from '@core/models';
+import type { Article } from '@core/models';
 
 @Component({
   selector: 'app-article-list',

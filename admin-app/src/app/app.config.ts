@@ -1,5 +1,6 @@
+import type {
+  ApplicationConfig} from '@angular/core';
 import {
-  ApplicationConfig,
   provideBrowserGlobalErrorListeners,
   provideZonelessChangeDetection,
 } from '@angular/core';

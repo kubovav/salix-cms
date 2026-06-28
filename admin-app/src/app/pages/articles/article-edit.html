@@ -44,8 +44,8 @@
                 autocomplete="off"
                 class="form-control"
                 formControlName="slug"
-                [class.is-invalid]="getError('slug')"
                 placeholder="Auto-generated from the title"
+                [class.is-invalid]="getError('slug')"
               />
               @if (getError('slug'); as error) {
                 <div class="invalid-feedback">{{ error }}</div>
@@ -75,7 +75,7 @@
             <i class="bi bi-check-lg me-1"></i> Save Settings
           </button>
           @if (article()?.published) {
-            <a [href]="'/' + article()!.slug" target="_blank" class="btn btn-outline-secondary">
+            <a target="_blank" class="btn btn-outline-secondary" [href]="'/' + article()!.slug">
               <i class="bi bi-box-arrow-up-right me-1"></i> View page
             </a>
           }
@@ -98,7 +98,7 @@
               No blocks yet. Use <strong>Add Block</strong> to add content.
             </p>
           } @else {
-            <div cdkDropList (cdkDropListDropped)="drop($event)" class="list-group">
+            <div cdkDropList class="list-group" (cdkDropListDropped)="drop($event)">
               @for (block of blocks(); track block.id) {
                 <div
                   class="list-group-item d-flex align-items-center gap-2"

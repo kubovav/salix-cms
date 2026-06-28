@@ -1,6 +1,6 @@
 <div class="modal-header">
   <h5 class="modal-title">{{ isEdit ? 'Edit Menu Item' : 'Add Menu Item' }}</h5>
-  <button type="button" class="btn-close" (click)="modal.dismiss()"></button>
+  <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
 </div>
 
 <form [formGroup]="form" (ngSubmit)="save()">
@@ -10,9 +10,10 @@
     }
 
     <div class="mb-3">
-      <label class="form-label fw-semibold">Label</label>
+      <label class="form-label fw-semibold" for="menu-label">Label</label>
       <input
         type="text"
+        id="menu-label"
         class="form-control"
         autocomplete="off"
         formControlName="label"
@@ -25,16 +26,16 @@
     </div>
 
     <div class="mb-3">
-      <label class="form-label fw-semibold">Menu</label>
-      <select class="form-select" formControlName="menuName">
+      <label class="form-label fw-semibold" for="menu-name">Menu</label>
+      <select id="menu-name" class="form-select" formControlName="menuName">
         <option value="main">Main navigation</option>
         <option value="footer">Footer</option>
       </select>
     </div>
 
     <div class="mb-3">
-      <label class="form-label fw-semibold">Linked page</label>
-      <select class="form-select" formControlName="page">
+      <label class="form-label fw-semibold" for="menu-page">Linked page</label>
+      <select id="menu-page" class="form-select" formControlName="page">
         <option value="">— link to a CMS page —</option>
         @for (page of pages; track page.id) {
           <option [value]="page.id">{{ page.title }}</option>
@@ -46,9 +47,10 @@
     </div>
 
     <div class="mb-3">
-      <label class="form-label fw-semibold">URL</label>
+      <label class="form-label fw-semibold" for="menu-url">URL</label>
       <input
         type="text"
+        id="menu-url"
         autocomplete="off"
         class="form-control"
         formControlName="url"
@@ -62,8 +64,8 @@
     </div>
 
     <div class="mb-3">
-      <label class="form-label fw-semibold">Parent item</label>
-      <select class="form-select" formControlName="parent">
+      <label class="form-label fw-semibold" for="menu-parent">Parent item</label>
+      <select id="menu-parent" class="form-select" formControlName="parent">
         <option value="">— top-level item —</option>
         @for (parent of parents; track parent.id) {
           <option [value]="parent.id">[{{ parent.menuName }}] {{ parent.label }}</option>
@@ -76,8 +78,14 @@
 
     <div class="row">
       <div class="col-6 mb-3">
-        <label class="form-label fw-semibold">Position</label>
-        <input type="number" min="0" class="form-control" formControlName="position" />
+        <label class="form-label fw-semibold" for="menu-position">Position</label>
+        <input
+          type="number"
+          id="menu-position"
+          min="0"
+          class="form-control"
+          formControlName="position"
+        />
       </div>
       <div class="col-6 d-flex align-items-end mb-3">
         <div class="form-check">

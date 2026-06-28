@@ -1,11 +1,11 @@
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import type { OnInit } from '@angular/core';
-import { HttpErrorResponse } from '@angular/common/http';
+import type { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { SettingsService } from '@core/settings.service';
 import { applyApiViolations, resolveFieldError } from '@core/form-errors';
-import { PageOption } from '@core/models';
+import type { PageOption } from '@core/models';
 
 @Component({
   selector: 'app-settings',

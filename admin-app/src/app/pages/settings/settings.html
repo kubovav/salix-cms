@@ -13,8 +13,9 @@
             <div class="alert alert-danger py-2">{{ error() }}</div>
           }
           <div class="mb-3">
-            <label class="form-label fw-semibold">Home page</label>
+            <label class="form-label fw-semibold" for="home-page-slug">Home page</label>
             <select
+              id="home-page-slug"
               class="form-select"
               formControlName="home_page_slug"
               [attr.disabled]="pages().length === 0 ? '' : null"

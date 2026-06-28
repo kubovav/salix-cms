@@ -1,7 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, shareReplay } from 'rxjs';
-import { Meta } from './models';
+import type { Observable} from 'rxjs';
+import { shareReplay } from 'rxjs';
+import type { Meta } from './models';
 
 @Injectable({ providedIn: 'root' })
 export class MetaService {

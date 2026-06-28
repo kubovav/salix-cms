@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { MenuItem } from './models';
+import type { Observable } from 'rxjs';
+import type { MenuItem } from './models';
 import { idFromRef } from './iri';
 
 /** Raw value of the menu editor form: page/parent are entity ids (or '' for none). */

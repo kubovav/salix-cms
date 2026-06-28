@@ -1,7 +1,8 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
-import { User } from './models';
+import type { Observable} from 'rxjs';
+import { tap } from 'rxjs';
+import type { User } from './models';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {

@@ -1,17 +1,18 @@
 import { Component, DestroyRef, inject, signal } from '@angular/core';
-import { HttpErrorResponse } from '@angular/common/http';
+import type { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import {
+import type {
   AbstractControl,
+  ValidationErrors} from '@angular/forms';
+import {
   FormBuilder,
   ReactiveFormsModule,
-  ValidationErrors,
   Validators,
 } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { MenuService } from '@core/menu.service';
 import { applyApiViolations, resolveFieldError } from '@core/form-errors';
-import { Article, MenuItem } from '@core/models';
+import type { Article, MenuItem } from '@core/models';
 
 /**
  * Accepts an empty value (URL is optional), a relative path ("/about") or

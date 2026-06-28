@@ -4,7 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { MenuService } from '@core/menu.service';
 import { ArticleService } from '@core/article.service';
-import { Article, MenuItem, MenuTreeNode } from '@core/models';
+import type { Article, MenuItem, MenuTreeNode } from '@core/models';
 import { MenuEditorModal } from './menu-editor-modal';
 
 @Component({

@@ -1,16 +1,17 @@
 import { Component, DestroyRef, computed, inject, input, signal } from '@angular/core';
 import type { OnInit } from '@angular/core';
-import { HttpErrorResponse } from '@angular/common/http';
+import type { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { applyApiViolations, resolveFieldError } from '@core/form-errors';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
+import type { CdkDragDrop} from '@angular/cdk/drag-drop';
+import { DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ArticleService } from '@core/article.service';
 import { BlockService } from '@core/block.service';
 import { MetaService } from '@core/meta.service';
-import { Article, Block, BlockTypeOption } from '@core/models';
+import type { Article, Block, BlockTypeOption } from '@core/models';
 import { BlockEditorModal } from './block-editor-modal';
 
 @Component({

@@ -1,5 +1,5 @@
-import { HttpErrorResponse } from '@angular/common/http';
-import { AbstractControl, FormGroup } from '@angular/forms';
+import type { HttpErrorResponse } from '@angular/common/http';
+import type { AbstractControl, FormGroup } from '@angular/forms';
 
 interface ApiViolation {
   propertyPath?: string;

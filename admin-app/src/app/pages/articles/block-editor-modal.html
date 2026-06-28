@@ -1,6 +1,6 @@
 <div class="modal-header">
   <h5 class="modal-title">{{ isEdit ? 'Edit Block' : 'Add Block' }}</h5>
-  <button type="button" class="btn-close" (click)="modal.dismiss()"></button>
+  <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
 </div>
 
 <div class="modal-body">
@@ -26,21 +26,23 @@
       <!-- Rich text / text content -->
       @if (isRichText) {
         <div class="mb-3">
-          <label class="form-label fw-semibold">Text content</label>
+          <label class="form-label fw-semibold" for="block-html">Text content</label>
           <quill-editor
+            id="block-html"
             formControlName="html"
-            [styles]="{ minHeight: '180px' }"
             class="d-block"
-          ></quill-editor>
+            [styles]="{ minHeight: '180px' }"
+          />
         </div>
       }
 
       <!-- Hero / CTA heading -->
       @if (form.get('heading')) {
         <div class="mb-3">
-          <label class="form-label fw-semibold">Heading</label>
+          <label class="form-label fw-semibold" for="block-heading">Heading</label>
           <input
             type="text"
+            id="block-heading"
             class="form-control"
             autocomplete="off"
             formControlName="heading"
@@ -53,28 +55,41 @@
       }
       @if (form.get('subtext')) {
         <div class="mb-3">
-          <label class="form-label fw-semibold">Subtext (optional)</label>
-          <textarea class="form-control" rows="2" formControlName="subtext"></textarea>
+          <label class="form-label fw-semibold" for="block-subtext">Subtext (optional)</label>
+          <textarea id="block-subtext" class="form-control" rows="2" formControlName="subtext"></textarea>
         </div>
       }
       @if (form.get('cta_text')) {
         <div class="row">
           <div class="col-md-6 mb-3">
-            <label class="form-label fw-semibold">CTA button text (optional)</label>
-            <input type="text" class="form-control" autocomplete="off" formControlName="cta_text" />
+            <label class="form-label fw-semibold" for="block-cta-text">CTA button text (optional)</label>
+            <input
+              type="text"
+              id="block-cta-text"
+              class="form-control"
+              autocomplete="off"
+              formControlName="cta_text"
+            />
           </div>
           <div class="col-md-6 mb-3">
-            <label class="form-label fw-semibold">CTA button URL (optional)</label>
-            <input type="text" class="form-control" autocomplete="off" formControlName="cta_url" />
+            <label class="form-label fw-semibold" for="block-cta-url">CTA button URL (optional)</label>
+            <input
+              type="text"
+              id="block-cta-url"
+              class="form-control"
+              autocomplete="off"
+              formControlName="cta_url"
+            />
           </div>
         </div>
       }
       @if (form.get('button_text')) {
         <div class="row">
           <div class="col-md-6 mb-3">
-            <label class="form-label fw-semibold">Button text</label>
+            <label class="form-label fw-semibold" for="block-button-text">Button text</label>
             <input
               type="text"
+              id="block-button-text"
               class="form-control"
               autocomplete="off"
               formControlName="button_text"
@@ -85,9 +100,10 @@
             }
           </div>
           <div class="col-md-6 mb-3">
-            <label class="form-label fw-semibold">Button URL</label>
+            <label class="form-label fw-semibold" for="block-button-url">Button URL</label>
             <input
               type="text"
+              id="block-button-url"
               class="form-control"
               autocomplete="off"
               formControlName="button_url"
@@ -103,8 +119,8 @@
       <!-- Image side -->
       @if (form.get('image_side')) {
         <div class="mb-3">
-          <label class="form-label fw-semibold">Image position</label>
-          <select class="form-select" formControlName="image_side">
+          <label class="form-label fw-semibold" for="block-image-side">Image position</label>
+          <select id="block-image-side" class="form-select" formControlName="image_side">
             <option value="left">Image on left</option>
             <option value="right">Image on right</option>
           </select>
@@ -114,9 +130,10 @@
       <!-- Image alt (image block) -->
       @if (form.get('alt')) {
         <div class="mb-3">
-          <label class="form-label fw-semibold">Alt text</label>
+          <label class="form-label fw-semibold" for="block-alt">Alt text</label>
           <input
             type="text"
+            id="block-alt"
             class="form-control"
             autocomplete="off"
             formControlName="alt"
@@ -129,15 +146,22 @@
       }
       @if (form.get('caption')) {
         <div class="mb-3">
-          <label class="form-label fw-semibold">Caption (optional)</label>
-          <input type="text" class="form-control" autocomplete="off" formControlName="caption" />
+          <label class="form-label fw-semibold" for="block-caption">Caption (optional)</label>
+          <input
+            type="text"
+            id="block-caption"
+            class="form-control"
+            autocomplete="off"
+            formControlName="caption"
+          />
         </div>
       }
       @if (form.get('image_alt')) {
         <div class="mb-3">
-          <label class="form-label fw-semibold">Image alt text</label>
+          <label class="form-label fw-semibold" for="block-image-alt">Image alt text</label>
           <input
             type="text"
+            id="block-image-alt"
             class="form-control"
             autocomplete="off"
             formControlName="image_alt"
@@ -152,8 +176,8 @@
       <!-- Image size -->
       @if (form.get('size')) {
         <div class="mb-3">
-          <label class="form-label fw-semibold">Image size</label>
-          <select class="form-select" formControlName="size">
+          <label class="form-label fw-semibold" for="block-size">Image size</label>
+          <select id="block-size" class="form-select" formControlName="size">
             <option value="small">Small (25%)</option>
             <option value="medium">Medium (50%)</option>
             <option value="large">Large (75%)</option>
@@ -180,25 +204,26 @@
       <!-- Image upload -->
       @if (allowsImage) {
         <div class="mb-3">
-          <label class="form-label fw-semibold">
+          <label class="form-label fw-semibold" for="block-image">
             Image {{ requiresImage ? '' : '(optional)' }}
           </label>
           @if (imagePreview) {
             <div class="mb-2">
               <img
-                [src]="imagePreview"
                 alt="Preview"
                 class="img-thumbnail"
                 style="max-height: 140px"
+                [src]="imagePreview"
               />
             </div>
           }
           <input
             type="file"
+            id="block-image"
             class="form-control"
             accept="image/*"
-            (change)="onFileSelected($event)"
             [disabled]="uploading()"
+            (change)="onFileSelected($event)"
           />
           @if (uploading()) {
             <div class="form-text">
@@ -217,8 +242,8 @@
     <button
       type="button"
       class="btn btn-primary"
-      (click)="save()"
       [disabled]="saving() || uploading()"
+      (click)="save()"
     >
       @if (saving()) {
         <span class="spinner-border spinner-border-sm me-1"></span>
