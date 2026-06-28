@@ -70,6 +70,7 @@ class MenuItem
 
     #[ORM\Column]
     #[Groups(['menu:read', 'menu:write'])]
+    #[Assert\PositiveOrZero(message: 'Position must be zero or a positive integer.')]
     private int $position = 0;
 
     #[ORM\Column(length: 50)]
