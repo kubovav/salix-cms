@@ -11,6 +11,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Repository\ContentPageRepository;
+use App\Validator\DerivableSlug;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -35,6 +36,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     security: "is_granted('ROLE_ADMIN')",
 )]
 #[UniqueEntity(fields: ['slug'], message: 'This slug is already in use.')]
+#[DerivableSlug]
 class ContentPage
 {
     #[ORM\Id]
@@ -45,7 +47,6 @@ class ContentPage
 
     #[ORM\Column(length: 180)]
     #[Groups(['article:read', 'article:write'])]
-    #[Assert\NotBlank(message: 'Slug is required.')]
     #[Assert\Length(max: 180)]
     #[Assert\Regex(pattern: '/^[a-z0-9]+(?:-[a-z0-9]+)*$/', message: 'Use lowercase letters, numbers and dashes only.')]
     private ?string $slug = null;
