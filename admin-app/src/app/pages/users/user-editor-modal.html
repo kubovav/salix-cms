@@ -1,0 +1,81 @@
+<div class="modal-header">
+  <h5 class="modal-title">{{ isEdit ? 'Edit User' : 'Add User' }}</h5>
+  <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
+</div>
+
+<form [formGroup]="form" (ngSubmit)="save()">
+  <div class="modal-body">
+    @if (error()) {
+      <div class="alert alert-danger py-2">{{ error() }}</div>
+    }
+
+    <div class="mb-3">
+      <label class="form-label fw-semibold" for="user-name">Name</label>
+      <input
+        type="text"
+        id="user-name"
+        class="form-control"
+        autocomplete="off"
+        formControlName="name"
+        placeholder="e.g. Jane Doe"
+        [class.is-invalid]="getError('name')"
+      />
+      @if (getError('name'); as error) {
+        <div class="invalid-feedback">{{ error }}</div>
+      }
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label fw-semibold" for="user-email">Email</label>
+      <input
+        type="email"
+        id="user-email"
+        class="form-control"
+        autocomplete="off"
+        formControlName="email"
+        placeholder="e.g. jane@example.com"
+        [class.is-invalid]="getError('email')"
+      />
+      @if (getError('email'); as error) {
+        <div class="invalid-feedback">{{ error }}</div>
+      }
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label fw-semibold" for="user-password">Password</label>
+      <input
+        type="password"
+        id="user-password"
+        class="form-control"
+        autocomplete="new-password"
+        formControlName="plainPassword"
+        [placeholder]="isEdit ? 'Leave blank to keep current password' : ''"
+        [class.is-invalid]="getError('plainPassword')"
+      />
+      @if (getError('plainPassword'); as error) {
+        <div class="invalid-feedback">{{ error }}</div>
+      }
+      @if (isEdit) {
+        <div class="form-text">Leave blank to keep the current password.</div>
+      }
+    </div>
+
+    <div class="form-check">
+      <input id="user-admin" type="checkbox" class="form-check-input" formControlName="admin" />
+      <label class="form-check-label" for="user-admin">Administrator</label>
+      <div class="form-text">Administrators have full access to this admin area.</div>
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-secondary" (click)="modal.dismiss()">
+      Cancel
+    </button>
+    <button type="submit" class="btn btn-primary" [disabled]="saving()">
+      @if (saving()) {
+        <span class="spinner-border spinner-border-sm me-1"></span>
+      }
+      Save
+    </button>
+  </div>
+</form>

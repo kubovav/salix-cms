@@ -1,6 +1,12 @@
 export interface User {
+  '@id'?: string;
+  id?: number;
   email: string;
+  name?: string;
   roles: string[];
+  updatedAt?: string;
+  /** Write-only: accepted on create/update, never returned by the API. */
+  plainPassword?: string;
 }
 
 export type BlockType = 'rich_text' | 'image' | 'hero' | 'text_image' | 'cta';

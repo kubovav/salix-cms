@@ -37,6 +37,10 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/menu/menu-list').then((m) => m.MenuListComponent),
       },
       {
+        path: 'users',
+        loadComponent: () => import('./pages/users/user-list').then((m) => m.UserListComponent),
+      },
+      {
         path: 'settings',
         loadComponent: () => import('./pages/settings/settings').then((m) => m.SettingsComponent),
       },

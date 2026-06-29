@@ -90,7 +90,7 @@ class MenuItem
     #[Assert\Callback]
     public function validateFooterHasNoParent(ExecutionContextInterface $context): void
     {
-        if (MenuType::FOOTER->value === $this->menuName && null !== $this->parent) {
+        if (MenuType::FOOTER->value === $this->menuName && $this->parent instanceof MenuItem) {
             $context->buildViolation('Footer menu items cannot be nested under a parent item.')
                 ->atPath('parent')
                 ->addViolation();
@@ -142,7 +142,7 @@ class MenuItem
 
     public function setUrl(?string $url): static
     {
-        $this->url = self::normalizeUrl($url);
+        $this->url = $this->normalizeUrl($url);
 
         return $this;
     }
@@ -152,7 +152,7 @@ class MenuItem
      * "#section") untouched, and prefixes "https://" to a scheme-less external
      * value so it can be validated and resolved as an absolute external link.
      */
-    private static function normalizeUrl(?string $url): ?string
+    private function normalizeUrl(?string $url): ?string
     {
         if (null === $url) {
             return null;
@@ -172,7 +172,7 @@ class MenuItem
         // Only prefix when the value has no scheme at all (don't mangle an
         // explicit non-http scheme like "ftp://" — validation rejects those).
         if (!preg_match('#^[a-z][a-z0-9+.-]*://#i', $url)) {
-            $url = 'https://'.$url;
+            return 'https://'.$url;
         }
 
         return $url;

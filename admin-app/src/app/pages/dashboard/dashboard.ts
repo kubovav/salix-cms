@@ -18,17 +18,13 @@ export class DashboardComponent implements OnInit {
   readonly articles = signal<Article[] | null>(null);
 
   readonly count = computed(() => this.articles()?.length ?? null);
-  readonly published = computed(
-    () => this.articles()?.filter((a) => a.published).length ?? null,
-  );
-  readonly drafts = computed(
-    () => this.articles()?.filter((a) => !a.published).length ?? null,
-  );
+  readonly published = computed(() => this.articles()?.filter((a) => a.published).length ?? null);
+  readonly drafts = computed(() => this.articles()?.filter((a) => !a.published).length ?? null);
 
   readonly recent = computed(() =>
     [...(this.articles() ?? [])]
       .sort((a, b) => (b.updatedAt ?? '').localeCompare(a.updatedAt ?? ''))
-      .slice(0, 5),
+      .slice(0, 5)
   );
 
   ngOnInit(): void {
