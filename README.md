@@ -58,20 +58,28 @@ Then open:
 - Admin: `http://localhost:8010/admin`
 - phpMyAdmin: `http://localhost:8010/phpmyadmin`
 
-## Admin App (Angular)
+## npm Commands
 
-The admin UI lives in `admin-app/` and is developed independently of the Symfony app.
+Run everything from the **project root** — the root scripts compile the public frontend SCSS
+and delegate to the admin app, so there is no need to `cd admin-app`:
 
 ```bash
-cd admin-app
-npm install            # install dependencies
-npm start              # dev server; proxies /api and /uploads to http://localhost:8000
-npm run build          # production build into ../public/admin (served by Nginx at /admin)
+npm install      # install root + admin-app dependencies
+npm run build    # compile frontend SCSS + production-build the admin app
+npm run watch    # watch frontend SCSS + rebuild admin app in parallel
+npm start        # admin dev server; proxies /api and /uploads to http://localhost:8000
+npm run lint     # lint the admin app (angular-eslint)
+npm run format   # format the admin app (Prettier)
 ```
 
-The build uses `@angular/build:application` (esbuild). Output goes straight to `public/admin/`
-(`baseHref: /admin/`); there is no intermediate `dist/` to deploy. After changing the admin app,
-run `npm run build` and reload the page — no Symfony or Nginx restart is required.
+## Admin App (Angular)
+
+The admin UI lives in `admin-app/`. The production build uses `@angular/build:application`
+(esbuild) and outputs straight to `public/admin/` (`baseHref: /admin/`), served by Nginx at
+`/admin` — there is no intermediate `dist/` to deploy. After changing the admin app, run
+`npm run build` and reload the page; no Symfony or Nginx restart is required.
+
+Linting is handled by **angular-eslint** (flat config in `admin-app/eslint.config.js`).
 
 Create an admin user (required to log in):
 
