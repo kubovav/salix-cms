@@ -87,6 +87,18 @@ Everything runs in a single `salix_app` Docker container managed by Supervisor:
 - **`SiteSetting`** — key/value store for site-wide config (e.g. home page slug)
 - **`User`** — login account with hashed password and roles
 
+## Custom Site (Downstream) Workflow
+
+Salix is a full Symfony **application**, not a library. Custom websites are built in **separate downstream repos** that consume this CMS as a git `upstream` remote and merge **tagged releases** (`git merge upstream/v1.1.0`). The whole model hinges on one rule: **a downstream site never edits CMS files in place** — all site-specific code goes in dedicated **quarantine lanes** the CMS leaves empty, so upgrades don't conflict. These lanes ship wired-up-but-empty in this repo:
+
+- **`src/Site/`** (namespace `App\Site\`) — site PHP; already autoloaded by the `App\:` rule, services autoconfigured. Controllers in `src/Site/Controller/`.
+- **`config/routes/site.yaml`** — auto-loaded route file importing `#[Route]` attributes from `src/Site/Controller/`. Do **not** add site routes to `config/routes.yaml`.
+- **`templates/site/`** — site Twig/theme, separate from CMS `templates/frontend/`.
+- **`config/packages/site_*.yaml`** — site config (prefixed new files; the default kernel does not recurse into a `config/packages/site/` subdir).
+- **`migrations/site/`** (namespace `Site\Migrations`) — site schema on a separate timeline: `bin/console doctrine:migrations:diff --namespace=Site\Migrations`.
+
+The shared files that conflict if edited downstream are `composer.json`, `config/routes.yaml`, and `templates/frontend/layout.html.twig` — touch minimally. The `admin-app/` SPA is **100% upstream** — never customize it downstream. When a second site appears or merge pain grows, the reusable half graduates to a Composer/Symfony bundle; keeping code in these lanes makes that extraction cheap. **When adding CMS features here, keep these lanes empty and conflict-free.**
+
 ## Development Commands
 
 ```bash

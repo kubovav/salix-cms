@@ -11,6 +11,7 @@ services:
     volumes:
       - .:/var/www/html
       - ~/.ssh:/root/.ssh
+      - ./docker/temp/claude:/root/.claude
     networks:
       - salix
     command: supervisord -c /etc/supervisor/conf.d/supervisord.conf
@@ -46,6 +47,3 @@ services:
 networks:
   salix:
     name: salix_network
-
-volumes:
-  db_data:
