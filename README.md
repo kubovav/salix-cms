@@ -87,6 +87,59 @@ Create an admin user (required to log in):
 php bin/console app:create-user <email>
 ```
 
+## Building a Custom Site on Salix
+
+Salix is a full Symfony **application**, not a library. To build a custom website on top of
+it while still pulling in CMS updates, treat the CMS as an **upstream** and keep all of your
+site-specific code in dedicated **quarantine lanes** that the CMS never touches. Conflicts on
+upgrade only happen when both sides edit the same file, so the rule is: *never customize CMS
+files in place — add your own files in the lanes below.*
+
+### 1. Wire the CMS as `upstream`
+
+Create your site repo from the CMS, then point `upstream` at the CMS and `origin` at your
+site:
+
+```bash
+git clone <cms-repo-url> my-site && cd my-site
+git remote rename origin upstream         # CMS = upstream (you only pull from it)
+git remote add origin <your-site-repo-url>
+git push -u origin main
+```
+
+Pull CMS updates deliberately, preferring **tagged releases** over tracking `main`:
+
+```bash
+git fetch upstream --tags
+git merge upstream/v1.1.0                  # or rebase a feature branch onto it
+```
+
+(The CMS should tag releases — `git tag v1.0.0 && git push --tags` — so upgrades are explicit.)
+
+### 2. Keep site code in the quarantine lanes
+
+These lanes ship with the CMS and are wired up but empty, so a fresh site can use them
+immediately:
+
+| Site work | Lane | Notes |
+|---|---|---|
+| Custom PHP (controllers, services, entities) | `src/Site/` (namespace `App\Site\`) | Already autoloaded; services autoconfigured. Controllers go in `src/Site/Controller/`. |
+| Routes | `config/routes/site.yaml` | New file, auto-loaded. Imports `#[Route]` attributes from `src/Site/Controller/`. Never edit the CMS's `config/routes.yaml`. |
+| Twig templates / theme | `templates/site/` | Render with `@site/...` or reference `site/...`; override a CMS frontend template via `templates/frontend/...` only when unavoidable. |
+| Site config | `config/packages/site_*.yaml` | New, prefixed files don't collide with CMS config files. |
+| Schema changes | `migrations/site/` (namespace `Site\Migrations`) | Separate migration timeline — generate with `bin/console doctrine:migrations:diff --namespace=Site\Migrations`. |
+| Env / secrets | `.env.local` | Git-ignored; never conflicts. |
+
+The files that **will** conflict if you edit them are the shared ones — `composer.json`,
+`config/routes.yaml`, `templates/frontend/layout.html.twig`. Touch those as little as
+possible; resolve the small, predictable conflict when the CMS changes them.
+
+### 3. Treat the admin SPA as 100% upstream
+
+Do **not** customize `admin-app/` in a site repo — editing it guarantees a conflict on every
+CMS UI change. Customize behavior through CMS settings and data instead.
+
+
 ## Deploying to Shared Hosting (Web Installer)
 
 For deployments without shell access (typical shared hosting), Salix ships a one-shot

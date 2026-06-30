@@ -3,4 +3,8 @@ doctrine_migrations:
         # namespace is arbitrary but should be different from App\Migrations
         # as migrations classes should NOT be autoloaded
         'DoctrineMigrations': '%kernel.project_dir%/migrations'
+        # Site-specific migrations live on a separate timeline so custom-site
+        # schema changes never collide with CMS migrations on upgrade.
+        # Generate with: bin/console doctrine:migrations:diff --namespace=Site\Migrations
+        'Site\Migrations': '%kernel.project_dir%/migrations/site'
     enable_profiler: false
