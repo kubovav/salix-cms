@@ -56,10 +56,18 @@ class CreateUserCommand extends Command
             return Command::FAILURE;
         }
 
+        $name = $io->ask('Name');
+        if (!$name) {
+            $io->error('Name cannot be empty.');
+
+            return Command::FAILURE;
+        }
+
         $isAdmin = $io->confirm('Is this user an admin?', false);
 
         $user = new User();
         $user->setEmail($email);
+        $user->setName($name);
         $user->setPlainPassword($password);
         $user->setRoles($isAdmin ? ['ROLE_ADMIN'] : []);
 

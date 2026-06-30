@@ -18,16 +18,21 @@ use Symfony\Component\DependencyInjection\Attribute\AutowireDecorated;
  *  - fill a blank slug from the title (so the slug is optional on the API), and
  *  - close the check-then-insert race on the slug's unique constraint by retrying with a
  *    fresh suffix when a concurrent insert wins.
+ *
+ * @implements ProcessorInterface<mixed, mixed>
  */
 #[AsDecorator('api_platform.doctrine.orm.state.persist_processor')]
-final class ContentPagePersistProcessor implements ProcessorInterface
+final readonly class ContentPagePersistProcessor implements ProcessorInterface
 {
-    private const MAX_ATTEMPTS = 5;
+    private const int MAX_ATTEMPTS = 5;
 
+    /**
+     * @param ProcessorInterface<mixed, mixed> $decorated
+     */
     public function __construct(
-        #[AutowireDecorated] private readonly ProcessorInterface $decorated,
-        private readonly SlugGenerator $slugGenerator,
-        private readonly ManagerRegistry $registry,
+        #[AutowireDecorated] private ProcessorInterface $decorated,
+        private SlugGenerator $slugGenerator,
+        private ManagerRegistry $registry,
     ) {
     }
 

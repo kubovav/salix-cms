@@ -56,13 +56,20 @@
       @if (form.get('subtext')) {
         <div class="mb-3">
           <label class="form-label fw-semibold" for="block-subtext">Subtext (optional)</label>
-          <textarea id="block-subtext" class="form-control" rows="2" formControlName="subtext"></textarea>
+          <textarea
+            id="block-subtext"
+            class="form-control"
+            rows="2"
+            formControlName="subtext"
+          ></textarea>
         </div>
       }
       @if (form.get('cta_text')) {
         <div class="row">
           <div class="col-md-6 mb-3">
-            <label class="form-label fw-semibold" for="block-cta-text">CTA button text (optional)</label>
+            <label class="form-label fw-semibold" for="block-cta-text"
+              >CTA button text (optional)</label
+            >
             <input
               type="text"
               id="block-cta-text"
@@ -72,7 +79,9 @@
             />
           </div>
           <div class="col-md-6 mb-3">
-            <label class="form-label fw-semibold" for="block-cta-url">CTA button URL (optional)</label>
+            <label class="form-label fw-semibold" for="block-cta-url"
+              >CTA button URL (optional)</label
+            >
             <input
               type="text"
               id="block-cta-url"

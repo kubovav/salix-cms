@@ -15,7 +15,7 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 class SlugGenerator
 {
     /** Matches the ContentPage::$slug column length. */
-    private const MAX_LENGTH = 180;
+    private const int MAX_LENGTH = 180;
 
     public function __construct(
         private readonly ManagerRegistry $registry,
@@ -34,8 +34,8 @@ class SlugGenerator
         $counter = 1;
 
         while ($this->slugExists($slug, $excludeId)) {
-            $suffix = '-' . $counter++;
-            $slug = $this->truncate($base, self::MAX_LENGTH - \strlen($suffix)) . $suffix;
+            $suffix = '-'.$counter++;
+            $slug = $this->truncate($base, self::MAX_LENGTH - \strlen($suffix)).$suffix;
         }
 
         return $slug;

@@ -46,7 +46,6 @@ module.exports = defineConfig([
       '@angular-eslint/template/prefer-control-flow': 'error',
       '@angular-eslint/template/button-has-type': 'error',
       '@angular-eslint/template/prefer-self-closing-tags': 'error',
-      '@angular-eslint/template/attributes-order': 'error',
     },
   },
 ]);

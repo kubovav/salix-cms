@@ -1,14 +1,8 @@
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import type { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import type {
-  AbstractControl,
-  ValidationErrors} from '@angular/forms';
-import {
-  FormBuilder,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import type { AbstractControl, ValidationErrors } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { MenuService } from '@core/menu.service';
 import { applyApiViolations, resolveFieldError } from '@core/form-errors';

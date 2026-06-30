@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import type { Observable} from 'rxjs';
+import type { Observable } from 'rxjs';
 import { tap } from 'rxjs';
 import type { User } from './models';
 
