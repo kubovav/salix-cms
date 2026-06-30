@@ -8,7 +8,6 @@ services:
     hostname: salix_app
     ports:
       - "8000:8000"
-      - "3000:3000"
     volumes:
       - .:/var/www/html
       - ~/.ssh:/root/.ssh
