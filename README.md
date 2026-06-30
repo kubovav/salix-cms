@@ -183,3 +183,8 @@ admin account, and writes the connection to `.env.local`.
 > The installer is for **fresh deployments**. In the Docker development environment the
 > database is configured via `.env` / `.env.local`, so the installer is not needed there.
 
+## License
+
+Released under the [MIT License](LICENSE) — free to use, modify, and distribute,
+including for commercial projects. Copyright (c) 2026 Jakub Vavro.
+

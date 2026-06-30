@@ -1,0 +1,46 @@
+includes:
+    - vendor/phpstan/phpstan/conf/bleedingEdge.neon
+    - vendor/phpstan/phpstan-deprecation-rules/rules.neon
+    - vendor/tomasvotruba/unused-public/config/extension.neon
+    - vendor/spaze/phpstan-disallowed-calls/extension.neon
+    - vendor/spaze/phpstan-disallowed-calls/disallowed-dangerous-calls.neon
+    - vendor/spaze/phpstan-disallowed-calls/disallowed-insecure-calls.neon
+    - vendor/phpstan/phpstan-strict-rules/rules.neon
+parameters:
+    reportMaybesInPropertyPhpDocTypes: true
+    strictRules:
+        disallowedEmpty: false
+        disallowedLooseComparison: true
+        booleansInConditions: false
+        uselessCast: true
+        switchConditionsMatchingType: true
+        strictFunctionCalls: true
+        noVariableVariables: false
+        strictArrayFilter: true
+    reportUnmatchedIgnoredErrors: false
+    unused_public:
+        methods: true
+        properties: true
+        local_methods: true
+        constants: true
+    level: 6
+    disallowedFunctionCalls:
+        -
+            function:
+                - 'var_dump()'
+                - 'dd()'
+                - 'print_r()'
+                - 'var_export'
+            message: 'use Logger instead'
+    paths:
+        - bin/
+        - config/
+        - public/
+        - src/
+    ignoreErrors:
+        - '#Property App\\Entity\\(.*)#'
+        - '#Public method "App\\Entity\\(.*)#'
+        - '#Public method "App\\EventListener\\(.*)#'
+    excludePaths:
+        analyse:
+            - config/reference.php
