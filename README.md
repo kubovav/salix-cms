@@ -87,3 +87,46 @@ Create an admin user (required to log in):
 php bin/console app:create-user <email>
 ```
 
+## Deploying to Shared Hosting (Web Installer)
+
+For deployments without shell access (typical shared hosting), Salix ships a one-shot
+web installer at **`/install`** that provisions the database and creates the first admin
+account from the browser — no console required.
+
+### Steps
+
+1. Upload the application (including `vendor/` and the built `public/admin/`) to the host
+   and point the web root at `public/`.
+2. Ensure the project root and `var/` are **writable** by the web server (the installer
+   writes `.env.local` and a lock file).
+3. Create an empty database and a database user via your hosting control panel.
+4. Browse to `https://your-site/install` and fill in:
+   - **Administrator** — name, email, password (min. 8 characters).
+   - **Database** — type (MySQL / MariaDB / PostgreSQL), host, port, database name, user,
+     password, and optional server version (defaults are filled in per database type).
+
+On submit the installer connects to the database, runs all Doctrine migrations, creates the
+admin account, and writes the connection to `.env.local`.
+
+### Security model
+
+- **Runs once.** On success the installer writes `var/installed.lock` (outside the web root).
+  After that, both `GET` and `POST /install` return **403** — it cannot be replayed to
+  repoint the database or create another admin. To intentionally re-install, delete
+  `var/installed.lock` on the server first.
+- **Secrets stay out of the repo.** Database credentials are written to `.env.local`
+  (git-ignored, outside `public/`); a fresh `APP_SECRET` is generated if one isn't set.
+- **All-or-nothing.** The lock and `.env.local` are written only after the database is fully
+  provisioned, so a failed attempt leaves no trace and can simply be retried.
+- The form is **CSRF-protected** and marked `noindex, nofollow`.
+
+### After installing
+
+- If you run with `APP_ENV=prod`, clear the cache (`var/cache`) so the new database
+  connection is picked up.
+- For defence in depth, you may delete `src/Controller/InstallController.php` from the
+  deployment once installed.
+
+> The installer is for **fresh deployments**. In the Docker development environment the
+> database is configured via `.env` / `.env.local`, so the installer is not needed there.
+
