@@ -9,19 +9,19 @@ namespace App\Install;
  * controller; this object only carries known-good values and knows how to
  * assemble a Doctrine DATABASE_URL from them.
  */
-final class InstallRequest
+final readonly class InstallRequest
 {
     public function __construct(
-        public readonly string $adminName,
-        public readonly string $adminEmail,
-        public readonly string $adminPassword,
-        private readonly string $dbDriver,
-        private readonly string $dbHost,
-        private readonly int $dbPort,
-        private readonly string $dbName,
-        private readonly string $dbUser,
-        private readonly string $dbPassword,
-        private readonly string $dbServerVersion,
+        public string $adminName,
+        public string $adminEmail,
+        public string $adminPassword,
+        private string $dbDriver,
+        private string $dbHost,
+        private int $dbPort,
+        private string $dbName,
+        private string $dbUser,
+        private string $dbPassword,
+        private string $dbServerVersion,
     ) {
     }
 

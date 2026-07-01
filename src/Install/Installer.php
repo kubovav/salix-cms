@@ -23,7 +23,7 @@ use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
  * creates the first admin account, persists the connection to .env.local and
  * then locks itself so the installer can never be replayed.
  */
-final class Installer
+final readonly class Installer
 {
     /**
      * Maps the schemes our installer can produce to DBAL driver names. We keep
@@ -36,8 +36,8 @@ final class Installer
 
     public function __construct(
         #[Autowire('%kernel.project_dir%')]
-        private readonly string $projectDir,
-        private readonly PasswordHasherFactoryInterface $passwordHasherFactory,
+        private string $projectDir,
+        private PasswordHasherFactoryInterface $passwordHasherFactory,
     ) {
     }
 
@@ -68,8 +68,8 @@ final class Installer
 
         try {
             $connection->executeQuery('SELECT 1');
-        } catch (\Throwable $e) {
-            throw new InstallException('Could not connect to the database: '.$e->getMessage(), previous: $e);
+        } catch (\Throwable $throwable) {
+            throw new InstallException('Could not connect to the database: '.$throwable->getMessage(), previous: $throwable);
         }
 
         $this->runMigrations($connection);
@@ -136,7 +136,7 @@ final class Installer
                 'roles' => json_encode(['ROLE_ADMIN'], \JSON_THROW_ON_ERROR),
                 'password' => $hasher->hash($request->adminPassword),
                 'name' => $request->adminName,
-                'updated_at' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
+                'updated_at' => new \DateTimeImmutable()->format('Y-m-d H:i:s'),
             ]);
         } catch (InstallException $e) {
             throw $e;
@@ -147,7 +147,7 @@ final class Installer
 
     private function createConnection(string $databaseUrl): Connection
     {
-        $params = (new DsnParser(self::SCHEME_MAP))->parse($databaseUrl);
+        $params = new DsnParser(self::SCHEME_MAP)->parse($databaseUrl);
 
         return DriverManager::getConnection($params);
     }
@@ -194,7 +194,7 @@ final class Installer
     private function lock(string $adminEmail): void
     {
         $payload = json_encode([
-            'installed_at' => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
+            'installed_at' => new \DateTimeImmutable()->format(\DateTimeInterface::ATOM),
             'admin_email' => $adminEmail,
         ], \JSON_PRETTY_PRINT | \JSON_THROW_ON_ERROR);
 
