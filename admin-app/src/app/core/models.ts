@@ -17,6 +17,8 @@ export interface Block {
   type: BlockType | string;
   position: number;
   data: Record<string, unknown>;
+  /** Optional in-page anchor (HTML id) for menu links like #section */
+  anchor?: string | null;
   imageUrl?: string | null;
   /** IRI of the owning article, e.g. /api/articles/5 (write only) */
   page?: string;

@@ -5,14 +5,18 @@
 {% block content %}
     {% for block in page.blocks %}
         {% if block.type == 'hero' %}
-            {% include 'frontend/blocks/_hero.html.twig' with {block: block} %}
+            {% if block.anchor %}<div id="{{ block.anchor }}" class="block-anchor">{% endif %}
+                {% include 'frontend/blocks/_hero.html.twig' with {block: block} %}
+            {% if block.anchor %}</div>{% endif %}
         {% endif %}
     {% endfor %}
 
     <div class="container py-5">
         {% for block in page.blocks %}
             {% if block.type != 'hero' %}
-                {% include 'frontend/blocks/_' ~ block.type ~ '.html.twig' with {block: block} %}
+                {% if block.anchor %}<div id="{{ block.anchor }}" class="block-anchor">{% endif %}
+                    {% include 'frontend/blocks/_' ~ block.type ~ '.html.twig' with {block: block} %}
+                {% if block.anchor %}</div>{% endif %}
             {% endif %}
         {% endfor %}
 

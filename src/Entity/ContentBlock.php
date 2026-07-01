@@ -62,6 +62,14 @@ class ContentBlock
     #[Assert\NotNull]
     private ?ContentPage $page = null;
 
+    #[ORM\Column(length: 100, nullable: true)]
+    #[Groups(['block:read', 'block:write', 'article:read'])]
+    #[Assert\Regex(
+        pattern: '/^[A-Za-z][A-Za-z0-9_-]*$/',
+        message: 'Anchor must start with a letter and contain only letters, numbers, hyphens or underscores (no "#").'
+    )]
+    private ?string $anchor = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -133,6 +141,18 @@ class ContentBlock
     public function setPage(?ContentPage $page): static
     {
         $this->page = $page;
+
+        return $this;
+    }
+
+    public function getAnchor(): ?string
+    {
+        return $this->anchor;
+    }
+
+    public function setAnchor(?string $anchor): static
+    {
+        $this->anchor = $anchor;
 
         return $this;
     }

@@ -42,6 +42,7 @@ Everything runs in a single `salix_app` Docker container managed by Supervisor:
 - The backend exposes a REST API via **API Platform** under `/api` (config in `config/packages/api_platform.yaml`). Entities are exposed with `#[ApiResource]` + serialization groups + validation constraints. API responses are **plain JSON** (`formats: json`), so collections are plain arrays.
 - **Auth is session-cookie based, same-origin** (reuses Symfony Security — no JWT). The `api` firewall uses `json_login` (`POST /api/auth/login` with `{email, password}`), `POST /api/auth/logout`, and `GET /api/auth/me`. Custom handlers return JSON instead of HTML redirects (`src/Security/`).
 - API Platform defaults: `stateless: false` (session auth), `pagination_enabled: false`, `extra_properties.standard_put: false` (so PUT populates the managed entity and `UniqueEntity` works).
+- **After adding/renaming an `#[ApiResource]` property or serialization group, run `php bin/console cache:clear`** — even in dev. API Platform caches property-name/metadata pools under `var/cache` and does **not** auto-invalidate them, so a newly added writable field is silently dropped on write (the request carries it, but it persists as `null`) until the cache is cleared.
 - Custom API endpoints live in `src/Controller/Api/` (uploads, block reorder, settings, meta).
 - **Frontend dev workflow** (in `admin-app/`):
   - `npm install` then `npx ng serve` (uses `proxy.conf.json` to proxy `/api` + `/uploads` to `http://localhost:8000`)

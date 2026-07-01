@@ -2,7 +2,7 @@ import { Component, DestroyRef, inject, signal } from '@angular/core';
 import type { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import type { FormGroup } from '@angular/forms';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { QuillModule } from 'ngx-quill';
 import type { Block, BlockTypeOption } from '@core/models';
@@ -35,10 +35,16 @@ export class BlockEditorModal {
 
   form!: FormGroup;
 
+  readonly anchorControl = new FormControl('', {
+    nonNullable: true,
+    validators: [Validators.pattern(/^[A-Za-z][A-Za-z0-9_-]*$/)],
+  });
+
   init(): void {
     if (this.block) {
       this.type.set(this.block.type);
       this.filename.set((this.block.data['filename'] as string) ?? null);
+      this.anchorControl.setValue(this.block.anchor ?? '');
       this.buildForm(this.block.type, this.block.data);
     }
   }
@@ -148,9 +154,17 @@ export class BlockEditorModal {
     return resolveFieldError(this.form.get(name), this.fieldMessages[name]);
   }
 
+  get anchorError(): string | null {
+    return this.anchorControl.touched && this.anchorControl.invalid
+      ? 'Letters, numbers, hyphens or underscores; must start with a letter.'
+      : null;
+  }
+
   save(): void {
-    if (this.form.invalid) {
+    console.log('Saving block...');
+    if (this.form.invalid || this.anchorControl.invalid) {
       this.form.markAllAsTouched();
+      this.anchorControl.markAsTouched();
       return;
     }
     if (this.requiresImage && !this.filename()) {
@@ -166,8 +180,9 @@ export class BlockEditorModal {
     const payload: Partial<Block> = {
       type: this.type(),
       data,
+      anchor: this.anchorControl.value.trim() || null,
     };
-
+    console.log(payload);
     this.saving.set(true);
     this.error.set(null);
 

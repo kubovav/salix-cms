@@ -8,3 +8,9 @@
     }
 }
 
+// Anchor targets sit under the sticky navbar; offset the scroll position so the
+// linked block is not hidden beneath it.
+.block-anchor {
+    scroll-margin-top: 5rem;
+}
+

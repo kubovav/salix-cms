@@ -241,6 +241,26 @@
           }
         </div>
       }
+
+      <!-- Anchor (in-page link target) -->
+      <div class="mb-3">
+        <label class="form-label fw-semibold" for="block-anchor">Anchor (optional)</label>
+        <input
+          type="text"
+          id="block-anchor"
+          class="form-control"
+          autocomplete="off"
+          [formControl]="anchorControl"
+          [class.is-invalid]="anchorError"
+        />
+        <div class="form-text">
+          Used for in-page links — a menu URL of <code>#your-anchor</code> jumps here. Enter
+          without the “#”.
+        </div>
+        @if (anchorError; as error) {
+          <div class="invalid-feedback">{{ error }}</div>
+        }
+      </div>
     </form>
   }
 </div>
