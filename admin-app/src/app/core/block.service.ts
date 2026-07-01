@@ -15,7 +15,7 @@ export class BlockService {
   }
 
   update(id: number, block: Partial<Block>): Observable<Block> {
-    return this.http.put<Block>(`${this.base}/${id}`, block);
+    return this.http.patch<Block>(`${this.base}/${id}`, block);
   }
 
   delete(id: number): Observable<void> {

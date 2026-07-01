@@ -60,7 +60,7 @@ export class MenuService {
   }
 
   update(id: number, item: Partial<MenuItem>): Observable<MenuItem> {
-    return this.http.put<MenuItem>(`${this.base}/${id}`, item);
+    return this.http.patch<MenuItem>(`${this.base}/${id}`, item);
   }
 
   delete(id: number): Observable<void> {

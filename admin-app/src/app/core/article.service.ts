@@ -21,7 +21,7 @@ export class ArticleService {
   }
 
   update(id: number, article: Partial<Article>): Observable<Article> {
-    return this.http.put<Article>(`${this.base}/${id}`, article);
+    return this.http.patch<Article>(`${this.base}/${id}`, article);
   }
 
   delete(id: number): Observable<void> {

@@ -13,6 +13,6 @@ export class SettingsService {
   }
 
   update(homePageSlug: string | null): Observable<Settings> {
-    return this.http.put<Settings>(this.base, { home_page_slug: homePageSlug });
+    return this.http.patch<Settings>(this.base, { home_page_slug: homePageSlug });
   }
 }

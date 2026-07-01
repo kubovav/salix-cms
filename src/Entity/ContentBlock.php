@@ -7,8 +7,8 @@ namespace App\Entity;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
 use App\Config\BlockType;
 use App\Repository\ContentBlockRepository;
 use App\Validator\ValidBlockData;
@@ -23,7 +23,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     operations: [
         new Get(),
         new Post(),
-        new Put(),
+        new Patch(),
         new Delete(),
     ],
     normalizationContext: ['groups' => ['block:read']],

@@ -6,8 +6,8 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
 use App\Config\MenuType;
 use App\Repository\MenuItemRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -24,7 +24,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
         new GetCollection(order: ['menuName' => 'ASC', 'position' => 'ASC']),
         new Get(),
         new Post(),
-        new Put(),
+        new Patch(),
         new Delete(),
     ],
     normalizationContext: ['groups' => ['menu:read']],

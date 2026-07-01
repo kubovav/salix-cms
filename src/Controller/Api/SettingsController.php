@@ -27,7 +27,7 @@ final class SettingsController extends AbstractController
         return new JsonResponse($this->buildPayload($pageRepository, $settingsRepository));
     }
 
-    #[Route('/api/admin/settings', name: 'api_admin_settings_update', methods: ['PUT'])]
+    #[Route('/api/admin/settings', name: 'api_admin_settings_update', methods: ['PATCH'])]
     public function update(
         Request $request,
         ContentPageRepository $pageRepository,

@@ -6,10 +6,6 @@ api_platform:
     defaults:
         stateless: false
         pagination_enabled: false
-        # Populate the existing managed entity on PUT (instead of replacing it),
-        # so validators like UniqueEntity correctly exclude the current record.
-        extra_properties:
-            standard_put: false
         cache_headers:
             vary: ['Content-Type', 'Authorization', 'Origin']
     formats:
