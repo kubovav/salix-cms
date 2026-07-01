@@ -2,6 +2,41 @@
 
 Lightweight CMS built with Symfony and Twig, with an Angular single-page admin application. Optimized for rapid development and reusable website delivery.
 
+## Quickstart (Docker)
+
+Get a full local instance — public site + admin UI + database — running in a few commands.
+The only prerequisite is **Docker** (with the Compose plugin).
+
+```bash
+# 1. Clone and enter the project
+git clone <repo-url> salix && cd salix
+
+# 2. Create your compose file from the example (the real one is git-ignored)
+cp docker-compose.example.yml docker-compose.yml
+
+# 3. Build and start everything (first boot installs deps and builds the admin app)
+docker compose up --build -d
+
+# 4. Watch the first-boot build finish (Ctrl-C to stop following)
+docker compose logs -f salix_app
+
+# 5. Set up the database schema
+docker compose exec salix_app php bin/console doctrine:migrations:migrate --no-interaction
+
+# 6. Create an admin login (prompts for name + password)
+docker compose exec salix_app php bin/console app:create-user admin@example.com
+```
+
+Then open:
+
+- **Public site** — http://localhost:8000
+- **Admin UI** — http://localhost:8000/admin (log in with the account from step 6)
+- **phpMyAdmin** — http://localhost:8000/phpmyadmin (user `root`, password `!ChangeMe!`)
+
+> The bundled credentials (`!ChangeMe!`) are throwaway defaults for local evaluation only —
+> change them before deploying anywhere real. For shell-less/shared hosting there is also a
+> browser-based installer — see [Deploying to Shared Hosting](#deploying-to-shared-hosting-web-installer).
+
 ## Project Status
 
 This project is currently a **work in progress** and is under active development.
@@ -9,8 +44,6 @@ This project is currently a **work in progress** and is under active development
 - Interfaces and internal architecture may evolve as core capabilities are stabilized.
 - Documentation is updated iteratively and may trail the latest implementation details.
 - Some modules are currently intended for development and evaluation workflows.
-
-This repository also serves as a continuously evolving reference implementation for full-stack architecture and delivery practices.
 
 ## Architecture
 
@@ -33,7 +66,7 @@ This repository also serves as a continuously evolving reference implementation 
 
 The `salix_app` service runs two processes via Supervisor:
 
-- **Nginx** — on port `8000` (mapped to `8010` on host), serves the Symfony app
+- **Nginx** — on port `8000` (mapped to `8000` on host), serves the Symfony app
 - **PHP-FPM** — executes Symfony
 
 Nginx and Supervisor configs are symlinked from `docker/` into the container so changes take effect with a reload — no image rebuild required:
@@ -46,17 +79,7 @@ nginx -s reload
 supervisorctl reload
 ```
 
-## Start
-
-```bash
-docker compose up --build -d
-```
-
-Then open:
-
-- Site: `http://localhost:8010`
-- Admin: `http://localhost:8010/admin`
-- phpMyAdmin: `http://localhost:8010/phpmyadmin`
+(To boot the stack from scratch, see [Quickstart](#quickstart-docker) above.)
 
 ## npm Commands
 

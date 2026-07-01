@@ -22,7 +22,7 @@ services:
     container_name: salix_db
     hostname: salix_db
     environment:
-      MYSQL_ROOT_PASSWORD: ChangeMe123!
+      MYSQL_ROOT_PASSWORD: !ChangeMe!
       MYSQL_DATABASE: 'salix'
     command: ['mysqld', '--character-set-server=utf8mb4', '--collation-server=utf8mb4_0900_ai_ci', '--skip-log-bin', '--innodb-buffer-pool-size=256M', '--innodb-log-buffer-size=128M', '--innodb-flush-method=O_DSYNC']
     volumes:
@@ -40,7 +40,7 @@ services:
       PMA_PORT: 3306
       PMA_HOST: salix_db
       PMA_USER: root
-      PMA_PASSWORD: ChangeMe123!
+      PMA_PASSWORD: !ChangeMe!
     networks:
       - salix
 

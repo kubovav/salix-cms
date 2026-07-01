@@ -14,7 +14,7 @@ docker/     — Dockerfile, Nginx config, Supervisor config
 ```
 
 Everything runs in a single `salix_app` Docker container managed by Supervisor:
-- **Nginx** on port `8000` (host: `8010`) — serves the Symfony app
+- **Nginx** on port `8000` — serves the Symfony app
 - **PHP-FPM** — executes Symfony
 
 ## Development Environment
