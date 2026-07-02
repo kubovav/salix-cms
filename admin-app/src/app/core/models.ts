@@ -9,7 +9,7 @@ export interface User {
   plainPassword?: string;
 }
 
-export type BlockType = 'rich_text' | 'image' | 'hero' | 'text_image' | 'cta';
+export type BlockType = 'rich_text' | 'image' | 'hero' | 'text_image' | 'cta' | 'pricing_table';
 
 export interface Block {
   '@id'?: string;

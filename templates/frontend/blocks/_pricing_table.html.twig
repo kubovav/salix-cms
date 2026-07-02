@@ -1,0 +1,30 @@
+<div class="block block-pricing-table mb-5">
+  <div class="row row-cols-1 row-cols-md-3 g-4 justify-content-center">
+    {% for plan in block.data.plans|default([]) %}
+      <div class="col">
+        <div class="card h-100 shadow-sm text-center">
+          <div class="card-body d-flex flex-column">
+            <h3 class="card-title h5">{{ plan.name }}</h3>
+            {% if plan.price is defined and plan.price %}
+              <p class="display-6 fw-bold my-3">{{ plan.price }}</p>
+            {% endif %}
+            {% if plan.features is defined and plan.features %}
+              <ul class="list-unstyled text-start mb-4">
+                {% for feature in plan.features %}
+                  {% if feature %}
+                    <li class="mb-2">
+                      <span class="text-success fw-bold me-2">&check;</span>{{ feature }}
+                    </li>
+                  {% endif %}
+                {% endfor %}
+              </ul>
+            {% endif %}
+            {% if plan.button_url is defined and plan.button_url and plan.button_text is defined and plan.button_text %}
+              <a href="{{ plan.button_url }}" class="btn btn-primary mt-auto">{{ plan.button_text }}</a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>

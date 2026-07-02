@@ -242,6 +242,113 @@
         </div>
       }
 
+      <!-- Pricing table -->
+      @if (isPricingTable) {
+        <div class="mb-3" formArrayName="plans">
+          <label class="form-label fw-semibold">Plans</label>
+          <div class="row row-cols-1 row-cols-md-3 g-3">
+            @for (plan of plans.controls; track $index; let planIndex = $index) {
+              <div class="col">
+                <div class="card h-100" [formGroupName]="planIndex">
+                  <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                      <span class="fw-semibold text-muted small">Plan {{ $index + 1 }}</span>
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-danger"
+                        [disabled]="plans.length <= 1"
+                        (click)="removePlan(planIndex)"
+                      >
+                        Remove
+                      </button>
+                    </div>
+
+                    <div class="mb-2">
+                      <label class="form-label small">Name</label>
+                      <input
+                        type="text"
+                        class="form-control form-control-sm"
+                        autocomplete="off"
+                        formControlName="name"
+                        [class.is-invalid]="plan.get('name')?.touched && plan.get('name')?.invalid"
+                      />
+                      @if (plan.get('name')?.touched && plan.get('name')?.invalid) {
+                        <div class="invalid-feedback">Plan name is required.</div>
+                      }
+                    </div>
+
+                    <div class="mb-2">
+                      <label class="form-label small">Price</label>
+                      <input
+                        type="text"
+                        class="form-control form-control-sm"
+                        autocomplete="off"
+                        placeholder="$29/mo"
+                        formControlName="price"
+                      />
+                    </div>
+
+                    <div class="mb-2" formArrayName="features">
+                      <label class="form-label small">Features</label>
+                      @for (
+                        feature of featuresOf(planIndex).controls;
+                        track $index;
+                        let featureIndex = $index
+                      ) {
+                        <div class="input-group input-group-sm mb-1">
+                          <input
+                            type="text"
+                            class="form-control"
+                            autocomplete="off"
+                            [formControlName]="featureIndex"
+                          />
+                          <button
+                            type="button"
+                            class="btn btn-outline-secondary"
+                            (click)="removeFeature(planIndex, featureIndex)"
+                          >
+                            &times;
+                          </button>
+                        </div>
+                      }
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-secondary w-100"
+                        (click)="addFeature(planIndex)"
+                      >
+                        + Add feature
+                      </button>
+                    </div>
+
+                    <div class="mb-2">
+                      <label class="form-label small">Button text</label>
+                      <input
+                        type="text"
+                        class="form-control form-control-sm"
+                        autocomplete="off"
+                        formControlName="button_text"
+                      />
+                    </div>
+                    <div class="mb-0">
+                      <label class="form-label small">Button URL</label>
+                      <input
+                        type="text"
+                        class="form-control form-control-sm"
+                        autocomplete="off"
+                        formControlName="button_url"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+          <button type="button" class="btn btn-outline-primary btn-sm mt-3" (click)="addPlan()">
+            Add plan
+          </button>
+        </div>
+      }
+
       <!-- Anchor (in-page link target) -->
       <div class="mb-3">
         <label class="form-label fw-semibold" for="block-anchor">Anchor (optional)</label>

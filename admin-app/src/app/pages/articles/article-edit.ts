@@ -220,6 +220,11 @@ export class ArticleEditComponent implements OnInit {
         return (d['alt'] as string) ?? '';
       case 'cta':
         return `${(d['heading'] as string) ?? ''} → ${(d['button_text'] as string) ?? ''}`;
+      case 'pricing_table':
+        return ((d['plans'] as { name?: string }[]) ?? [])
+          .map((p) => p.name)
+          .filter(Boolean)
+          .join(' · ');
       default:
         return '';
     }

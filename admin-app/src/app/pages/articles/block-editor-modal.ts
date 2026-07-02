@@ -1,8 +1,14 @@
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import type { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import type { FormGroup } from '@angular/forms';
-import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormArray,
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { QuillModule } from 'ngx-quill';
 import type { Block, BlockTypeOption } from '@core/models';
@@ -71,6 +77,47 @@ export class BlockEditorModal {
     return this.type() === 'rich_text' || this.type() === 'text_image';
   }
 
+  get isPricingTable(): boolean {
+    return this.type() === 'pricing_table';
+  }
+
+  get plans(): FormArray {
+    return this.form.get('plans') as FormArray;
+  }
+
+  featuresOf(planIndex: number): FormArray {
+    return this.plans.at(planIndex).get('features') as FormArray;
+  }
+
+  private planGroup(plan: Record<string, unknown> = {}): FormGroup {
+    const str = (key: string) => (plan[key] as string) ?? '';
+    const features = Array.isArray(plan['features']) ? (plan['features'] as unknown[]) : [];
+
+    return this.fb.group({
+      name: [str('name'), Validators.required],
+      price: [str('price')],
+      features: this.fb.array(features.map((f) => this.fb.control(String(f ?? '')))),
+      button_text: [str('button_text')],
+      button_url: [str('button_url')],
+    });
+  }
+
+  addPlan(): void {
+    this.plans.push(this.planGroup());
+  }
+
+  removePlan(index: number): void {
+    this.plans.removeAt(index);
+  }
+
+  addFeature(planIndex: number): void {
+    this.featuresOf(planIndex).push(this.fb.control(''));
+  }
+
+  removeFeature(planIndex: number, featureIndex: number): void {
+    this.featuresOf(planIndex).removeAt(featureIndex);
+  }
+
   get imagePreview(): string | null {
     return this.filename() ? `/uploads/images/${this.filename()}` : null;
   }
@@ -114,6 +161,16 @@ export class BlockEditorModal {
           button_url: [s('button_url'), Validators.required],
         });
         break;
+      case 'pricing_table': {
+        const rawPlans = Array.isArray(data['plans'])
+          ? (data['plans'] as Record<string, unknown>[])
+          : [];
+        const plans = rawPlans.length ? rawPlans : [{}, {}, {}];
+        this.form = this.fb.group({
+          plans: this.fb.array(plans.map((plan) => this.planGroup(plan))),
+        });
+        break;
+      }
       default:
         this.form = this.fb.group({});
     }

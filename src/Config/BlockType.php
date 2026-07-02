@@ -11,6 +11,7 @@ enum BlockType: string
     case HERO = 'hero';
     case TEXT_IMAGE = 'text_image';
     case CTA = 'cta';
+    case PRICING_TABLE = 'pricing_table';
 
     public function label(): string
     {
@@ -20,6 +21,7 @@ enum BlockType: string
             self::HERO => 'Hero',
             self::TEXT_IMAGE => 'Text + Image',
             self::CTA => 'Call to Action',
+            self::PRICING_TABLE => 'Pricing Table',
         };
     }
 

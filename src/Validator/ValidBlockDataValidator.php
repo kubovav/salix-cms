@@ -23,6 +23,7 @@ final class ValidBlockDataValidator extends ConstraintValidator
         BlockType::TEXT_IMAGE->value => ['image_side', 'image_alt', 'filename'],
         BlockType::CTA->value => ['heading', 'button_text', 'button_url'],
         BlockType::RICH_TEXT->value => [],
+        BlockType::PRICING_TABLE->value => [],
     ];
 
     /**
@@ -84,6 +85,52 @@ final class ValidBlockDataValidator extends ConstraintValidator
             $this->context->buildViolation('Link to full-size image must be true or false.')
                 ->atPath('data.link_full')
                 ->addViolation();
+        }
+
+        if (BlockType::PRICING_TABLE === $type) {
+            $this->validatePricingTable($data);
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     */
+    private function validatePricingTable(array $data): void
+    {
+        $plans = $data['plans'] ?? null;
+
+        if (!\is_array($plans) || [] === $plans) {
+            $this->context->buildViolation('Add at least one plan.')
+                ->atPath('data.plans')
+                ->addViolation();
+
+            return;
+        }
+
+        foreach ($plans as $index => $plan) {
+            if (!\is_array($plan)) {
+                $this->context->buildViolation('Invalid plan.')
+                    ->atPath('data.plans['.$index.']')
+                    ->addViolation();
+
+                continue;
+            }
+
+            $name = $plan['name'] ?? null;
+            if (!\is_string($name) || '' === trim($name)) {
+                $this->context->buildViolation('This field is required.')
+                    ->atPath('data.plans['.$index.'].name')
+                    ->addViolation();
+            }
+
+            if (isset($plan['features'])
+                && (!\is_array($plan['features'])
+                    || [] !== \array_filter($plan['features'], static fn ($feature): bool => !\is_string($feature)))
+            ) {
+                $this->context->buildViolation('Features must be a list of text values.')
+                    ->atPath('data.plans['.$index.'].features')
+                    ->addViolation();
+            }
         }
     }
 }
