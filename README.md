@@ -31,9 +31,9 @@ Then open:
 
 - **Public site** — http://localhost:8000
 - **Admin UI** — http://localhost:8000/admin (log in with the account from step 6)
-- **phpMyAdmin** — http://localhost:8000/phpmyadmin (user `root`, password `!ChangeMe!`)
+- **phpMyAdmin** — http://localhost:8000/phpmyadmin (user `root`, password `secret`)
 
-> The bundled credentials (`!ChangeMe!`) are throwaway defaults for local evaluation only —
+> The bundled credentials (`secret`) are throwaway defaults for local evaluation only —
 > change them before deploying anywhere real. For shell-less/shared hosting there is also a
 > browser-based installer — see [Deploying to Shared Hosting](#deploying-to-shared-hosting-web-installer).
 
