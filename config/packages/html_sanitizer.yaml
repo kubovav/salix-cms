@@ -1,0 +1,29 @@
+framework:
+    html_sanitizer:
+        sanitizers:
+            block_html:
+                allow_relative_links: true
+                allowed_link_schemes: ['https', 'http', 'mailto']
+                max_input_length: 100000
+                allow_elements:
+                    p: ['class']
+                    span: ['class']
+                    br: []
+                    strong: []
+                    b: []
+                    em: []
+                    i: []
+                    u: []
+                    s: []
+                    ol: ['class']
+                    ul: ['class']
+                    li: ['class']
+                    h2: ['class']
+                    h3: ['class']
+                    blockquote: []
+                    pre: []
+                    code: []
+                    a: ['href', 'target', 'rel']
+                force_attributes:
+                    a:
+                        rel: 'noopener noreferrer'

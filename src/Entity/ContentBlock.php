@@ -61,6 +61,10 @@ class ContentBlock
     #[Groups(['block:read', 'block:write', 'article:read'])]
     private array $data = [];
 
+    #[ORM\Column(type: 'text', nullable: true)]
+    #[Groups(['block:read', 'article:read'])]
+    private ?string $renderedHtml = null;
+
     #[ORM\ManyToOne(targetEntity: ContentPage::class, inversedBy: 'blocks')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     #[Groups(['block:read', 'block:write'])]
@@ -135,6 +139,18 @@ class ContentBlock
     public function setData(array $data): static
     {
         $this->data = $data;
+
+        return $this;
+    }
+
+    public function getRenderedHtml(): ?string
+    {
+        return $this->renderedHtml;
+    }
+
+    public function setRenderedHtml(?string $renderedHtml): static
+    {
+        $this->renderedHtml = $renderedHtml;
 
         return $this;
     }

@@ -132,7 +132,7 @@ export class BlockEditorModal {
     const s = (key: string) => (data[key] as string) ?? '';
     switch (type) {
       case 'rich_text':
-        this.form = this.fb.group({ html: [s('html')] });
+        this.form = this.fb.group({ delta: [data['delta'] ?? null] });
         break;
       case 'image':
         this.form = this.fb.group({
@@ -153,7 +153,7 @@ export class BlockEditorModal {
         break;
       case 'text_image':
         this.form = this.fb.group({
-          html: [s('html')],
+          delta: [data['delta'] ?? null],
           image_side: [s('image_side') || 'left', Validators.required],
           image_alt: [s('image_alt'), Validators.required],
           size: [s('size') || 'full'],

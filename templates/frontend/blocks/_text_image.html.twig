@@ -17,7 +17,7 @@
       {% if block.data.link_full|default(false) %}</a>{% endif %}
     </div>
     <div class="col-md-7">
-      {{ block.data.html|raw }}
+      <div class="rich-text">{{ block.renderedHtml|raw }}</div>
     </div>
   </div>
 </div>

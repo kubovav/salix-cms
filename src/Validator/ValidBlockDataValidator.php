@@ -60,6 +60,15 @@ final class ValidBlockDataValidator extends ConstraintValidator
             }
         }
 
+        if (\in_array($type, [BlockType::RICH_TEXT, BlockType::TEXT_IMAGE], true)
+            && isset($data['delta'])
+            && (!\is_array($data['delta']) || !\is_array($data['delta']['ops'] ?? null))
+        ) {
+            $this->context->buildViolation('Invalid rich-text content.')
+                ->atPath('data.delta')
+                ->addViolation();
+        }
+
         if (BlockType::TEXT_IMAGE === $type
             && isset($data['image_side'])
             && !\in_array($data['image_side'], ['left', 'right'], true)
