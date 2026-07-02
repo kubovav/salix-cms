@@ -23,6 +23,25 @@
     </div>
   } @else if (form) {
     <form [formGroup]="form">
+      <!-- Admin-only name -->
+      <div class="mb-3">
+        <label class="form-label fw-semibold" for="block-name">Name (optional)</label>
+        <input
+          type="text"
+          id="block-name"
+          class="form-control"
+          autocomplete="off"
+          [formControl]="nameControl"
+          [class.is-invalid]="nameError"
+        />
+        <div class="form-text">
+          Admin-only label to help you recognize this block — not shown on the page.
+        </div>
+        @if (nameError; as error) {
+          <div class="invalid-feedback">{{ error }}</div>
+        }
+      </div>
+
       <!-- Rich text / text content -->
       @if (isRichText) {
         <div class="mb-3">
@@ -245,7 +264,7 @@
       <!-- Pricing table -->
       @if (isPricingTable) {
         <div class="mb-3" formArrayName="plans">
-          <label class="form-label fw-semibold">Plans</label>
+          <div class="form-label fw-semibold">Plans</div>
           <div class="row row-cols-1 row-cols-md-3 g-3">
             @for (plan of plans.controls; track $index; let planIndex = $index) {
               <div class="col">
@@ -264,11 +283,14 @@
                     </div>
 
                     <div class="mb-2">
-                      <label class="form-label small">Name</label>
+                      <label class="form-label small" [attr.for]="'plan-name-' + planIndex"
+                        >Name</label
+                      >
                       <input
                         type="text"
                         class="form-control form-control-sm"
                         autocomplete="off"
+                        [id]="'plan-name-' + planIndex"
                         formControlName="name"
                         [class.is-invalid]="plan.get('name')?.touched && plan.get('name')?.invalid"
                       />
@@ -278,18 +300,21 @@
                     </div>
 
                     <div class="mb-2">
-                      <label class="form-label small">Price</label>
+                      <label class="form-label small" [attr.for]="'plan-price-' + planIndex"
+                        >Price</label
+                      >
                       <input
                         type="text"
                         class="form-control form-control-sm"
                         autocomplete="off"
                         placeholder="$29/mo"
+                        [id]="'plan-price-' + planIndex"
                         formControlName="price"
                       />
                     </div>
 
                     <div class="mb-2" formArrayName="features">
-                      <label class="form-label small">Features</label>
+                      <div class="form-label small">Features</div>
                       @for (
                         feature of featuresOf(planIndex).controls;
                         track $index;
@@ -321,20 +346,26 @@
                     </div>
 
                     <div class="mb-2">
-                      <label class="form-label small">Button text</label>
+                      <label class="form-label small" [attr.for]="'plan-button-text-' + planIndex"
+                        >Button text</label
+                      >
                       <input
                         type="text"
                         class="form-control form-control-sm"
                         autocomplete="off"
+                        [id]="'plan-button-text-' + planIndex"
                         formControlName="button_text"
                       />
                     </div>
                     <div class="mb-0">
-                      <label class="form-label small">Button URL</label>
+                      <label class="form-label small" [attr.for]="'plan-button-url-' + planIndex"
+                        >Button URL</label
+                      >
                       <input
                         type="text"
                         class="form-control form-control-sm"
                         autocomplete="off"
+                        [id]="'plan-button-url-' + planIndex"
                         formControlName="button_url"
                       />
                     </div>

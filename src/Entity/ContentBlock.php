@@ -39,6 +39,11 @@ class ContentBlock
     #[Groups(['block:read', 'article:read'])]
     private ?int $id = null;
 
+    #[ORM\Column(length: 100, nullable: true)]
+    #[Groups(['block:read', 'block:write', 'article:read'])]
+    #[Assert\Length(max: 100)]
+    private ?string $name = null;
+
     #[ORM\Column(length: 50)]
     #[Groups(['block:read', 'block:write', 'article:read'])]
     #[Assert\NotBlank]
@@ -73,6 +78,18 @@ class ContentBlock
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(?string $name): static
+    {
+        $this->name = $name;
+
+        return $this;
     }
 
     public function getType(): string

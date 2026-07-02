@@ -76,6 +76,10 @@ Everything runs in a single `salix_app` Docker container managed by Supervisor:
   - `<select>` options bind raw ids (`[value]="entity.id"`), not IRIs.
   - The shared `idFromRef(ref)` helper in `core/iri.ts` (which normalizes a relation that comes back as either an IRI string or a nested object to a bare id) exists for services to use **internally** when mapping stored entities to form values. Do not call it from components.
 
+- **Every `<label>` must be associated with a form control** (`@angular-eslint/template/label-has-associated-control`). For a single input, give the input an `id` and the label a matching `for` (use `[id]`/`[attr.for]` bindings for controls rendered inside `@for` loops, e.g. `[id]="'plan-name-' + planIndex"`). A caption that heads a whole group (a `FormArray`/`formArrayName` or `formGroupName` block) labels no single control — render it as a plain `<div class="form-label">`, not a `<label>`.
+
+- **Type-only imports use an inline `type` modifier** (`@typescript-eslint/consistent-type-imports`). When a symbol from a module is used only as a type, mark it `import { type FormArray, FormBuilder } from '@angular/forms'` rather than importing it as a value; a module used purely for types uses `import type { ... }`.
+
 ### Security
 - API admin routes are secured with `#[IsGranted('ROLE_ADMIN')]` and the `^/api` access-control rule (`ROLE_ADMIN`), except `^/api/auth/login` and `^/api/public` which are public.
 - Passwords are hashed via `UserPasswordListener` (event listener pattern, not a subscriber)

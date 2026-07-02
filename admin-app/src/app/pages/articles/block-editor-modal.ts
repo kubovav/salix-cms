@@ -2,10 +2,10 @@ import { Component, DestroyRef, inject, signal } from '@angular/core';
 import type { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
-  FormArray,
+  type FormArray,
   FormBuilder,
   FormControl,
-  FormGroup,
+  type FormGroup,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
@@ -41,6 +41,11 @@ export class BlockEditorModal {
 
   form!: FormGroup;
 
+  readonly nameControl = new FormControl('', {
+    nonNullable: true,
+    validators: [Validators.maxLength(100)],
+  });
+
   readonly anchorControl = new FormControl('', {
     nonNullable: true,
     validators: [Validators.pattern(/^[A-Za-z][A-Za-z0-9_-]*$/)],
@@ -50,6 +55,7 @@ export class BlockEditorModal {
     if (this.block) {
       this.type.set(this.block.type);
       this.filename.set((this.block.data['filename'] as string) ?? null);
+      this.nameControl.setValue(this.block.name ?? '');
       this.anchorControl.setValue(this.block.anchor ?? '');
       this.buildForm(this.block.type, this.block.data);
     }
@@ -211,6 +217,12 @@ export class BlockEditorModal {
     return resolveFieldError(this.form.get(name), this.fieldMessages[name]);
   }
 
+  get nameError(): string | null {
+    return this.nameControl.touched && this.nameControl.invalid
+      ? 'Keep the name to 100 characters or fewer.'
+      : null;
+  }
+
   get anchorError(): string | null {
     return this.anchorControl.touched && this.anchorControl.invalid
       ? 'Letters, numbers, hyphens or underscores; must start with a letter.'
@@ -218,9 +230,9 @@ export class BlockEditorModal {
   }
 
   save(): void {
-    console.log('Saving block...');
-    if (this.form.invalid || this.anchorControl.invalid) {
+    if (this.form.invalid || this.anchorControl.invalid || this.nameControl.invalid) {
       this.form.markAllAsTouched();
+      this.nameControl.markAsTouched();
       this.anchorControl.markAsTouched();
       return;
     }
@@ -236,10 +248,10 @@ export class BlockEditorModal {
 
     const payload: Partial<Block> = {
       type: this.type(),
+      name: this.nameControl.value.trim() || null,
       data,
       anchor: this.anchorControl.value.trim() || null,
     };
-    console.log(payload);
     this.saving.set(true);
     this.error.set(null);
 

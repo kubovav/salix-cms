@@ -114,6 +114,9 @@
                     <i class="bi bi-grip-vertical text-muted block-handle" cdkDragHandle></i>
                   }
                   <span class="badge text-bg-secondary">{{ typeLabel(block.type) }}</span>
+                  @if (block.name) {
+                    <span class="fw-semibold small text-nowrap">{{ block.name }}</span>
+                  }
                   <span class="text-muted small text-truncate flex-grow-1">{{
                     preview(block)
                   }}</span>

@@ -14,6 +14,8 @@ export type BlockType = 'rich_text' | 'image' | 'hero' | 'text_image' | 'cta' | 
 export interface Block {
   '@id'?: string;
   id?: number;
+  /** Optional admin-only label to help recognize the block (not shown on the frontend) */
+  name?: string | null;
   type: BlockType | string;
   position: number;
   data: Record<string, unknown>;
