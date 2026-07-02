@@ -118,6 +118,11 @@ site-specific code in dedicated **quarantine lanes** that the CMS never touches.
 upgrade only happen when both sides edit the same file, so the rule is: *never customize CMS
 files in place — add your own files in the lanes below.*
 
+> **Note:** This quarantine-lane workflow is a **temporary solution**. It exists because Salix
+> is currently a full application rather than a library. The plan is to extract the reusable
+> half of the CMS into a proper **Composer/Symfony bundle** 
+> instead of merging from an `upstream` remote.
+
 ### 1. Wire the CMS as `upstream`
 
 Create your site repo from the CMS, then point `upstream` at the CMS and `origin` at your
