@@ -5,6 +5,12 @@ framework:
             token_id: submit
 
     csrf_protection:
+        # Distinct per-instance name so multiple Salix instances on the same
+        # host don't share/overwrite each other's stateless CSRF cookies
+        # (double-submit cookies are scoped by domain, not port). The actual
+        # cookies are named "<cookie_name>_<token>". Override CSRF_COOKIE_NAME
+        # per container/site, same as SESSION_COOKIE_NAME.
+        cookie_name: '%env(CSRF_COOKIE_NAME)%'
         stateless_token_ids:
             - submit
             - authenticate
