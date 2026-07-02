@@ -4,6 +4,7 @@ import type { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { SettingsService } from '@core/settings.service';
+import { UploadService } from '@core/upload.service';
 import { applyApiViolations, resolveFieldError } from '@core/form-errors';
 import type { PageOption } from '@core/models';
 
@@ -14,16 +15,20 @@ import type { PageOption } from '@core/models';
 })
 export class SettingsComponent implements OnInit {
   private settingsService = inject(SettingsService);
+  private uploadService = inject(UploadService);
   private fb = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly pages = signal<PageOption[]>([]);
+  readonly brandLogo = signal<string | null>(null);
+  readonly uploading = signal(false);
   readonly saving = signal(false);
   readonly saved = signal(false);
   readonly error = signal<string | null>(null);
 
   readonly form = this.fb.nonNullable.group({
     home_page_slug: ['', Validators.required],
+    site_name: [''],
   });
 
   ngOnInit(): void {
@@ -32,8 +37,39 @@ export class SettingsComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((s) => {
         this.pages.set(s.available_pages);
-        this.form.patchValue({ home_page_slug: s.home_page_slug ?? '' });
+        this.brandLogo.set(s.brand_logo);
+        this.form.patchValue({
+          home_page_slug: s.home_page_slug ?? '',
+          site_name: s.site_name ?? '',
+        });
       });
+  }
+
+  onLogoSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) {
+      return;
+    }
+    this.uploading.set(true);
+    this.error.set(null);
+    this.uploadService
+      .upload(file)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.brandLogo.set(res.filename);
+          this.uploading.set(false);
+        },
+        error: () => {
+          this.error.set('Logo upload failed.');
+          this.uploading.set(false);
+        },
+      });
+  }
+
+  removeLogo(): void {
+    this.brandLogo.set(null);
   }
 
   private readonly fieldMessages: Record<string, Record<string, string>> = {
@@ -45,21 +81,29 @@ export class SettingsComponent implements OnInit {
   }
 
   save(): void {
-    if (this.form.invalid || this.saving()) {
+    if (this.form.invalid || this.saving() || this.uploading()) {
       this.form.markAllAsTouched();
       return;
     }
     this.saving.set(true);
     this.saved.set(false);
     this.error.set(null);
-    const slug = this.form.getRawValue().home_page_slug;
+    const { home_page_slug, site_name } = this.form.getRawValue();
     this.settingsService
-      .update(slug)
+      .update({
+        home_page_slug,
+        site_name: site_name.trim() || null,
+        brand_logo: this.brandLogo(),
+      })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (s) => {
           this.pages.set(s.available_pages);
-          this.form.patchValue({ home_page_slug: s.home_page_slug ?? '' });
+          this.brandLogo.set(s.brand_logo);
+          this.form.patchValue({
+            home_page_slug: s.home_page_slug ?? '',
+            site_name: s.site_name ?? '',
+          });
           this.saving.set(false);
           this.saved.set(true);
         },

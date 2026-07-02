@@ -18,7 +18,13 @@
     <body class="d-flex flex-column min-vh-100">
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
             <div class="container">
-                <a class="navbar-brand fw-semibold" href="{{ path('frontend_home') }}">{{ site_name|default('Salix CMS') }}</a>
+                <a class="navbar-brand fw-semibold" href="{{ path('frontend_home') }}">
+                    {% if brand_logo %}
+                        <img src="{{ '/uploads/images/' ~ brand_logo }}" alt="{{ site_name|default('Salix CMS') }}" height="30">
+                    {% else %}
+                        {{ site_name|default('Salix CMS') }}
+                    {% endif %}
+                </a>
                 <button class="navbar-toggler" type="button"
                     data-bs-toggle="collapse"
                     data-bs-target="#navbarMain"

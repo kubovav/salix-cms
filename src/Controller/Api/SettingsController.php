@@ -34,7 +34,7 @@ final class SettingsController extends AbstractController
         SiteSettingRepository $settingsRepository,
         EntityManagerInterface $em,
     ): JsonResponse {
-        /** @var array{home_page_slug?: mixed} $payload */
+        /** @var array{home_page_slug?: mixed, site_name?: mixed, brand_logo?: mixed} $payload */
         $payload = $request->toArray();
 
         if (\array_key_exists('home_page_slug', $payload)) {
@@ -50,14 +50,27 @@ final class SettingsController extends AbstractController
             }
 
             $settingsRepository->set('home_page_slug', $slug);
-            $em->flush();
         }
+
+        if (\array_key_exists('site_name', $payload)) {
+            $name = $payload['site_name'];
+            $name = \is_string($name) ? trim($name) : '';
+            $settingsRepository->set('site_name', '' !== $name ? $name : null);
+        }
+
+        if (\array_key_exists('brand_logo', $payload)) {
+            $logo = $payload['brand_logo'];
+            $logo = \is_string($logo) ? trim($logo) : '';
+            $settingsRepository->set('brand_logo', '' !== $logo ? $logo : null);
+        }
+
+        $em->flush();
 
         return new JsonResponse($this->buildPayload($pageRepository, $settingsRepository));
     }
 
     /**
-     * @return array{home_page_slug: string|null, available_pages: list<array{slug: string, title: string}>}
+     * @return array{home_page_slug: string|null, site_name: string|null, brand_logo: string|null, available_pages: list<array{slug: string, title: string}>}
      */
     private function buildPayload(ContentPageRepository $pageRepository, SiteSettingRepository $settingsRepository): array
     {
@@ -68,6 +81,8 @@ final class SettingsController extends AbstractController
 
         return [
             'home_page_slug' => $settingsRepository->get('home_page_slug'),
+            'site_name' => $settingsRepository->get('site_name', 'Salix CMS'),
+            'brand_logo' => $settingsRepository->get('brand_logo'),
             'available_pages' => $available,
         ];
     }

@@ -66,8 +66,12 @@ export interface PageOption {
 
 export interface Settings {
   home_page_slug: string | null;
+  site_name: string | null;
+  brand_logo: string | null;
   available_pages: PageOption[];
 }
+
+export type SettingsPatch = Partial<Pick<Settings, 'home_page_slug' | 'site_name' | 'brand_logo'>>;
 
 export interface BlockTypeOption {
   value: string;

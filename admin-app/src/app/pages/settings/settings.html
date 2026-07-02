@@ -1,7 +1,7 @@
 <h3 class="mb-4">Settings</h3>
 
 <div class="row">
-  <div class="col-lg-6">
+  <div class="col-lg-8 col-xl-6 col-md-9">
     <div class="card">
       <div class="card-header"><strong>Site Settings</strong></div>
       <form [formGroup]="form" (ngSubmit)="save()">
@@ -12,6 +12,57 @@
           @if (error()) {
             <div class="alert alert-danger py-2">{{ error() }}</div>
           }
+          <div class="mb-3">
+            <label class="form-label fw-semibold" for="site-name">Site name</label>
+            <input
+              id="site-name"
+              type="text"
+              class="form-control"
+              formControlName="site_name"
+              autocomplete="off"
+              placeholder="Salix CMS"
+            />
+            <div class="form-text">
+              Displayed in the navbar, page title and footer. Leave blank to use the default.
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold" for="brand-logo">Brand logo</label>
+            @if (brandLogo()) {
+              <div class="mb-2">
+                <img
+                  [src]="'/uploads/images/' + brandLogo()"
+                  alt="Brand logo"
+                  class="border rounded bg-light p-1"
+                  style="max-height: 48px"
+                />
+                <button
+                  type="button"
+                  class="btn btn-outline-danger btn-sm ms-2"
+                  (click)="removeLogo()"
+                >
+                  <i class="bi bi-trash me-1"></i> Remove
+                </button>
+              </div>
+            }
+            <input
+              id="brand-logo"
+              type="file"
+              class="form-control"
+              accept="image/*"
+              [attr.disabled]="uploading() ? '' : null"
+              (change)="onLogoSelected($event)"
+            />
+            <div class="form-text">
+              @if (uploading()) {
+                <span class="spinner-border spinner-border-sm me-1"></span> Uploading…
+              } @else {
+                Shown in the navbar instead of the site name. JPEG, PNG, GIF or WebP.
+              }
+            </div>
+          </div>
+
           <div class="mb-3">
             <label class="form-label fw-semibold" for="home-page-slug">Home page</label>
             <select
@@ -41,7 +92,7 @@
           </div>
         </div>
         <div class="card-footer">
-          <button type="submit" class="btn btn-primary" [disabled]="saving()">
+          <button type="submit" class="btn btn-primary" [disabled]="saving() || uploading()">
             @if (saving()) {
               <span class="spinner-border spinner-border-sm me-1"></span>
             }
