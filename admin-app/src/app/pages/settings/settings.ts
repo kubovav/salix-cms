@@ -1,7 +1,8 @@
-import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import type { OnInit } from '@angular/core';
 import type { HttpErrorResponse } from '@angular/common/http';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { map } from 'rxjs';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { SettingsService } from '@core/settings.service';
 import { UploadService } from '@core/upload.service';
@@ -29,6 +30,22 @@ export class SettingsComponent implements OnInit {
   readonly form = this.fb.nonNullable.group({
     home_page_slug: ['', Validators.required],
     site_name: [''],
+    meta_description: ['', [Validators.maxLength(255)]],
+  });
+
+  readonly metaDescriptionLength = toSignal(
+    this.form.controls.meta_description.valueChanges.pipe(map((v) => v.length)),
+    { initialValue: 0 }
+  );
+  readonly metaDescriptionCountClass = computed(() => {
+    const len = this.metaDescriptionLength();
+    if (len >= 150 && len <= 160) {
+      return 'text-success';
+    }
+    if (len > 160) {
+      return 'text-warning';
+    }
+    return 'text-muted';
   });
 
   ngOnInit(): void {
@@ -41,6 +58,7 @@ export class SettingsComponent implements OnInit {
         this.form.patchValue({
           home_page_slug: s.home_page_slug ?? '',
           site_name: s.site_name ?? '',
+          meta_description: s.meta_description ?? '',
         });
       });
   }
@@ -74,6 +92,7 @@ export class SettingsComponent implements OnInit {
 
   private readonly fieldMessages: Record<string, Record<string, string>> = {
     home_page_slug: { required: 'Please select a home page.' },
+    meta_description: { maxlength: 'Keep the meta description under 255 characters.' },
   };
 
   getError(name: string): string | null {
@@ -88,12 +107,13 @@ export class SettingsComponent implements OnInit {
     this.saving.set(true);
     this.saved.set(false);
     this.error.set(null);
-    const { home_page_slug, site_name } = this.form.getRawValue();
+    const { home_page_slug, site_name, meta_description } = this.form.getRawValue();
     this.settingsService
       .update({
         home_page_slug,
         site_name: site_name.trim() || null,
         brand_logo: this.brandLogo(),
+        meta_description: meta_description.trim() || null,
       })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({

@@ -28,6 +28,38 @@
           </div>
 
           <div class="mb-3">
+            <label class="form-label fw-semibold" for="meta-description">
+              Default meta description
+            </label>
+            <textarea
+              id="meta-description"
+              rows="3"
+              class="form-control"
+              maxlength="255"
+              formControlName="meta_description"
+              autocomplete="off"
+              placeholder="A concise, compelling summary of what your site offers"
+              [class.is-invalid]="getError('meta_description')"
+            ></textarea>
+            @if (getError('meta_description'); as error) {
+              <div class="invalid-feedback">{{ error }}</div>
+            }
+            <div class="form-text">
+              <div class="text-end fw-semibold" [class]="metaDescriptionCountClass()">
+                {{ metaDescriptionLength() }}/255
+              </div>
+              Fallback summary search engines may show under your site's link in results. Used for
+              the home page and any page that has no meta description of its own.
+              <ul class="mb-0 mt-1 ps-3">
+                <li>Aim for 150-160 characters so it isn't truncated in search results.</li>
+                <li>Write for people: make it read like an ad that earns the click.</li>
+                <li>Describe the site as a whole and include your main keywords naturally.</li>
+                <li>Keep it unique - don't just repeat the site name or title.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="mb-3">
             <label class="form-label fw-semibold" for="brand-logo">Brand logo</label>
             @if (brandLogo()) {
               <div class="mb-2">

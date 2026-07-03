@@ -34,7 +34,7 @@ final class SettingsController extends AbstractController
         SiteSettingRepository $settingsRepository,
         EntityManagerInterface $em,
     ): JsonResponse {
-        /** @var array{home_page_slug?: mixed, site_name?: mixed, brand_logo?: mixed} $payload */
+        /** @var array{home_page_slug?: mixed, site_name?: mixed, brand_logo?: mixed, meta_description?: mixed} $payload */
         $payload = $request->toArray();
 
         if (\array_key_exists('home_page_slug', $payload)) {
@@ -64,13 +64,24 @@ final class SettingsController extends AbstractController
             $settingsRepository->set('brand_logo', '' !== $logo ? $logo : null);
         }
 
+        if (\array_key_exists('meta_description', $payload)) {
+            $description = $payload['meta_description'];
+            $description = \is_string($description) ? trim($description) : '';
+
+            if (mb_strlen($description) > 255) {
+                return new JsonResponse(['error' => 'The meta description must be 255 characters or fewer.'], JsonResponse::HTTP_UNPROCESSABLE_ENTITY);
+            }
+
+            $settingsRepository->set('meta_description', '' !== $description ? $description : null);
+        }
+
         $em->flush();
 
         return new JsonResponse($this->buildPayload($pageRepository, $settingsRepository));
     }
 
     /**
-     * @return array{home_page_slug: string|null, site_name: string|null, brand_logo: string|null, available_pages: list<array{slug: string, title: string}>}
+     * @return array{home_page_slug: string|null, site_name: string|null, brand_logo: string|null, meta_description: string|null, available_pages: list<array{slug: string, title: string}>}
      */
     private function buildPayload(ContentPageRepository $pageRepository, SiteSettingRepository $settingsRepository): array
     {
@@ -83,6 +94,7 @@ final class SettingsController extends AbstractController
             'home_page_slug' => $settingsRepository->get('home_page_slug'),
             'site_name' => $settingsRepository->get('site_name', 'Salix CMS'),
             'brand_logo' => $settingsRepository->get('brand_logo'),
+            'meta_description' => $settingsRepository->get('meta_description'),
             'available_pages' => $available,
         ];
     }

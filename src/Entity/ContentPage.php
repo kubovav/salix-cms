@@ -57,6 +57,11 @@ class ContentPage
     #[Assert\Length(max: 255)]
     private ?string $title = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['article:read', 'article:write'])]
+    #[Assert\Length(max: 255)]
+    private ?string $metaDescription = null;
+
     #[ORM\Column]
     #[Groups(['article:read', 'article:write'])]
     private bool $published = false;
@@ -110,6 +115,18 @@ class ContentPage
     public function setTitle(string $title): static
     {
         $this->title = $title;
+
+        return $this;
+    }
+
+    public function getMetaDescription(): ?string
+    {
+        return $this->metaDescription;
+    }
+
+    public function setMetaDescription(?string $metaDescription): static
+    {
+        $this->metaDescription = $metaDescription;
 
         return $this;
     }

@@ -31,6 +31,7 @@ final class FrontendController extends AbstractController
             if ($page instanceof ContentPage) {
                 return $this->render('frontend/page.html.twig', [
                     'page' => $page,
+                    'isHome' => true,
                     'menuItems' => $menuItems,
                     'footerMenuItems' => $footerMenuItems,
                 ]);

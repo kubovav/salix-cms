@@ -57,6 +57,36 @@
             </div>
           </div>
 
+          <div class="mb-3">
+            <label class="form-label fw-semibold" for="metaDescription">Meta description</label>
+            <textarea
+              id="metaDescription"
+              rows="2"
+              autocomplete="off"
+              maxlength="255"
+              class="form-control"
+              formControlName="metaDescription"
+              placeholder="Short summary shown in search engine results"
+              [class.is-invalid]="getError('metaDescription')"
+            ></textarea>
+            @if (getError('metaDescription'); as error) {
+              <div class="invalid-feedback">{{ error }}</div>
+            }
+            <div class="form-text">
+              <div class="text-end fw-semibold" [class]="metaDescriptionCountClass()">
+                {{ metaDescriptionLength() }}/255
+              </div>
+              The summary search engines may show under this page's link in results. Leave blank to
+              fall back to the site-wide default (set in Settings).
+              <ul class="mb-0 mt-1 ps-3">
+                <li>Aim for 150-160 characters so it isn't truncated in search results.</li>
+                <li>Summarise this page specifically and lead with its most important point.</li>
+                <li>Write for people: make it read like an ad that earns the click.</li>
+                <li>Include the page's main keyword naturally, and keep it unique per page.</li>
+              </ul>
+            </div>
+          </div>
+
           <div class="form-check">
             <input
               id="published"

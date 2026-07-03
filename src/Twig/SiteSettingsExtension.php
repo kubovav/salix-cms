@@ -24,6 +24,7 @@ final class SiteSettingsExtension extends AbstractExtension implements GlobalsIn
         return [
             'site_name' => $this->settings->get('site_name', 'Salix CMS'),
             'brand_logo' => $this->settings->get('brand_logo'),
+            'site_meta_description' => $this->settings->get('meta_description'),
         ];
     }
 }

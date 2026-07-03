@@ -1,7 +1,8 @@
 import { Component, DestroyRef, computed, inject, input, signal } from '@angular/core';
 import type { OnInit } from '@angular/core';
 import type { HttpErrorResponse } from '@angular/common/http';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { map } from 'rxjs';
 import { applyApiViolations, resolveFieldError } from '@core/form-errors';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -42,7 +43,23 @@ export class ArticleEditComponent implements OnInit {
   readonly form = this.fb.nonNullable.group({
     title: ['', [Validators.required]],
     slug: ['', [Validators.pattern(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)]],
+    metaDescription: ['', [Validators.maxLength(255)]],
     published: [false],
+  });
+
+  readonly metaDescriptionLength = toSignal(
+    this.form.controls.metaDescription.valueChanges.pipe(map((v) => v.length)),
+    { initialValue: 0 }
+  );
+  readonly metaDescriptionCountClass = computed(() => {
+    const len = this.metaDescriptionLength();
+    if (len >= 150 && len <= 160) {
+      return 'text-success';
+    }
+    if (len > 160) {
+      return 'text-warning';
+    }
+    return 'text-muted';
   });
 
   ngOnInit(): void {
@@ -63,6 +80,7 @@ export class ArticleEditComponent implements OnInit {
   private readonly fieldMessages: Record<string, Record<string, string>> = {
     title: { required: 'Title is required.' },
     slug: { pattern: 'Use lowercase letters, numbers, and hyphens only.' },
+    metaDescription: { maxlength: 'Keep the meta description under 255 characters.' },
   };
 
   getError(name: string): string | null {
@@ -78,6 +96,7 @@ export class ArticleEditComponent implements OnInit {
         this.form.patchValue({
           title: article.title,
           slug: article.slug,
+          metaDescription: article.metaDescription ?? '',
           published: article.published,
         });
         this.blocks.set(this.sortBlocks(article.blocks ?? []));
@@ -111,7 +130,8 @@ export class ArticleEditComponent implements OnInit {
     this.saving.set(true);
     this.settingsError.set(null);
     this.saved.set(false);
-    const payload = this.form.getRawValue();
+    const raw = this.form.getRawValue();
+    const payload = { ...raw, metaDescription: raw.metaDescription.trim() || null };
     const existing = this.article();
 
     const request = existing?.id
