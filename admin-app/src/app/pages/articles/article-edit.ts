@@ -213,7 +213,7 @@ export class ArticleEditComponent implements OnInit {
     switch (block.type) {
       case 'rich_text':
       case 'text_image':
-        return this.stripHtml((d['html'] as string) ?? '');
+        return this.stripHtml(block.renderedHtml ?? '');
       case 'hero':
         return (d['heading'] as string) ?? '';
       case 'image':

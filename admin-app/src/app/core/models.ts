@@ -5,7 +5,6 @@ export interface User {
   name?: string;
   roles: string[];
   updatedAt?: string;
-  /** Write-only: accepted on create/update, never returned by the API. */
   plainPassword?: string;
 }
 
@@ -14,15 +13,13 @@ export type BlockType = 'rich_text' | 'image' | 'hero' | 'text_image' | 'cta' | 
 export interface Block {
   '@id'?: string;
   id?: number;
-  /** Optional admin-only label to help recognize the block (not shown on the frontend) */
   name?: string | null;
   type: BlockType | string;
   position: number;
   data: Record<string, unknown>;
-  /** Optional in-page anchor (HTML id) for menu links like #section */
   anchor?: string | null;
   imageUrl?: string | null;
-  /** IRI of the owning article, e.g. /api/articles/5 (write only) */
+  renderedHtml?: string | null;
   page?: string;
 }
 
