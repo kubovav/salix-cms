@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Builds the self-contained release archive for no-shell deployments (shared
-# hosting): production vendors, built admin SPA, compiled assets, APP_ENV=prod.
-# Used by CI on tags (.github/workflows/release.yml) and runnable locally.
-# Packages the current HEAD commit — the working tree is never touched; the
-# build happens in a throwaway staging directory.
+# Builds a self-contained release archive of this site for no-shell
+# deployments (shared hosting): production vendors (including the CMS bundle
+# with its prebuilt admin UI), compiled assets, APP_ENV=prod.
+# Packages the current HEAD commit — the working tree is never touched.
 #
 # Usage: bin/package-release [version]   (default: git describe)
 
@@ -15,27 +14,22 @@ STAGE_DIR="$(mktemp -d)"
 trap 'rm -rf "$STAGE_DIR"' EXIT
 
 OUT_DIR="$PROJECT_DIR/var/releases"
-OUT="$OUT_DIR/salix-$VERSION.zip"
+OUT="$OUT_DIR/site-$VERSION.zip"
 
 echo "==> Staging HEAD ($VERSION)"
 git -C "$PROJECT_DIR" archive HEAD | tar -x -C "$STAGE_DIR"
 cd "$STAGE_DIR"
 
-echo "==> Building frontend CSS + admin SPA"
-# Build the admin into cms-bundle/public/admin BEFORE composer mirrors the
-# bundle into vendor/, so the mirrored copy ships the built UI.
+echo "==> Building site theme"
 npm ci --ignore-scripts
-npm ci --prefix cms-bundle/admin-app
-npm run sass:build
-npm --prefix cms-bundle/admin-app run build
+npm run build
 
 echo "==> Installing production PHP dependencies"
-# Mirror the salix/cms-bundle path repository into vendor/ as a real copy
-# (not a symlink) so the archive is self-contained.
+# Self-contained vendor tree even when the CMS bundle is a path repository.
 export COMPOSER_MIRROR_PATH_REPOS=1
 composer install --no-dev --no-scripts --prefer-dist --no-progress --no-interaction
 composer dump-autoload --classmap-authoritative --no-dev
-# mirroring copies the whole package dir; only the built admin UI ships, not its sources
+# registry dists exclude the admin sources already; path-repo installs may not
 rm -rf vendor/salix/cms-bundle/admin-app
 
 echo "==> Compiling Symfony assets"
@@ -49,17 +43,12 @@ APP_ENV=prod php bin/console salix:admin:install
 printf 'APP_ENV=prod\n' > .env.local
 
 echo "==> Pruning development files"
-# cms-bundle runs from its mirrored copy in vendor/, so the source lane goes too
 rm -rf \
-    cms-bundle \
-    skeleton \
     node_modules \
     docker \
     compose.yaml compose.prod.yaml .env.prod.example .dockerignore \
     package.json package-lock.json \
-    phpstan.neon rector.php \
-    CLAUDE.md .gitignore \
-    .github .devcontainer bin/package-release \
+    .github bin/package-release \
     var/cache var/log
 mkdir -p var public/uploads
 

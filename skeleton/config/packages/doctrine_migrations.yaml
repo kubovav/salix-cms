@@ -1,0 +1,7 @@
+doctrine_migrations:
+    migrations_paths:
+        # Application-level migrations (site schema built on top of the CMS).
+        # CMS migrations ship inside salix/cms-bundle on the
+        # 'Salix\Cms\Migrations' namespace, registered by the bundle itself.
+        'DoctrineMigrations': '%kernel.project_dir%/migrations'
+    enable_profiler: false

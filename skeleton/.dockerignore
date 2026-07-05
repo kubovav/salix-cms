@@ -4,14 +4,10 @@
 
 # Dependencies (installed inside the image)
 node_modules
-cms-bundle/admin-app/node_modules
-cms-bundle/admin-app/.angular
-cms-bundle/admin-app/dist
 vendor
 
 # Build output (produced inside the image)
 public/admin
-cms-bundle/public/admin
 public/assets
 public/bundles
 assets/vendor
@@ -27,9 +23,6 @@ supervisord.pid
 .env.*.local
 .env.prod
 config/secrets/prod/prod.decrypt.private.php
-
-# Site project template — not part of the CMS image
-skeleton
 
 # Docker (compose files and local data are not part of the image)
 docker/temp

@@ -1,0 +1,16 @@
+.block {
+    overflow-wrap: break-word;
+    word-break: break-word;
+    min-width: 0;
+
+    &.block-text-image .col-md-7 > :last-child {
+    margin-bottom: 0;
+    }
+}
+
+// Anchor targets sit under the sticky navbar; offset the scroll position so the
+// linked block is not hidden beneath it.
+.block-anchor {
+    scroll-margin-top: 5rem;
+}
+

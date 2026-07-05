@@ -1,0 +1,38 @@
+# Runtime
+supervisord.pid
+
+# Uploaded files
+/public/uploads/
+
+# Installed admin UI (from salix/cms-bundle via `salix:admin:install`)
+/public/admin/
+
+# Docker
+docker/temp/
+compose.override.yaml
+/.env.prod
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+/node_modules
+
+###> symfony/framework-bundle ###
+/.env.local
+/.env.local.php
+/.env.*.local
+/config/secrets/prod/prod.decrypt.private.php
+/public/bundles/
+/var/
+/vendor/
+###< symfony/framework-bundle ###
+
+###> symfony/asset-mapper ###
+/public/assets/
+/assets/vendor/
+###< symfony/asset-mapper ###

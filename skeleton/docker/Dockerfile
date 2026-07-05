@@ -33,9 +33,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 RUN install-php-extensions xdebug @composer
 
-RUN curl -sS https://get.symfony.com/cli/installer | bash \
-    && mv /root/.symfony*/bin/symfony /usr/local/bin/symfony
-
 RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
     && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
@@ -51,18 +48,17 @@ ENTRYPOINT ["docker-entrypoint-dev.sh"]
 CMD ["supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
 
 ###############################################################################
-# assets-build — frontend SCSS + Angular admin SPA production build
+# assets-build — site theme (SCSS) build; the admin UI ships prebuilt with
+# salix/cms-bundle, so no Angular tooling is needed here
 ###############################################################################
 FROM node:22-alpine AS assets-build
 
 WORKDIR /build
 
 COPY package.json package-lock.json ./
-COPY cms-bundle/admin-app/package.json cms-bundle/admin-app/package-lock.json cms-bundle/admin-app/
-RUN npm ci --ignore-scripts && npm ci --prefix cms-bundle/admin-app
+RUN npm ci --ignore-scripts
 
 COPY assets/ assets/
-COPY cms-bundle/admin-app/ cms-bundle/admin-app/
 RUN npm run build
 
 ###############################################################################
@@ -79,14 +75,9 @@ RUN install-php-extensions intl @composer
 
 WORKDIR /app
 
-# salix/cms-bundle is a path repository; mirror it into vendor/ (a real copy,
-# not a symlink) so the vendor tree is self-contained. Mirroring copies the
-# whole package dir, so drop the admin sources — only the built UI ships.
-ENV COMPOSER_MIRROR_PATH_REPOS=1
-
 COPY composer.json composer.lock symfony.lock ./
-COPY cms-bundle/ cms-bundle/
 RUN composer install --no-dev --no-scripts --prefer-dist --no-progress --no-interaction \
+    # registry dists exclude the admin sources already; path-repo installs may not
     && rm -rf vendor/salix/cms-bundle/admin-app
 
 ###############################################################################
@@ -104,7 +95,6 @@ COPY --chmod=0755 docker/entrypoint.prod.sh /usr/local/bin/docker-entrypoint-pro
 
 COPY . .
 COPY --from=composer-deps /app/vendor vendor/
-COPY --from=assets-build /build/cms-bundle/public/admin public/admin/
 COPY --from=assets-build /build/assets/styles/frontend.css assets/styles/frontend.css
 
 COPY --from=composer-deps /usr/local/bin/composer /usr/local/bin/composer
@@ -114,11 +104,10 @@ RUN composer dump-autoload --classmap-authoritative --no-dev \
 RUN php bin/console assets:install public --no-interaction \
     && php bin/console importmap:install --no-interaction \
     && php bin/console asset-map:compile \
+    && php bin/console salix:admin:install \
     && php bin/console cache:warmup \
     && mkdir -p public/uploads \
-    && chown -R www-data:www-data var public/uploads \
-    # the bundle runs from its mirrored copy in vendor/; the source lane is dead weight
-    && rm -rf cms-bundle
+    && chown -R www-data:www-data var public/uploads
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s \
     CMD curl -fsS http://127.0.0.1:8000/healthz || exit 1

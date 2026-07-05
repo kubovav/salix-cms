@@ -1,0 +1,12 @@
+.block {
+  overflow-wrap: break-word;
+  word-break: break-word;
+  min-width: 0;
+}
+.block.block-text-image .col-md-7 > :last-child {
+  margin-bottom: 0;
+}
+
+.block-anchor {
+  scroll-margin-top: 5rem;
+}

@@ -11,6 +11,7 @@ cms-bundle/             — the CMS: salix/cms-bundle (version 0.2.x, namespace 
   migrations/           — CMS schema migrations (Salix\Cms\Migrations, registered by the bundle)
   admin-app/            — Angular admin SPA (source)
   config/services.yaml  — bundle service definitions
+skeleton/   — salix/skeleton project template for new sites (composer create-project)
 src/        — application shell code (site-level; only the Kernel in this repo)
 templates/  — application-level Twig (overrides via templates/bundles/SalixCmsBundle/)
 migrations/ — application-level migrations (DoctrineMigrations namespace)
@@ -108,7 +109,8 @@ The CMS is a versioned Composer package: **`salix/cms-bundle`** (0.2.x — pre-1
 - CMS frontend templates are overridden per-site via `templates/bundles/SalixCmsBundle/...`; defaults render from `@SalixCms/frontend/...`.
 - The admin SPA ships with the bundle — sites never build or customize it.
 - CMS upgrade = `composer update salix/cms-bundle` + `doctrine:migrations:migrate`.
-- In this monorepo the bundle is consumed via a Composer path repository. Planned next step: a `salix/skeleton` project template (`composer create-project`) with the bundle installed from a Composer registry; the bundle would then ship the admin UI **prebuilt** (built + committed on release tags) so downstream sites never need Node.
+- New sites are created from the **`salix/skeleton`** template in `skeleton/` (see its README; until Packagist publishing, `composer create-project` uses `--repository`/`--stability=dev` + a `repositories.salix` path entry). The skeleton has no Angular tooling — only a sass build for the site theme.
+- **The admin UI ships prebuilt with the bundle**: `ng build` outputs to `cms-bundle/public/admin/` (git-ignored in dev), and the bundle's `salix:admin:install` command copies it to the app's `public/admin/` (wired into composer auto-scripts and root `npm run build`). Sites never run Node.
 - Production/packaging note: the path package is **mirrored** into `vendor/salix/cms-bundle` (`COMPOSER_MIRROR_PATH_REPOS=1`) by the prod Docker build and `bin/package-release`; both then prune `vendor/salix/cms-bundle/admin-app` (mirroring copies everything) and drop the `cms-bundle/` source dir from the artifact.
 
 ## Development Commands

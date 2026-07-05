@@ -47,5 +47,43 @@ class SalixCmsBundle extends AbstractBundle
                 'Salix\Cms\Migrations' => \dirname(__DIR__).'/migrations',
             ],
         ]);
+
+        // Sanitizer for rich-text block HTML (see RichTextRenderer); the
+        // allowlist matches what the Quill editor in the admin UI can produce.
+        $builder->prependExtensionConfig('framework', [
+            'html_sanitizer' => [
+                'sanitizers' => [
+                    'block_html' => [
+                        'allow_relative_links' => true,
+                        'allowed_link_schemes' => ['https', 'http', 'mailto'],
+                        'max_input_length' => 100000,
+                        'allow_elements' => [
+                            'p' => ['class'],
+                            'span' => ['class'],
+                            'br' => [],
+                            'strong' => [],
+                            'b' => [],
+                            'em' => [],
+                            'i' => [],
+                            'u' => [],
+                            's' => [],
+                            'del' => [],
+                            'ol' => ['class'],
+                            'ul' => ['class'],
+                            'li' => ['class'],
+                            'h2' => ['class'],
+                            'h3' => ['class'],
+                            'blockquote' => [],
+                            'pre' => [],
+                            'code' => [],
+                            'a' => ['href', 'target', 'rel'],
+                        ],
+                        'force_attributes' => [
+                            'a' => ['rel' => 'noopener noreferrer'],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
     }
 }
