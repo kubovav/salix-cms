@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Builds the self-contained release archive for no-shell deployments (shared
+# hosting): production vendors, built admin SPA, compiled assets, APP_ENV=prod.
+# Used by CI on tags (.github/workflows/release.yml) and runnable locally.
+# Packages the current HEAD commit — the working tree is never touched; the
+# build happens in a throwaway staging directory.
+#
+# Usage: bin/package-release [version]   (default: git describe)
+
+PROJECT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+VERSION="${1:-$(git -C "$PROJECT_DIR" describe --tags --always)}"
+STAGE_DIR="$(mktemp -d)"
+trap 'rm -rf "$STAGE_DIR"' EXIT
+
+OUT_DIR="$PROJECT_DIR/var/releases"
+OUT="$OUT_DIR/salix-$VERSION.zip"
+
+echo "==> Staging HEAD ($VERSION)"
+git -C "$PROJECT_DIR" archive HEAD | tar -x -C "$STAGE_DIR"
+cd "$STAGE_DIR"
+
+echo "==> Installing production PHP dependencies"
+# Mirror the salix/cms-bundle path repository into vendor/ as a real copy
+# (not a symlink) so the archive is self-contained.
+export COMPOSER_MIRROR_PATH_REPOS=1
+composer install --no-dev --no-scripts --prefer-dist --no-progress --no-interaction
+composer dump-autoload --classmap-authoritative --no-dev
+# mirroring copies the whole package dir; only the built admin UI ships, not its sources
+rm -rf vendor/salix/cms-bundle/admin-app
+
+echo "==> Building frontend CSS + admin SPA"
+npm ci --ignore-scripts
+npm ci --prefix cms-bundle/admin-app
+npm run build
+
+echo "==> Compiling Symfony assets"
+APP_ENV=prod php bin/console assets:install public --no-interaction
+APP_ENV=prod php bin/console importmap:install --no-interaction
+APP_ENV=prod php bin/console asset-map:compile
+
+# The artifact must boot in prod mode out of the box. The web installer later
+# upserts DATABASE_URL and APP_SECRET into this same file.
+printf 'APP_ENV=prod\n' > .env.local
+
+echo "==> Pruning development files"
+# cms-bundle runs from its mirrored copy in vendor/, so the source lane goes too
+rm -rf \
+    cms-bundle \
+    node_modules \
+    docker \
+    compose.yaml compose.prod.yaml .env.prod.example .dockerignore \
+    package.json package-lock.json \
+    phpstan.neon rector.php \
+    CLAUDE.md .gitignore \
+    .github .devcontainer bin/package-release \
+    var/cache var/log
+mkdir -p var public/uploads
+
+echo "==> Creating $OUT"
+mkdir -p "$OUT_DIR"
+rm -f "$OUT"
+zip -qr "$OUT" .
+
+echo "Done: $OUT"

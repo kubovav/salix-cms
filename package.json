@@ -1,13 +1,13 @@
 {
   "scripts": {
-    "postinstall": "npm --prefix admin-app install",
+    "postinstall": "npm --prefix cms-bundle/admin-app install",
     "sass:build": "sass assets/styles/frontend.scss:assets/styles/frontend.css --no-source-map",
     "sass:watch": "sass assets/styles/frontend.scss:assets/styles/frontend.css --no-source-map --watch",
-    "build": "npm run sass:build && npm --prefix admin-app run build",
-    "dev": "concurrently -n sass,admin -c blue,green \"npm run sass:watch\" \"npm --prefix admin-app start\"",
-    "start": "npm --prefix admin-app start",
-    "lint": "npm --prefix admin-app run lint",
-    "format": "npm --prefix admin-app run format"
+    "build": "npm run sass:build && npm --prefix cms-bundle/admin-app run build",
+    "dev": "concurrently -n sass,admin -c blue,green \"npm run sass:watch\" \"npm --prefix cms-bundle/admin-app start\"",
+    "start": "npm --prefix cms-bundle/admin-app start",
+    "lint": "npm --prefix cms-bundle/admin-app run lint",
+    "format": "npm --prefix cms-bundle/admin-app run format"
   },
   "dependencies": {
     "admin-lte": "^4.0.0"

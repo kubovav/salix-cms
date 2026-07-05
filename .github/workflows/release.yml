@@ -1,0 +1,97 @@
+name: Release
+
+# Pushing a tag (git tag v1.2.3 && git push --tags) produces both release
+# artifacts from the same commit:
+#   - salix-v1.2.3.zip attached to a GitHub release (shared hosting upload)
+#   - ghcr.io/<repo>:1.2.3 production Docker image
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  shared-hosting-zip:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          extensions: intl, gd, pdo_mysql
+          tools: composer
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            cms-bundle/admin-app/package-lock.json
+
+      - name: Install PHP dependencies for license audit
+        run: composer install --no-dev --no-scripts --no-progress --no-interaction
+
+      - name: Verify all distributed licenses are permissive
+        run: |
+          composer licenses --no-dev --format=json | php -r '
+            $allowed = ["MIT", "BSD-2-Clause", "BSD-3-Clause", "Apache-2.0", "ISC"];
+            $data = json_decode(stream_get_contents(STDIN), true);
+            $bad = [];
+            foreach ($data["dependencies"] as $package => $info) {
+                foreach ((array) $info["license"] as $license) {
+                    if (!in_array($license, $allowed, true)) {
+                        $bad[] = "$package: $license";
+                    }
+                }
+            }
+            if ($bad) {
+                fwrite(STDERR, "Non-permissive licenses found:\n".implode("\n", $bad)."\n");
+                exit(1);
+            }
+            echo "All ".count($data["dependencies"])." runtime dependencies are permissively licensed.\n";
+          '
+
+      - name: Build release archive
+        run: bin/package-release "$GITHUB_REF_NAME"
+
+      - name: Create GitHub release with the archive
+        uses: softprops/action-gh-release@v2
+        with:
+          files: var/releases/salix-${{ github.ref_name }}.zip
+          generate_release_notes: true
+
+  docker-image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/metadata-action@v5
+        id: meta
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/Dockerfile
+          target: prod
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

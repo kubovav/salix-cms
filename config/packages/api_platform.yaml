@@ -1,6 +1,12 @@
 api_platform:
     title: Salix CMS Admin API
     version: 1.0.0
+    # Application-level resources; the CMS's own resources are registered by
+    # SalixCmsBundle (prepend).
+    mapping:
+        paths:
+            - '%kernel.project_dir%/src/ApiResource'
+            - '%kernel.project_dir%/src/Entity'
     # Session-cookie (same-origin) authentication is used for the admin SPA,
     # so requests must be stateful to allow the security token to persist.
     defaults:

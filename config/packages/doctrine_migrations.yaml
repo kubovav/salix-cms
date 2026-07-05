@@ -1,10 +1,7 @@
 doctrine_migrations:
     migrations_paths:
-        # namespace is arbitrary but should be different from App\Migrations
-        # as migrations classes should NOT be autoloaded
+        # Application-level migrations (site schema built on top of the CMS).
+        # CMS migrations ship inside salix/cms-bundle on the
+        # 'Salix\Cms\Migrations' namespace, registered by the bundle itself.
         'DoctrineMigrations': '%kernel.project_dir%/migrations'
-        # Site-specific migrations live on a separate timeline so custom-site
-        # schema changes never collide with CMS migrations on upgrade.
-        # Generate with: bin/console doctrine:migrations:diff --namespace=Site\Migrations
-        'Site\Migrations': '%kernel.project_dir%/migrations/site'
     enable_profiler: false

@@ -1,14 +1,20 @@
 ## Project Overview
 
-Salix CMS is a lightweight content management system built with Symfony and Twig. Both the backend logic and the frontend rendering live in a single Symfony application at the repository root.
+Salix CMS is a lightweight content management system built with Symfony and Twig. The CMS itself is the **`salix/cms-bundle` Symfony bundle** in `cms-bundle/`, consumed by the application shell at the repository root through a Composer **path repository** (`repositories` in `composer.json`). This monorepo is both the bundle's development home and a runnable Salix application.
 
 ## Repository Layout
 
 ```
-src/        — Symfony application code (Controllers, Entities, Repositories, etc.)
-templates/  — Twig templates (frontend views)
-migrations/ — Doctrine database migrations
-config/     — Symfony configuration
+cms-bundle/             — the CMS: salix/cms-bundle (version 0.2.x, namespace Salix\Cms\)
+  src/                  — bundle code: Entities, Controllers, Repositories, Security, …
+  templates/            — frontend + installer Twig templates (@SalixCms namespace)
+  migrations/           — CMS schema migrations (Salix\Cms\Migrations, registered by the bundle)
+  admin-app/            — Angular admin SPA (source)
+  config/services.yaml  — bundle service definitions
+src/        — application shell code (site-level; only the Kernel in this repo)
+templates/  — application-level Twig (overrides via templates/bundles/SalixCmsBundle/)
+migrations/ — application-level migrations (DoctrineMigrations namespace)
+config/     — Symfony application configuration
 public/     — Web root (index.php)
 docker/     — Dockerfile, Nginx config, Supervisor config
 ```
@@ -31,21 +37,23 @@ Everything runs in a single `salix_app` Docker container managed by Supervisor:
 - Symfony Security with role-based access (`ROLE_USER`, `ROLE_ADMIN`)
 
 ### Conventions
-- Entities live in `src/Entity/` and use PHP 8 attributes for ORM mapping
-- Controllers go in `src/Controller/` and use `#[Route]` attributes
-- Twig templates go in `templates/` following the `templates/{controller}/action.html.twig` convention
-- Repositories go in `src/Repository/` and extend `ServiceEntityRepository`
-- Database migrations go in `migrations/` — always generate via `bin/console doctrine:migrations:diff`
+- **CMS code goes in the bundle** (`cms-bundle/src/`, namespace `Salix\Cms\`); the root `src/` is the application shell (site-level code, empty here apart from the Kernel)
+- Entities live in `cms-bundle/src/Entity/` and use PHP 8 attributes for ORM mapping
+- Controllers go in `cms-bundle/src/Controller/` and use `#[Route]` attributes (imported by `config/routes.yaml` via `@SalixCmsBundle/src/Controller/`)
+- CMS Twig templates go in `cms-bundle/templates/` and render via the `@SalixCms/...` namespace
+- Repositories go in `cms-bundle/src/Repository/` and extend `ServiceEntityRepository`
+- CMS migrations go in `cms-bundle/migrations/` — generate via `bin/console doctrine:migrations:diff --namespace='Salix\Cms\Migrations'`. Application-level migrations use plain `doctrine:migrations:diff` into `migrations/`.
+- Bundle services are autowired via `cms-bundle/config/services.yaml`; Doctrine/API Platform/migrations wiring is prepended by `SalixCmsBundle::prependExtension()` — Doctrine `auto_mapping` stays **false** (mappings are explicit; the auto-mapping probe also breaks on case-insensitive macOS bind mounts, see `src/Config` vs `src/config`)
 - The admin UI is a separate **Angular SPA** (see below); the Symfony app exposes a JSON **API** for it under `/api`
 - Public (frontend) routes are open and rendered server-side with Twig
 
 ### Admin UI — Angular SPA + API Platform
-- The admin section is an **Angular standalone app** living in `admin-app/`, built into `public/admin/` and served by Nginx at `/admin` (same-origin).
+- The admin section is an **Angular standalone app** living in `cms-bundle/admin-app/`, built into `public/admin/` and served by Nginx at `/admin` (same-origin).
 - The backend exposes a REST API via **API Platform** under `/api` (config in `config/packages/api_platform.yaml`). Entities are exposed with `#[ApiResource]` + serialization groups + validation constraints. API responses are **plain JSON** (`formats: json`), so collections are plain arrays.
-- **Auth is session-cookie based, same-origin** (reuses Symfony Security — no JWT). The `api` firewall uses `json_login` (`POST /api/auth/login` with `{email, password}`), `POST /api/auth/logout`, and `GET /api/auth/me`. Custom handlers return JSON instead of HTML redirects (`src/Security/`).
+- **Auth is session-cookie based, same-origin** (reuses Symfony Security — no JWT). The `api` firewall uses `json_login` (`POST /api/auth/login` with `{email, password}`), `POST /api/auth/logout`, and `GET /api/auth/me`. Custom handlers return JSON instead of HTML redirects (`cms-bundle/src/Security/`).
 - API Platform defaults: `stateless: false` (session auth), `pagination_enabled: false`. Writes use **POST to create / PATCH to update** (no PUT); PATCH bodies are sent as `application/merge-patch+json` and populate the managed entity (so `UniqueEntity` correctly excludes the current record).
 - **After adding/renaming an `#[ApiResource]` property or serialization group, run `php bin/console cache:clear`** — even in dev. API Platform caches property-name/metadata pools under `var/cache` and does **not** auto-invalidate them, so a newly added writable field is silently dropped on write (the request carries it, but it persists as `null`) until the cache is cleared.
-- Custom API endpoints live in `src/Controller/Api/` (uploads, block reorder, settings, meta).
+- Custom API endpoints live in `cms-bundle/src/Controller/Api/` (uploads, block reorder, settings, meta).
 - **Frontend dev workflow**: `npm install` then `npm run dev` (from the project root) — watches frontend SCSS and runs `ng serve` on port `4200` (uses `proxy.conf.json` to proxy `/api` + `/uploads` to `http://localhost:8000`). `npm run build` production-builds the SPA into `public/admin/` (`baseHref: /admin/`) — that is the **only** thing that writes `public/admin/`; there is no watch-build.
 - Angular stack: standalone components, zoneless change detection, Reactive Forms, **ng-bootstrap** (Bootstrap 5), **bootstrap-icons**, **ngx-quill** (rich text), **@angular/cdk** drag-drop (block reorder). Bootstrap is compiled from SCSS in `src/styles.scss`; vendor CSS (icons, Quill) is added via `angular.json` `styles`.
 - The HTTP interceptor (`src/app/core/auth.interceptor.ts`) sends `withCredentials: true` + `Accept: application/json` and redirects to `/login` on 401.
@@ -94,15 +102,14 @@ Everything runs in a single `salix_app` Docker container managed by Supervisor:
 
 ## Custom Site (Downstream) Workflow
 
-Salix is a full Symfony **application**, not a library. Custom websites are built in **separate downstream repos** that consume this CMS as a git `upstream` remote and merge **tagged releases** (`git merge upstream/v1.1.0`). The whole model hinges on one rule: **a downstream site never edits CMS files in place** — all site-specific code goes in dedicated **quarantine lanes** the CMS leaves empty, so upgrades don't conflict. These lanes ship wired-up-but-empty in this repo:
+The CMS is a versioned Composer package: **`salix/cms-bundle`** (0.2.x — pre-1.0, minor versions may break). A custom site is a plain Symfony application that requires the bundle; all site code belongs to the site's own `src/`, `templates/`, and `migrations/` — there are no reserved directories and no git-upstream merges (the old quarantine-lane workflow is gone).
 
-- **`src/Site/`** (namespace `App\Site\`) — site PHP; already autoloaded by the `App\:` rule, services autoconfigured. Controllers in `src/Site/Controller/`.
-- **`config/routes/site.yaml`** — auto-loaded route file importing `#[Route]` attributes from `src/Site/Controller/`. Do **not** add site routes to `config/routes.yaml`.
-- **`templates/site/`** — site Twig/theme, separate from CMS `templates/frontend/`.
-- **`config/packages/site_*.yaml`** — site config (prefixed new files; the default kernel does not recurse into a `config/packages/site/` subdir).
-- **`migrations/site/`** (namespace `Site\Migrations`) — site schema on a separate timeline: `bin/console doctrine:migrations:diff --namespace=Site\Migrations`.
-
-The shared files that conflict if edited downstream are `composer.json`, `config/routes.yaml`, and `templates/frontend/layout.html.twig` — touch minimally. The `admin-app/` SPA is **100% upstream** — never customize it downstream. When a second site appears or merge pain grows, the reusable half graduates to a Composer/Symfony bundle; keeping code in these lanes makes that extraction cheap. **When adding CMS features here, keep these lanes empty and conflict-free.**
+- Site PHP/templates/schema go in the app-level `src/`, `templates/`, `migrations/` (`DoctrineMigrations` namespace); CMS migrations live in the bundle on `Salix\Cms\Migrations`, so the timelines never collide.
+- CMS frontend templates are overridden per-site via `templates/bundles/SalixCmsBundle/...`; defaults render from `@SalixCms/frontend/...`.
+- The admin SPA ships with the bundle — sites never build or customize it.
+- CMS upgrade = `composer update salix/cms-bundle` + `doctrine:migrations:migrate`.
+- In this monorepo the bundle is consumed via a Composer path repository. Planned next step: a `salix/skeleton` project template (`composer create-project`) with the bundle installed from a Composer registry; the bundle would then ship the admin UI **prebuilt** (built + committed on release tags) so downstream sites never need Node.
+- Production/packaging note: the path package is **mirrored** into `vendor/salix/cms-bundle` (`COMPOSER_MIRROR_PATH_REPOS=1`) by the prod Docker build and `bin/package-release`; both then prune `vendor/salix/cms-bundle/admin-app` (mirroring copies everything) and drop the `cms-bundle/` source dir from the artifact.
 
 ## Development Commands
 
@@ -123,7 +130,14 @@ php bin/console doctrine:migrations:migrate
 
 # Generate a migration after entity changes
 php bin/console doctrine:migrations:diff
+
+# Build the shared-hosting release zip from HEAD into var/releases/
+bin/package-release
 ```
+
+Pushing a `v*` tag triggers `.github/workflows/release.yml`, which builds both release
+artifacts from that commit: the shared-hosting zip (attached to the GitHub release) and
+the production Docker image (pushed to ghcr.io).
 
 ### Frontend / Admin SPA commands (project root)
 

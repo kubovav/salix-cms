@@ -8,7 +8,7 @@ security:
         # used to reload user from session & other features (e.g. switch_user)
         app_user_provider:
             entity:
-                class: App\Entity\User
+                class: Salix\Cms\Entity\User
                 property: email
 
     role_hierarchy:
@@ -23,13 +23,13 @@ security:
             lazy: true
             provider: app_user_provider
             stateless: false
-            entry_point: App\Security\JsonAuthenticationEntryPoint
+            entry_point: Salix\Cms\Security\JsonAuthenticationEntryPoint
             json_login:
                 check_path: api_auth_login
                 username_path: email
                 password_path: password
-                success_handler: App\Security\JsonAuthenticationHandler
-                failure_handler: App\Security\JsonAuthenticationHandler
+                success_handler: Salix\Cms\Security\JsonAuthenticationHandler
+                failure_handler: Salix\Cms\Security\JsonAuthenticationHandler
             logout:
                 path: api_auth_logout
         main:

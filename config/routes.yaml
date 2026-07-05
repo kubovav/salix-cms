@@ -10,6 +10,10 @@
 controllers:
     resource: routing.controllers
 
+salix_cms_controllers:
+    resource: '@SalixCmsBundle/src/Controller/'
+    type: attribute
+
 api_auth_login:
     path: /api/auth/login
     methods: [POST]

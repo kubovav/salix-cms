@@ -28,6 +28,7 @@ FROM base AS dev
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     unzip \
+    zip \
     && rm -rf /var/lib/apt/lists/*
 
 RUN install-php-extensions xdebug @composer
@@ -57,11 +58,11 @@ FROM node:22-alpine AS assets-build
 WORKDIR /build
 
 COPY package.json package-lock.json ./
-COPY admin-app/package.json admin-app/package-lock.json admin-app/
-RUN npm ci --ignore-scripts && npm ci --prefix admin-app
+COPY cms-bundle/admin-app/package.json cms-bundle/admin-app/package-lock.json cms-bundle/admin-app/
+RUN npm ci --ignore-scripts && npm ci --prefix cms-bundle/admin-app
 
 COPY assets/ assets/
-COPY admin-app/ admin-app/
+COPY cms-bundle/admin-app/ cms-bundle/admin-app/
 RUN npm run build
 
 ###############################################################################
@@ -78,8 +79,15 @@ RUN install-php-extensions intl @composer
 
 WORKDIR /app
 
+# salix/cms-bundle is a path repository; mirror it into vendor/ (a real copy,
+# not a symlink) so the vendor tree is self-contained. Mirroring copies the
+# whole package dir, so drop the admin sources — only the built UI ships.
+ENV COMPOSER_MIRROR_PATH_REPOS=1
+
 COPY composer.json composer.lock symfony.lock ./
-RUN composer install --no-dev --no-scripts --prefer-dist --no-progress --no-interaction
+COPY cms-bundle/ cms-bundle/
+RUN composer install --no-dev --no-scripts --prefer-dist --no-progress --no-interaction \
+    && rm -rf vendor/salix/cms-bundle/admin-app
 
 ###############################################################################
 # prod — immutable production image: code, vendors and built assets baked in
@@ -108,7 +116,9 @@ RUN php bin/console assets:install public --no-interaction \
     && php bin/console asset-map:compile \
     && php bin/console cache:warmup \
     && mkdir -p public/uploads \
-    && chown -R www-data:www-data var public/uploads
+    && chown -R www-data:www-data var public/uploads \
+    # the bundle runs from its mirrored copy in vendor/; the source lane is dead weight
+    && rm -rf cms-bundle
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s \
     CMD curl -fsS http://127.0.0.1:8000/healthz || exit 1

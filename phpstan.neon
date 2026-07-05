@@ -34,13 +34,14 @@ parameters:
             message: 'use Logger instead'
     paths:
         - bin/
+        - cms-bundle/src/
         - config/
         - public/
         - src/
     ignoreErrors:
-        - '#Property App\\Entity\\(.*)#'
-        - '#Public method "App\\Entity\\(.*)#'
-        - '#Public method "App\\EventListener\\(.*)#'
+        - '#Property Salix\\Cms\\Entity\\(.*)#'
+        - '#Public method "Salix\\Cms\\Entity\\(.*)#'
+        - '#Public method "Salix\\Cms\\EventListener\\(.*)#'
     excludePaths:
         analyse:
             - config/reference.php

@@ -1,0 +1,35 @@
+{
+    "name": "salix/cms-bundle",
+    "description": "Salix CMS — content management bundle: content pages/blocks, menus, settings, users, admin API and the prebuilt Angular admin UI",
+    "type": "symfony-bundle",
+    "license": "MIT",
+    "version": "0.2.0",
+    "require": {
+        "php": ">=8.4",
+        "api-platform/core": "^4.3",
+        "doctrine/doctrine-bundle": "^3.2.2",
+        "doctrine/doctrine-migrations-bundle": "^4.0",
+        "doctrine/orm": "^3.6.5",
+        "nadar/quill-delta-parser": "^3.7",
+        "symfony/asset": "8.0.*",
+        "symfony/console": "8.0.*",
+        "symfony/framework-bundle": "8.0.*",
+        "symfony/html-sanitizer": "8.0.*",
+        "symfony/mime": "8.0.*",
+        "symfony/property-access": "8.0.*",
+        "symfony/property-info": "8.0.*",
+        "symfony/security-bundle": "8.0.*",
+        "symfony/serializer": "8.0.*",
+        "symfony/twig-bundle": "8.0.*",
+        "symfony/validator": "8.0.*",
+        "symfony/yaml": "8.0.*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Salix\\Cms\\": "src/"
+        }
+    },
+    "archive": {
+        "exclude": ["/admin-app"]
+    }
+}

@@ -1,0 +1,14 @@
+{% extends '@SalixCms/install/base.html.twig' %}
+
+{% block title %}Already installed{% endblock %}
+
+{% block body %}
+    <h1>Already installed</h1>
+
+    <div class="alert alert-warning">
+        Salix CMS is already installed, so the installer is disabled. To re-install, remove the
+        <code>var/installed.lock</code> file on the server first.
+    </div>
+
+    <p><a href="{{ path('frontend_home') }}">Go to your site</a> · <a href="/admin/">Open the admin</a></p>
+{% endblock %}

@@ -4,9 +4,9 @@
 
 # Dependencies (installed inside the image)
 node_modules
-admin-app/node_modules
-admin-app/.angular
-admin-app/dist
+cms-bundle/admin-app/node_modules
+cms-bundle/admin-app/.angular
+cms-bundle/admin-app/dist
 vendor
 
 # Build output (produced inside the image)
