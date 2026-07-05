@@ -1,0 +1,50 @@
+# VCS
+.git
+.gitignore
+
+# Dependencies (installed inside the image)
+node_modules
+cms-bundle/admin-app/node_modules
+cms-bundle/admin-app/.angular
+cms-bundle/admin-app/dist
+vendor
+
+# Build output (produced inside the image)
+public/admin
+cms-bundle/public/admin
+public/assets
+public/bundles
+assets/vendor
+
+# Runtime data
+var
+public/uploads
+supervisord.pid
+
+# Local environment / secrets
+.env.local
+.env.local.php
+.env.*.local
+.env.prod
+config/secrets/prod/prod.decrypt.private.php
+
+# Site project template — not part of the CMS image
+skeleton
+
+# Docker (compose files and local data are not part of the image)
+docker/temp
+docker-compose.yml
+compose.yaml
+compose.override.yaml
+compose.prod.yaml
+
+# IDE / OS
+.idea
+.vscode
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Tooling caches
+.php-cs-fixer.cache

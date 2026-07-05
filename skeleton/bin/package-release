@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Builds a self-contained release archive of this site for no-shell
+# deployments (shared hosting): production vendors (including the CMS bundle
+# with its prebuilt admin UI), compiled assets, APP_ENV=prod.
+# Packages the current HEAD commit — the working tree is never touched.
+#
+# Usage: bin/package-release [version]   (default: git describe)
+
+PROJECT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+VERSION="${1:-$(git -C "$PROJECT_DIR" describe --tags --always)}"
+STAGE_DIR="$(mktemp -d)"
+trap 'rm -rf "$STAGE_DIR"' EXIT
+
+OUT_DIR="$PROJECT_DIR/var/releases"
+OUT="$OUT_DIR/site-$VERSION.zip"
+
+echo "==> Staging HEAD ($VERSION)"
+git -C "$PROJECT_DIR" archive HEAD | tar -x -C "$STAGE_DIR"
+cd "$STAGE_DIR"
+
+echo "==> Building site theme"
+npm ci --ignore-scripts
+npm run build
+
+echo "==> Installing production PHP dependencies"
+# Self-contained vendor tree even when the CMS bundle is a path repository.
+export COMPOSER_MIRROR_PATH_REPOS=1
+composer install --no-dev --no-scripts --prefer-dist --no-progress --no-interaction
+composer dump-autoload --classmap-authoritative --no-dev
+# registry dists exclude the admin sources already; path-repo installs may not
+rm -rf vendor/salix/cms-bundle/admin-app
+
+echo "==> Compiling Symfony assets"
+APP_ENV=prod php bin/console assets:install public --no-interaction
+APP_ENV=prod php bin/console importmap:install --no-interaction
+APP_ENV=prod php bin/console asset-map:compile
+APP_ENV=prod php bin/console salix:admin:install
+
+# The artifact must boot in prod mode out of the box. The web installer later
+# upserts DATABASE_URL and APP_SECRET into this same file.
+printf 'APP_ENV=prod\n' > .env.local
+
+echo "==> Pruning development files"
+rm -rf \
+    node_modules \
+    docker \
+    compose.yaml compose.prod.yaml .env.prod.example .dockerignore \
+    package.json package-lock.json \
+    .github bin/package-release \
+    var/cache var/log
+mkdir -p var public/uploads
+
+echo "==> Creating $OUT"
+mkdir -p "$OUT_DIR"
+rm -f "$OUT"
+zip -qr "$OUT" .
+
+echo "Done: $OUT"

@@ -12,6 +12,7 @@ return RectorConfig::configure()
     ->withPaths([
         __DIR__.'/config',
         __DIR__.'/src',
+        __DIR__.'/cms-bundle/src',
     ])
     ->withSkipPath(__DIR__.'/config/reference.php')
     ->withPhpSets()
@@ -20,7 +21,7 @@ return RectorConfig::configure()
     ->withSkip([
         TernaryToElvisRector::class,
         ClassPropertyAssignToConstructorPromotionRector::class => [
-            __DIR__ . '/src/Entity',
+            __DIR__ . '/cms-bundle/src/Entity',
         ],
     ])
     ->withImportNames(removeUnusedImports: true, importShortClasses: false)

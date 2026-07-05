@@ -73,6 +73,9 @@
             "phpstan.dist.neon"
         ]
     },
+    "salix/cms-bundle": {
+        "version": "0.2.0"
+    },
     "symfony/asset-mapper": {
         "version": "8.0",
         "recipe": {
