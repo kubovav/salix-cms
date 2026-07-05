@@ -3,8 +3,15 @@
 #   cp .env.prod.example .env.prod   # then fill in the secrets
 #   docker compose -f compose.prod.yaml --env-file .env.prod up -d --build
 #
-# TLS termination is expected to happen in front of this stack (platform load
-# balancer, Traefik, Caddy, ...). Set TRUSTED_PROXIES accordingly.
+# TLS termination is expected to happen in front of this stack. Two modes —
+# use exactly one of them (see "Production Deployment" in the README):
+#
+#   1. Standalone / local testing: keep "ports:" below and talk plain HTTP
+#      to the published port.
+#   2. Behind a containerized reverse proxy (Caddy/Traefik) on a shared
+#      server: REMOVE "ports:" and attach the app to the shared external
+#      proxy network instead (uncomment the "networks:" blocks below, pick a
+#      unique alias per site). Set TRUSTED_PROXIES=REMOTE_ADDR in .env.prod.
 services:
   app:
     image: ${SALIX_IMAGE:-salix:prod}
@@ -13,8 +20,15 @@ services:
       dockerfile: docker/Dockerfile
       target: prod
     restart: unless-stopped
+    # Mode 1 only — remove when running behind a reverse proxy (mode 2):
     ports:
       - "${SALIX_HTTP_PORT:-8000}:8000"
+    # Mode 2 only — the alias is the hostname the proxy targets
+    # (reverse_proxy salix:8000); it must be unique per site on the server:
+    # networks:
+    #   default: {}
+    #   proxy:
+    #     aliases: [salix]
     environment:
       APP_SECRET: ${APP_SECRET:?set APP_SECRET in .env.prod}
       DATABASE_URL: "mysql://salix:${MYSQL_PASSWORD:?set MYSQL_PASSWORD in .env.prod}@db:3306/salix?serverVersion=8.4&charset=utf8mb4"
@@ -47,3 +61,9 @@ services:
 volumes:
   uploads:
   db_data:
+
+# Mode 2 only — shared network owned by the reverse proxy stack,
+# created once per server with: docker network create proxy
+# networks:
+#   proxy:
+#     external: true

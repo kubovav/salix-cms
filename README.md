@@ -204,16 +204,74 @@ How it fits together:
   for the database first). Set it to `0` to manage migrations manually.
 - **Uploads** (`public/uploads`) and **MySQL data** live in named volumes and survive
   image upgrades.
-- **TLS** is terminated in front of the stack (platform load balancer, Traefik, Caddy…);
-  the app listens on plain HTTP (`SALIX_HTTP_PORT`, default 8000). Set
-  `TRUSTED_PROXIES` (e.g. `REMOTE_ADDR`) so Symfony trusts the proxy's
-  `X-Forwarded-*` headers and generates correct HTTPS URLs.
+- **TLS** is terminated in front of the stack; the app itself listens on plain HTTP.
+  See the two modes below.
 - **Health** — the container exposes `GET /healthz` and declares a Docker `HEALTHCHECK`,
   so orchestrators can gate rollouts on it.
 
 Deploying a new version is: build (or pull) the new image, then
 `docker compose -f compose.prod.yaml --env-file .env.prod up -d` — migrations run on boot
 and Nginx serves the new baked-in code immediately.
+
+### Exposing the app: two modes, use exactly one
+
+| Where | Proxy | App ports |
+|---|---|---|
+| Local testing of the prod image | none | `ports:` published, plain HTTP |
+| Production server (VPS) | containerized Caddy (below) | **none** — shared `proxy` network |
+
+**Mode 1 — standalone / local testing.** Keep the `ports:` mapping in
+`compose.prod.yaml` (the default) and talk plain HTTP to `http://localhost:8000`. Do not
+put a real site on the internet this way: the published port bypasses TLS and, because
+Docker programs published ports ahead of host firewall rules (the classic Docker/UFW
+trap), `ufw deny` will *not* protect it.
+
+**Mode 2 — behind containerized Caddy (recommended on a server).** One Caddy stack owns
+ports 80/443 and terminates TLS for every site on the machine; each Salix site publishes
+no ports at all and is reachable only over a shared Docker network. Set up once per
+server:
+
+```bash
+docker network create proxy
+```
+
+```yaml
+# ~/proxy/compose.yaml — the one proxy stack for the whole server
+services:
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports: ["80:80", "443:443"]
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data          # Let's Encrypt certificates — must persist
+    networks: [proxy]
+
+volumes:
+  caddy_data:
+
+networks:
+  proxy:
+    external: true
+```
+
+```
+# ~/proxy/Caddyfile — one line-pair per site; Caddy provisions TLS automatically
+site1.example.com {
+    reverse_proxy site1:8000
+}
+```
+
+Then in each site's `compose.prod.yaml`: **remove** the `ports:` mapping, uncomment the
+`networks:` blocks (giving the app a unique alias per site — that alias is the hostname
+the Caddyfile targets), and set `TRUSTED_PROXIES=REMOTE_ADDR` in `.env.prod` so Symfony
+trusts Caddy's `X-Forwarded-*` headers, generates HTTPS URLs, and marks the session
+cookie `Secure`. `REMOTE_ADDR` (= trust the direct upstream) is safe precisely because
+nothing but Caddy can reach the app. The site's database stays on the site's private
+network, invisible to the proxy and to other sites.
+
+Adding another site to the server = deploy its stack, add its lines to the Caddyfile,
+then `docker exec caddy caddy reload --config /etc/caddy/Caddyfile`.
 
 ## Deploying to Shared Hosting (Web Installer)
 
