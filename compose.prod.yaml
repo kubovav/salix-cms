@@ -1,0 +1,49 @@
+# Production stack. Run with an explicit env file (never commit .env.prod):
+#
+#   cp .env.prod.example .env.prod   # then fill in the secrets
+#   docker compose -f compose.prod.yaml --env-file .env.prod up -d --build
+#
+# TLS termination is expected to happen in front of this stack (platform load
+# balancer, Traefik, Caddy, ...). Set TRUSTED_PROXIES accordingly.
+services:
+  app:
+    image: ${SALIX_IMAGE:-salix:prod}
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: prod
+    restart: unless-stopped
+    ports:
+      - "${SALIX_HTTP_PORT:-8000}:8000"
+    environment:
+      APP_SECRET: ${APP_SECRET:?set APP_SECRET in .env.prod}
+      DATABASE_URL: "mysql://salix:${MYSQL_PASSWORD:?set MYSQL_PASSWORD in .env.prod}@db:3306/salix?serverVersion=8.4&charset=utf8mb4"
+      RUN_MIGRATIONS: "1"
+      TRUSTED_PROXIES: ${TRUSTED_PROXIES:-}
+      TZ: ${TZ:-UTC}
+    volumes:
+      - uploads:/var/www/html/public/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mysql:8
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?set MYSQL_ROOT_PASSWORD in .env.prod}
+      MYSQL_DATABASE: salix
+      MYSQL_USER: salix
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?set MYSQL_PASSWORD in .env.prod}
+    command: ['mysqld', '--character-set-server=utf8mb4', '--collation-server=utf8mb4_0900_ai_ci']
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u salix -p\"$$MYSQL_PASSWORD\""]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  uploads:
+  db_data:

@@ -11,31 +11,36 @@ The only prerequisite is **Docker** (with the Compose plugin).
 # 1. Clone and enter the project
 git clone <repo-url> salix && cd salix
 
-# 2. Create your compose file from the example (the real one is git-ignored)
-cp docker-compose.example.yml docker-compose.yml
-
-# 3. Build and start everything (first boot installs deps and builds the admin app)
+# 2. Build and start everything (first boot installs PHP + npm dependencies)
 docker compose up --build -d
 
-# 4. Watch the first-boot build finish (Ctrl-C to stop following)
+# 3. Watch the first-boot install finish (Ctrl-C to stop following)
 docker compose logs -f salix_app
 
-# 5. Set up the database schema
+# 4. Set up the database schema
 docker compose exec salix_app php bin/console doctrine:migrations:migrate --no-interaction
 
-# 6. Create an admin login (prompts for name + password)
+# 5. Create an admin login (prompts for name + password)
 docker compose exec salix_app php bin/console app:create-user admin@example.com
+
+# 6. Build the admin SPA once (or use `npm run dev` — see below)
+docker compose exec salix_app npm run build
 ```
 
 Then open:
 
 - **Public site** — http://localhost:8000
-- **Admin UI** — http://localhost:8000/admin (log in with the account from step 6)
+- **Admin UI** — http://localhost:8000/admin (log in with the account from step 5)
 - **phpMyAdmin** — http://localhost:8000/phpmyadmin (user `root`, password `secret`)
 
-> The bundled credentials (`secret`) are throwaway defaults for local evaluation only —
-> change them before deploying anywhere real. For shell-less/shared hosting there is also a
-> browser-based installer — see [Deploying to Shared Hosting](#deploying-to-shared-hosting-web-installer).
+Local tweaks (different host ports, extra mounts, `TZ`) go in a git-ignored
+`compose.override.yaml` next to `compose.yaml` — don't edit `compose.yaml` for
+machine-specific needs.
+
+> The bundled credentials (`secret`) are throwaway defaults for local evaluation only.
+> For real deployments see [Production Deployment (Docker)](#production-deployment-docker)
+> or, for shell-less/shared hosting, the browser-based installer — see
+> [Deploying to Shared Hosting](#deploying-to-shared-hosting-web-installer).
 
 ## Project Status
 
@@ -64,12 +69,14 @@ This project is currently a **work in progress** and is under active development
 
 ## Development Workflow (Single App Container)
 
-The `salix_app` service runs two processes via Supervisor:
+The dev image (`docker/Dockerfile`, target `dev`) bind-mounts the project and runs two
+processes via Supervisor:
 
-- **Nginx** — on port `8000` (mapped to `8000` on host), serves the Symfony app
+- **Nginx** — on port `8000`, serves the Symfony app and the built admin SPA
 - **PHP-FPM** — executes Symfony
 
-Nginx and Supervisor configs are symlinked from `docker/` into the container so changes take effect with a reload — no image rebuild required:
+Nginx, Supervisor, and PHP configs are symlinked from `docker/` into the container so
+changes take effect with a reload — no image rebuild required:
 
 ```bash
 # Apply nginx.conf changes
@@ -88,12 +95,17 @@ and delegate to the admin app, so there is no need to `cd admin-app`:
 
 ```bash
 npm install      # install root + admin-app dependencies
+npm run dev      # watch frontend SCSS + `ng serve` on http://localhost:4200/admin
 npm run build    # compile frontend SCSS + production-build the admin app
-npm run watch    # watch frontend SCSS + rebuild admin app in parallel
-npm start        # admin dev server; proxies /api and /uploads to http://localhost:8000
+npm start        # ng serve only; proxies /api and /uploads to http://localhost:8000
 npm run lint     # lint the admin app (angular-eslint)
 npm run format   # format the admin app (Prettier)
 ```
+
+During development the admin UI is served by the Angular dev server on
+**http://localhost:4200/admin** (live reload; `/api` and `/uploads` are proxied to Nginx
+on `:8000`, and the session cookie works as-is). `public/admin/` is only ever written by a
+production build (`npm run build`) — there is no watch-build into it anymore.
 
 ## Admin App (Angular)
 
@@ -167,6 +179,41 @@ possible; resolve the small, predictable conflict when the CMS changes them.
 Do **not** customize `admin-app/` in a site repo — editing it guarantees a conflict on every
 CMS UI change. Customize behavior through CMS settings and data instead.
 
+
+## Production Deployment (Docker)
+
+Production runs from an **immutable image** built by the `prod` target of
+`docker/Dockerfile`: PHP vendors (`--no-dev`), the compiled frontend CSS, the production
+build of the admin SPA, compiled asset-mapper assets, and a warmed Symfony cache are all
+baked in at build time — nothing is installed or built at container start, and no source
+is bind-mounted. The image ships without Xdebug, Node, Composer, or phpMyAdmin.
+
+```bash
+# 1. Create the production env file (git-ignored) and fill in the secrets
+cp .env.prod.example .env.prod
+
+# 2. Build and start (or set SALIX_IMAGE in .env.prod to pull a CI-built image)
+docker compose -f compose.prod.yaml --env-file .env.prod up -d --build
+```
+
+How it fits together:
+
+- **Secrets** (`APP_SECRET`, DB passwords) come only from `.env.prod` — nothing sensitive
+  is committed. The container refuses to start without `APP_SECRET`.
+- **Migrations** run automatically on start while `RUN_MIGRATIONS=1` (the entrypoint waits
+  for the database first). Set it to `0` to manage migrations manually.
+- **Uploads** (`public/uploads`) and **MySQL data** live in named volumes and survive
+  image upgrades.
+- **TLS** is terminated in front of the stack (platform load balancer, Traefik, Caddy…);
+  the app listens on plain HTTP (`SALIX_HTTP_PORT`, default 8000). Set
+  `TRUSTED_PROXIES` (e.g. `REMOTE_ADDR`) so Symfony trusts the proxy's
+  `X-Forwarded-*` headers and generates correct HTTPS URLs.
+- **Health** — the container exposes `GET /healthz` and declares a Docker `HEALTHCHECK`,
+  so orchestrators can gate rollouts on it.
+
+Deploying a new version is: build (or pull) the new image, then
+`docker compose -f compose.prod.yaml --env-file .env.prod up -d` — migrations run on boot
+and Nginx serves the new baked-in code immediately.
 
 ## Deploying to Shared Hosting (Web Installer)
 

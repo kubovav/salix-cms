@@ -6,6 +6,9 @@ supervisord.pid
 
 # Docker
 docker/temp/
+compose.override.yaml
+/.env.prod
+# legacy personal compose file (superseded by compose.yaml + compose.override.yaml)
 docker-compose.yml
 
 # IDE

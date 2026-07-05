@@ -17,6 +17,8 @@ Everything runs in a single `salix_app` Docker container managed by Supervisor:
 - **Nginx** on port `8000` — serves the Symfony app
 - **PHP-FPM** — executes Symfony
 
+`docker/Dockerfile` is multi-stage: the `dev` target bind-mounts the source (used by the committed `compose.yaml`), the `prod` target bakes code, `--no-dev` vendors, the built admin SPA, compiled asset-mapper assets, and a warmed cache into an immutable image (used by `compose.prod.yaml` + `.env.prod`). Personal dev tweaks (ports, mounts) belong in a git-ignored `compose.override.yaml`, never in `compose.yaml`.
+
 ## Development Environment
 
 **Agents and the VS Code editor are connected directly inside the `salix_app` Docker container via VS Code Remote Development (Dev Containers).** The workspace root is the project root inside the container. All terminal commands run directly in the container — there is no need to `docker exec` or prefix commands with `docker compose exec`. `php` and `composer` are available on `PATH` without any prefix.
@@ -44,9 +46,7 @@ Everything runs in a single `salix_app` Docker container managed by Supervisor:
 - API Platform defaults: `stateless: false` (session auth), `pagination_enabled: false`. Writes use **POST to create / PATCH to update** (no PUT); PATCH bodies are sent as `application/merge-patch+json` and populate the managed entity (so `UniqueEntity` correctly excludes the current record).
 - **After adding/renaming an `#[ApiResource]` property or serialization group, run `php bin/console cache:clear`** — even in dev. API Platform caches property-name/metadata pools under `var/cache` and does **not** auto-invalidate them, so a newly added writable field is silently dropped on write (the request carries it, but it persists as `null`) until the cache is cleared.
 - Custom API endpoints live in `src/Controller/Api/` (uploads, block reorder, settings, meta).
-- **Frontend dev workflow** (in `admin-app/`):
-  - `npm install` then `npx ng serve` (uses `proxy.conf.json` to proxy `/api` + `/uploads` to `http://localhost:8000`)
-  - `npx ng build` — outputs to `public/admin/` with `baseHref: /admin/`
+- **Frontend dev workflow**: `npm install` then `npm run dev` (from the project root) — watches frontend SCSS and runs `ng serve` on port `4200` (uses `proxy.conf.json` to proxy `/api` + `/uploads` to `http://localhost:8000`). `npm run build` production-builds the SPA into `public/admin/` (`baseHref: /admin/`) — that is the **only** thing that writes `public/admin/`; there is no watch-build.
 - Angular stack: standalone components, zoneless change detection, Reactive Forms, **ng-bootstrap** (Bootstrap 5), **bootstrap-icons**, **ngx-quill** (rich text), **@angular/cdk** drag-drop (block reorder). Bootstrap is compiled from SCSS in `src/styles.scss`; vendor CSS (icons, Quill) is added via `angular.json` `styles`.
 - The HTTP interceptor (`src/app/core/auth.interceptor.ts`) sends `withCredentials: true` + `Accept: application/json` and redirects to `/login` on 401.
 
@@ -125,13 +125,12 @@ php bin/console doctrine:migrations:migrate
 php bin/console doctrine:migrations:diff
 ```
 
-### Admin SPA (Angular) commands
+### Frontend / Admin SPA commands (project root)
 
 ```bash
-cd admin-app
-npm install            # install Angular + UI dependencies
-npx ng serve           # dev server (proxies /api and /uploads to :8000)
-npx ng build           # production build into ../public/admin
+npm install            # install root + admin-app dependencies
+npm run dev            # watch frontend SCSS + ng serve on :4200 (proxies /api and /uploads to :8000)
+npm run build          # compile frontend SCSS + production-build the SPA into public/admin
 ```
 
 ## General Guidelines

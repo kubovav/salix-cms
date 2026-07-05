@@ -2,6 +2,11 @@
 framework:
     secret: '%env(APP_SECRET)%'
 
+    # Behind a reverse proxy / load balancer, set TRUSTED_PROXIES so Symfony
+    # trusts X-Forwarded-* headers (e.g. "REMOTE_ADDR" to trust the direct
+    # upstream, or an explicit IP/CIDR list). Unset = no proxies trusted.
+    trusted_proxies: '%env(default::TRUSTED_PROXIES)%'
+
     # Note that the session will be started ONLY if you read or write from it.
     session:
         name: '%env(SESSION_COOKIE_NAME)%'

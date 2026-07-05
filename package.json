@@ -4,7 +4,7 @@
     "sass:build": "sass assets/styles/frontend.scss:assets/styles/frontend.css --no-source-map",
     "sass:watch": "sass assets/styles/frontend.scss:assets/styles/frontend.css --no-source-map --watch",
     "build": "npm run sass:build && npm --prefix admin-app run build",
-    "watch": "concurrently -n sass,admin -c blue,green \"npm run sass:watch\" \"npm --prefix admin-app run watch\"",
+    "dev": "concurrently -n sass,admin -c blue,green \"npm run sass:watch\" \"npm --prefix admin-app start\"",
     "start": "npm --prefix admin-app start",
     "lint": "npm --prefix admin-app run lint",
     "format": "npm --prefix admin-app run format"
