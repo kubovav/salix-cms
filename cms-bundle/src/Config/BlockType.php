@@ -26,6 +26,22 @@ enum BlockType: string
     }
 
     /**
+     * Required (non-empty) `data` keys for this block type.
+     *
+     * @return list<string>
+     */
+    public function requiredFields(): array
+    {
+        return match($this) {
+            self::IMAGE => ['alt', 'filename'],
+            self::HERO => ['heading'],
+            self::TEXT_IMAGE => ['image_side', 'image_alt', 'filename'],
+            self::CTA => ['heading', 'button_text', 'button_url'],
+            self::RICH_TEXT, self::PRICING_TABLE => [],
+        };
+    }
+
+    /**
      * @return list<string>
      */
     public static function values(): array

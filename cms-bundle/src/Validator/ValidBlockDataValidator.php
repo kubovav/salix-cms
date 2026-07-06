@@ -13,20 +13,6 @@ use Symfony\Component\Validator\Exception\UnexpectedValueException;
 final class ValidBlockDataValidator extends ConstraintValidator
 {
     /**
-     * Required (non-empty) `data` keys per block type.
-     *
-     * @var array<string, list<string>>
-     */
-    private const array REQUIRED_FIELDS = [
-        BlockType::IMAGE->value => ['alt', 'filename'],
-        BlockType::HERO->value => ['heading'],
-        BlockType::TEXT_IMAGE->value => ['image_side', 'image_alt', 'filename'],
-        BlockType::CTA->value => ['heading', 'button_text', 'button_url'],
-        BlockType::RICH_TEXT->value => [],
-        BlockType::PRICING_TABLE->value => [],
-    ];
-
-    /**
      * Allowed (optional) `size` values for image-bearing blocks.
      *
      * @var list<string>
@@ -51,7 +37,7 @@ final class ValidBlockDataValidator extends ConstraintValidator
 
         $data = $value->getData();
 
-        foreach (self::REQUIRED_FIELDS[$type->value] as $field) {
+        foreach ($type->requiredFields() as $field) {
             $fieldValue = $data[$field] ?? null;
             if (!\is_string($fieldValue) || '' === trim($fieldValue)) {
                 $this->context->buildViolation('This field is required.')

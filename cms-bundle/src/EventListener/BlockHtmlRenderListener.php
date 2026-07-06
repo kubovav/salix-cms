@@ -13,12 +13,6 @@ use Doctrine\ORM\Events;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HtmlSanitizer\HtmlSanitizerInterface;
 
-/**
- * Renders a rich-text block's Quill Delta to sanitized HTML and caches it on the block.
- *
- * The Delta (in `data.delta`) is the canonical source; this derives the read-only
- * ContentBlock::$renderedHtml on every write, so the frontend never parses Delta at request time.
- */
 #[AsEntityListener(event: Events::prePersist, entity: ContentBlock::class)]
 #[AsEntityListener(event: Events::preUpdate, entity: ContentBlock::class)]
 final readonly class BlockHtmlRenderListener
