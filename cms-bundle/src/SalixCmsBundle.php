@@ -48,6 +48,14 @@ class SalixCmsBundle extends AbstractBundle
             ],
         ]);
 
+        // Bundle-shipped frontend assets (vendored Bootstrap dist) — served
+        // via asset mapper so sites need no Node tooling and no CDN.
+        $builder->prependExtensionConfig('framework', [
+            'asset_mapper' => [
+                'paths' => [\dirname(__DIR__).'/assets' => 'salix-cms'],
+            ],
+        ]);
+
         // Sanitizer for rich-text block HTML (see RichTextRenderer); the
         // allowlist matches what the Quill editor in the admin UI can produce.
         $builder->prependExtensionConfig('framework', [
