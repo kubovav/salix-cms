@@ -63,7 +63,7 @@ RUN npm ci --ignore-scripts && npm ci --prefix cms-bundle/admin-app
 
 COPY assets/ assets/
 COPY cms-bundle/admin-app/ cms-bundle/admin-app/
-RUN npm run build
+RUN npm run sass:build && npm --prefix cms-bundle/admin-app run build
 
 ###############################################################################
 # composer-deps — production PHP dependencies (no dev packages, no scripts)
