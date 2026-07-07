@@ -33,6 +33,6 @@
         }
     },
     "archive": {
-        "exclude": ["/admin-app"]
+        "exclude": ["/admin-app", "/tests"]
     }
 }

@@ -87,7 +87,7 @@ ENV COMPOSER_MIRROR_PATH_REPOS=1
 COPY composer.json composer.lock symfony.lock ./
 COPY cms-bundle/ cms-bundle/
 RUN composer install --no-dev --no-scripts --prefer-dist --no-progress --no-interaction \
-    && rm -rf vendor/salix/cms-bundle/admin-app
+    && rm -rf vendor/salix/cms-bundle/admin-app vendor/salix/cms-bundle/tests
 
 ###############################################################################
 # prod — immutable production image: code, vendors and built assets baked in

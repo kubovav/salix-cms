@@ -78,7 +78,7 @@ WORKDIR /app
 COPY composer.json composer.lock symfony.lock ./
 RUN composer install --no-dev --no-scripts --prefer-dist --no-progress --no-interaction \
     # registry dists exclude the admin sources already; path-repo installs may not
-    && rm -rf vendor/salix/cms-bundle/admin-app
+    && rm -rf vendor/salix/cms-bundle/admin-app vendor/salix/cms-bundle/tests
 
 ###############################################################################
 # prod — immutable production image: code, vendors and built assets baked in
