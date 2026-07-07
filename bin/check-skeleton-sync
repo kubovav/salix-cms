@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Guards against drift between the root app and the salix/skeleton template.
+#
+# Some files exist in both places by design (the skeleton must be
+# self-contained: it is mirrored by `composer create-project` and will become
+# its own repo). Most of the duplicated files are *intentionally different*
+# (Dockerfile, package.json, composer.json, bin/package-release, compose
+# files) — but the ones listed below are meant to stay byte-identical. When a
+# fix lands in one copy, this check fails until the other copy gets it too.
+#
+# Run from the repo root: bin/check-skeleton-sync
+
+PROJECT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$PROJECT_DIR"
+
+SYNCED_FILES=(
+    docker/entrypoint.dev.sh
+    docker/entrypoint.prod.sh
+    docker/nginx.conf
+    docker/nginx.prod.conf
+    docker/php.ini
+    docker/php.prod.ini
+    docker/supervisord.conf
+    .env.prod.example
+)
+
+status=0
+for file in "${SYNCED_FILES[@]}"; do
+    if [ ! -f "$file" ]; then
+        echo "MISSING  $file (root copy)"
+        status=1
+    elif [ ! -f "skeleton/$file" ]; then
+        echo "MISSING  skeleton/$file"
+        status=1
+    elif ! diff -q "$file" "skeleton/$file" >/dev/null; then
+        echo "DRIFT    $file <> skeleton/$file"
+        diff -u "$file" "skeleton/$file" | head -20 | sed 's/^/         /'
+        status=1
+    fi
+done
+
+if [ "$status" -eq 0 ]; then
+    echo "OK: root and skeleton copies of ${#SYNCED_FILES[@]} shared files are in sync."
+else
+    echo
+    echo "Copy the intended version over the stale one (direction is your call),"
+    echo "or remove the file from SYNCED_FILES in bin/check-skeleton-sync if the"
+    echo "two copies are meant to diverge from now on."
+fi
+
+exit "$status"
