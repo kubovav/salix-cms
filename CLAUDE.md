@@ -44,17 +44,17 @@ Everything runs in a single `salix_app` Docker container managed by Supervisor:
 - CMS Twig templates go in `cms-bundle/templates/` and render via the `@SalixCms/...` namespace
 - Repositories go in `cms-bundle/src/Repository/` and extend `ServiceEntityRepository`
 - CMS migrations go in `cms-bundle/migrations/` — generate via `bin/console doctrine:migrations:diff --namespace='Salix\Cms\Migrations'`. Application-level migrations use plain `doctrine:migrations:diff` into `migrations/`.
-- Bundle services are autowired via `cms-bundle/config/services.yaml`; Doctrine/API Platform/migrations wiring is prepended by `SalixCmsBundle::prependExtension()` — Doctrine `auto_mapping` stays **false** (mappings are explicit; the auto-mapping probe also breaks on case-insensitive macOS bind mounts, see `src/Config` vs `src/config`)
+- Bundle services are autowired via `cms-bundle/config/services.yaml`; Doctrine/migrations wiring is prepended by `SalixCmsBundle::prependExtension()` — Doctrine `auto_mapping` stays **false** (mappings are explicit; the auto-mapping probe also breaks on case-insensitive macOS bind mounts, see `src/Config` vs `src/config`)
 - The admin UI is a separate **Angular SPA** (see below); the Symfony app exposes a JSON **API** for it under `/api`
 - Public (frontend) routes are open and rendered server-side with Twig
 
-### Admin UI — Angular SPA + API Platform
+### Admin UI — Angular SPA + JSON API
 - The admin section is an **Angular standalone app** living in `cms-bundle/admin-app/`, built into `public/admin/` and served by Nginx at `/admin` (same-origin).
-- The backend exposes a REST API via **API Platform** under `/api` (config in `config/packages/api_platform.yaml`). Entities are exposed with `#[ApiResource]` + serialization groups + validation constraints. API responses are **plain JSON** (`formats: json`), so collections are plain arrays.
+- The backend exposes a **hand-written JSON REST API** under `/api` — plain Symfony controllers in `cms-bundle/src/Controller/Api/` (`ArticleController`, `BlockController`, `MenuItemController`, `UserController`, plus uploads, block reorder, settings, meta). No API framework; collections are plain JSON arrays.
 - **Auth is session-cookie based, same-origin** (reuses Symfony Security — no JWT). The `api` firewall uses `json_login` (`POST /api/auth/login` with `{email, password}`), `POST /api/auth/logout`, and `GET /api/auth/me`. Custom handlers return JSON instead of HTML redirects (`cms-bundle/src/Security/`).
-- API Platform defaults: `stateless: false` (session auth), `pagination_enabled: false`. Writes use **POST to create / PATCH to update** (no PUT); PATCH bodies are sent as `application/merge-patch+json` and populate the managed entity (so `UniqueEntity` correctly excludes the current record).
-- **After adding/renaming an `#[ApiResource]` property or serialization group, run `php bin/console cache:clear`** — even in dev. API Platform caches property-name/metadata pools under `var/cache` and does **not** auto-invalidate them, so a newly added writable field is silently dropped on write (the request carries it, but it persists as `null`) until the cache is cleared.
-- Custom API endpoints live in `cms-bundle/src/Controller/Api/` (uploads, block reorder, settings, meta).
+- Writes use **POST to create (201) / PATCH to update (200)** (no PUT); bodies are plain `application/json`. PATCH is a **partial update**: only keys present in the payload are applied (`array_key_exists` semantics in each controller's `apply()`), onto the managed entity — so `UniqueEntity` correctly excludes the current record. **Relations are bare integer ids in both directions** (e.g. `"page": 5`), resolved via repositories.
+- Read shapes are produced by `Salix\Cms\Service\ApiSerializer` (explicit per-entity array mapping — no serialization groups). Entities are validated with the standard Validator constraints; failures return **422** with `{"violations": [{"propertyPath", "message"}]}` (nested paths like `data.heading` for block data), which `core/form-errors.ts` maps onto form fields. Other errors return `{"error": "message"}` — `ApiExceptionListener` renders any exception on `/api` routes as JSON.
+- Article slugs: a blank `slug` on create/update is derived from the title by `ContentPagePersister` (unique, with race-safe retry).
 - **Frontend dev workflow**: `npm install` then `npm run dev` (from the project root) — watches frontend SCSS and runs `ng serve` on port `4200` (uses `proxy.conf.json` to proxy `/api` + `/uploads` to `http://localhost:8000`). `npm run build` production-builds the SPA into `public/admin/` (`baseHref: /admin/`) — that is the **only** thing that writes `public/admin/`; there is no watch-build.
 - Angular stack: standalone components, zoneless change detection, Reactive Forms, **ng-bootstrap** (Bootstrap 5), **bootstrap-icons**, **ngx-quill** (rich text), **@angular/cdk** drag-drop (block reorder). Bootstrap is compiled from SCSS in `src/styles.scss`; vendor CSS (icons, Quill) is added via `angular.json` `styles`.
 - The HTTP interceptor (`src/app/core/auth.interceptor.ts`) sends `withCredentials: true` + `Accept: application/json` and redirects to `/login` on 401.
@@ -79,11 +79,10 @@ Everything runs in a single `salix_app` Docker container managed by Supervisor:
 
 - **Inject services into a field named after the service** in full, lower-camelCased: `inject(MenuService)` → `menuService`, `inject(ArticleService)` → `articleService` — never abbreviated (`menu`, `articles`). This keeps usages self-documenting and consistent across components.
 
-- **HTTP/IRI concerns belong in the service, not the component.** Forms and templates work with **raw values** (entity ids, plain strings); the service owns the API base paths and all IRI parsing/building, kept **private**. Components never hand-build `/api/...` strings, read `entity['@id']`, or pass IRIs around. Concretely, a `*Service` exposes a pair of mapping methods and keeps the IRI work internal:
-  - `toFormValue(entity)` maps a stored entity (whose relations come back as plain-JSON IRI strings or nested objects) to the raw form value — relation fields become bare ids. The component just does `form.patchValue(service.toFormValue(item))`.
-  - `buildPayload(formValue)` maps the raw form value to the write body — bare ids become IRIs (`${base}/${id}`), empties become `null`. The component just does `service.create/update(service.buildPayload(form.getRawValue()))`.
-  - `<select>` options bind raw ids (`[value]="entity.id"`), not IRIs.
-  - The shared `idFromRef(ref)` helper in `core/iri.ts` (which normalizes a relation that comes back as either an IRI string or a nested object to a bare id) exists for services to use **internally** when mapping stored entities to form values. Do not call it from components.
+- **HTTP concerns belong in the service, not the component.** Forms and templates work with **raw values** (entity ids, plain strings); the service owns the API base paths, kept **private** — components never hand-build `/api/...` strings. Relations are **bare integer ids end-to-end** (API and models both use `number`). Where form-value mapping is non-trivial, a `*Service` exposes a pair of mapping methods:
+  - `toFormValue(entity)` maps a stored entity to the raw form value — relation ids become the strings form controls bind to (`''` for none). The component just does `form.patchValue(service.toFormValue(item))`.
+  - `buildPayload(formValue)` maps the raw form value to the write body — id strings become numbers, empties become `null`. The component just does `service.create/update(service.buildPayload(form.getRawValue()))`.
+  - `<select>` options bind raw ids (`[value]="entity.id"`).
 
 - **Every `<label>` must be associated with a form control** (`@angular-eslint/template/label-has-associated-control`). For a single input, give the input an `id` and the label a matching `for` (use `[id]`/`[attr.for]` bindings for controls rendered inside `@for` loops, e.g. `[id]="'plan-name-' + planIndex"`). A caption that heads a whole group (a `FormArray`/`formArrayName` or `formGroupName` block) labels no single control — render it as a plain `<div class="form-label">`, not a `<label>`.
 
@@ -154,6 +153,6 @@ npm run build          # compile frontend SCSS + production-build the SPA into p
 - Prefer Symfony attributes over YAML/XML configuration
 - Frontend (public) templates live in `templates/` — follow the existing `frontend/layout.html.twig` layout
 - Follow existing naming patterns for new entities, controllers, and repositories
-- The **admin UI is an Angular SPA** in `admin-app/` talking to the **API Platform** API under `/api`; the public frontend is rendered server-side via Twig
+- The **admin UI is an Angular SPA** in `admin-app/` talking to the hand-written JSON API under `/api`; the public frontend is rendered server-side via Twig
 - Admin UI input fields have `autocomplete="off"` by default
 - Do not add code comments for trivial functions

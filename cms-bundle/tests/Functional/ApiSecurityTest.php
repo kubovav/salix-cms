@@ -4,32 +4,17 @@ declare(strict_types=1);
 
 namespace Salix\Cms\Tests\Functional;
 
-use Doctrine\ORM\EntityManagerInterface;
-use Salix\Cms\Entity\User;
-use Symfony\Bundle\FrameworkBundle\KernelBrowser;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-
-final class ApiSecurityTest extends WebTestCase
+final class ApiSecurityTest extends AdminApiTestCase
 {
     private const string ADMIN_EMAIL = 'api-security-admin@example.test';
     private const string EDITOR_EMAIL = 'api-security-editor@example.test';
-    private const string PASSWORD = 'test-password';
-
-    private KernelBrowser $client;
 
     protected function setUp(): void
     {
-        $this->client = self::createClient();
-        $this->removeTestUsers();
+        parent::setUp();
+
         $this->createUser(self::ADMIN_EMAIL, ['ROLE_ADMIN']);
         $this->createUser(self::EDITOR_EMAIL, []);
-    }
-
-    protected function tearDown(): void
-    {
-        $this->removeTestUsers();
-
-        parent::tearDown();
     }
 
     public function testAnonymousApiRequestGetsJson401(): void
@@ -70,14 +55,15 @@ final class ApiSecurityTest extends WebTestCase
         self::assertResponseStatusCodeSame(403);
     }
 
-    public function testNonAdminGets403WithBrowserAcceptHeader(): void
+    public function testNonAdminGets403JsonWithBrowserAcceptHeader(): void
     {
         $this->login(self::EDITOR_EMAIL);
 
         $this->client->request('GET', '/api/articles');
 
         self::assertResponseStatusCodeSame(403);
-        self::assertResponseHeaderSame('content-type', 'application/problem+json; charset=utf-8');
+        self::assertResponseHeaderSame('content-type', 'application/json');
+        self::assertSame(['error' => 'Access Denied.'], $this->jsonResponse());
     }
 
     public function testAdminCanLogInAccessApiAndLogOut(): void
@@ -98,61 +84,5 @@ final class ApiSecurityTest extends WebTestCase
 
         $this->client->request('GET', '/api/auth/me');
         self::assertResponseStatusCodeSame(401);
-    }
-
-    private function requestJson(string $method, string $uri): void
-    {
-        $this->client->request($method, $uri, server: ['HTTP_ACCEPT' => 'application/json']);
-    }
-
-    /**
-     * @return array<string, mixed> the JSON login response body
-     */
-    private function login(string $email): array
-    {
-        $this->client->jsonRequest('POST', '/api/auth/login', [
-            'email' => $email,
-            'password' => self::PASSWORD,
-        ]);
-
-        self::assertResponseIsSuccessful();
-
-        return $this->jsonResponse();
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function jsonResponse(): array
-    {
-        $content = $this->client->getResponse()->getContent();
-        self::assertIsString($content);
-
-        return json_decode($content, true, flags: JSON_THROW_ON_ERROR);
-    }
-
-    /**
-     * @param list<string> $roles
-     */
-    private function createUser(string $email, array $roles): void
-    {
-        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
-
-        $user = new User();
-        $user->setEmail($email);
-        $user->setName('API Security Test User');
-        $user->setRoles($roles);
-        $user->setPlainPassword(self::PASSWORD);
-
-        $entityManager->persist($user);
-        $entityManager->flush();
-    }
-
-    private function removeTestUsers(): void
-    {
-        self::getContainer()->get(EntityManagerInterface::class)
-            ->createQuery('DELETE FROM Salix\Cms\Entity\User u WHERE u.email IN (:emails)')
-            ->setParameter('emails', [self::ADMIN_EMAIL, self::EDITOR_EMAIL])
-            ->execute();
     }
 }

@@ -1,5 +1,4 @@
 export interface User {
-  '@id'?: string;
   id?: number;
   email: string;
   name?: string;
@@ -11,7 +10,6 @@ export interface User {
 export type BlockType = 'rich_text' | 'image' | 'hero' | 'text_image' | 'cta' | 'pricing_table';
 
 export interface Block {
-  '@id'?: string;
   id?: number;
   name?: string | null;
   type: BlockType | string;
@@ -20,11 +18,10 @@ export interface Block {
   anchor?: string | null;
   imageUrl?: string | null;
   renderedHtml?: string | null;
-  page?: string;
+  page?: number;
 }
 
 export interface Article {
-  '@id'?: string;
   id?: number;
   slug: string;
   title: string;
@@ -35,26 +32,18 @@ export interface Article {
   blocks?: Block[];
 }
 
-export interface MenuItemRef {
-  '@id'?: string;
-  id?: number;
-}
-
 export interface MenuItem {
-  '@id'?: string;
   id?: number;
   label: string;
   url?: string | null;
   menuName: string;
   position: number;
   enabled: boolean;
-  /** IRI when writing, nested object when reading */
-  page?: string | MenuItemRef | null;
-  parent?: MenuItemRef | string | null;
-  children?: string[];
+  page?: number | null;
+  parent?: number | null;
+  children?: number[];
 }
 
-/** UI helper: a menu item with resolved children for tree rendering */
 export interface MenuTreeNode extends MenuItem {
   treeChildren: MenuTreeNode[];
 }

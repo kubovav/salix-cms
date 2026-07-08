@@ -63,12 +63,12 @@ monorepo is both the bundle's development home and a runnable Salix application.
   overridable per-app via `templates/bundles/SalixCmsBundle/`).
 - **Admin UI** — a standalone **Angular** single-page app (`cms-bundle/admin-app/`) built
   into `public/admin/` and served by Nginx at `/admin`.
-- **API** — the admin app talks to a JSON REST API exposed via **API Platform** under `/api`. Authentication is session-cookie based and same-origin (it reuses Symfony Security; no JWT).
+- **API** — the admin app talks to a JSON REST API served by hand-written Symfony controllers under `/api`. Authentication is session-cookie based and same-origin (it reuses Symfony Security; no JWT).
 
 ## Repository Layout
 
 - `cms-bundle/`: the CMS — `salix/cms-bundle` Symfony bundle
-  - `src/`: bundle code (entities, API resources, controllers, security — `Salix\Cms\`)
+  - `src/`: bundle code (entities, controllers, security — `Salix\Cms\`)
   - `templates/`: public frontend + installer Twig templates (`@SalixCms` namespace)
   - `migrations/`: CMS schema migrations (`Salix\Cms\Migrations`, registered by the bundle)
   - `admin-app/`: Angular admin single-page application (source)

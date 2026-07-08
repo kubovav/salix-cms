@@ -34,30 +34,18 @@ class SalixCmsBundle extends AbstractBundle
             ],
         ]);
 
-        $builder->prependExtensionConfig('api_platform', [
-            'mapping' => [
-                'paths' => [__DIR__.'/Entity', __DIR__.'/ApiResource'],
-            ],
-        ]);
-
-        // CMS schema migrations ship with the bundle on their own namespace,
-        // separate from the application's migrations/ timeline.
         $builder->prependExtensionConfig('doctrine_migrations', [
             'migrations_paths' => [
                 'Salix\Cms\Migrations' => \dirname(__DIR__).'/migrations',
             ],
         ]);
 
-        // Bundle-shipped frontend assets (vendored Bootstrap dist) — served
-        // via asset mapper so sites need no Node tooling and no CDN.
         $builder->prependExtensionConfig('framework', [
             'asset_mapper' => [
                 'paths' => [\dirname(__DIR__).'/assets' => 'salix-cms'],
             ],
         ]);
 
-        // Sanitizer for rich-text block HTML (see RichTextRenderer); the
-        // allowlist matches what the Quill editor in the admin UI can produce.
         $builder->prependExtensionConfig('framework', [
             'html_sanitizer' => [
                 'sanitizers' => [

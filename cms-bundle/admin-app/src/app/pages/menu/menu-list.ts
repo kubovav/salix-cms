@@ -62,11 +62,7 @@ export class MenuListComponent implements OnInit {
   }
 
   private parentId(item: MenuItem): number | null {
-    const p = item.parent;
-    if (!p || typeof p === 'string') {
-      return null;
-    }
-    return (p as { id?: number }).id ?? null;
+    return item.parent ?? null;
   }
 
   private tree(menuName: string): MenuTreeNode[] {

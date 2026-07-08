@@ -49,7 +49,7 @@ class InstallAdminCommand extends Command
             return Command::SUCCESS;
         }
 
-        (new Filesystem())->mirror($source, $target, options: ['delete' => true]);
+        new Filesystem()->mirror($source, $target, options: ['delete' => true]);
 
         $io->success(sprintf('Admin UI installed to %s.', $target));
 

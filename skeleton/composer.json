@@ -9,6 +9,9 @@
         "php": ">=8.4",
         "ext-ctype": "*",
         "ext-iconv": "*",
+        "doctrine/doctrine-bundle": "^3.2.2",
+        "doctrine/doctrine-migrations-bundle": "^4.0",
+        "doctrine/orm": "^3.6.5",
         "salix/cms-bundle": "^0.2",
         "symfony/asset-mapper": "8.0.*",
         "symfony/dotenv": "8.0.*",
@@ -72,7 +75,8 @@
     "extra": {
         "symfony": {
             "allow-contrib": false,
-            "require": "8.0.*"
+            "require": "8.0.*",
+            "docker": false
         }
     }
 }

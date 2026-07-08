@@ -4,37 +4,17 @@ declare(strict_types=1);
 
 namespace Salix\Cms\Entity;
 
-use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\Delete;
-use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\GetCollection;
-use ApiPlatform\Metadata\Patch;
-use ApiPlatform\Metadata\Post;
 use Salix\Cms\Repository\ContentPageRepository;
 use Salix\Cms\Validator\DerivableSlug;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ContentPageRepository::class)]
 #[ORM\HasLifecycleCallbacks]
 #[ORM\UniqueConstraint(name: 'UNIQ_CONTENT_PAGE_SLUG', fields: ['slug'])]
-#[ApiResource(
-    shortName: 'Article',
-    operations: [
-        new GetCollection(order: ['updatedAt' => 'DESC']),
-        new Get(),
-        new Post(),
-        new Patch(),
-        new Delete(),
-    ],
-    normalizationContext: ['groups' => ['article:read']],
-    denormalizationContext: ['groups' => ['article:write']],
-    security: "is_granted('ROLE_ADMIN')",
-)]
 #[UniqueEntity(fields: ['slug'], message: 'This slug is already in use.')]
 #[DerivableSlug]
 class ContentPage
@@ -42,32 +22,26 @@ class ContentPage
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['article:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
-    #[Groups(['article:read', 'article:write'])]
     #[Assert\Length(max: 180)]
     #[Assert\Regex(pattern: '/^[a-z0-9]+(?:-[a-z0-9]+)*$/', message: 'Use lowercase letters, numbers and dashes only.')]
     private ?string $slug = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['article:read', 'article:write'])]
     #[Assert\NotBlank(message: 'Title is required.')]
     #[Assert\Length(max: 255)]
     private ?string $title = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['article:read', 'article:write'])]
     #[Assert\Length(max: 255)]
     private ?string $metaDescription = null;
 
     #[ORM\Column]
-    #[Groups(['article:read', 'article:write'])]
     private bool $published = false;
 
     #[ORM\Column]
-    #[Groups(['article:read'])]
     private ?\DateTimeImmutable $updatedAt = null;
 
     /**
@@ -81,7 +55,6 @@ class ContentPage
      */
     #[ORM\OneToMany(targetEntity: ContentBlock::class, mappedBy: 'page', cascade: ['persist', 'remove'], orphanRemoval: true)]
     #[ORM\OrderBy(['position' => 'ASC'])]
-    #[Groups(['article:read'])]
     private Collection $blocks;
 
     public function __construct()
@@ -148,7 +121,6 @@ class ContentPage
         return $this->updatedAt;
     }
 
-    #[Groups(['article:read'])]
     public function getBlockCount(): int
     {
         return $this->blocks->count();

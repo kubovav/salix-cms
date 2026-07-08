@@ -2,62 +2,37 @@
 
 namespace Salix\Cms\Entity;
 
-use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\Delete;
-use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\GetCollection;
-use ApiPlatform\Metadata\Patch;
-use ApiPlatform\Metadata\Post;
 use Salix\Cms\Config\MenuType;
 use Salix\Cms\Repository\MenuItemRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 #[ORM\Entity(repositoryClass: MenuItemRepository::class)]
-#[ApiResource(
-    shortName: 'MenuItem',
-    operations: [
-        new GetCollection(order: ['menuName' => 'ASC', 'position' => 'ASC']),
-        new Get(),
-        new Post(),
-        new Patch(),
-        new Delete(),
-    ],
-    normalizationContext: ['groups' => ['menu:read']],
-    denormalizationContext: ['groups' => ['menu:write']],
-    security: "is_granted('ROLE_ADMIN')",
-)]
 class MenuItem
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['menu:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['menu:read', 'menu:write'])]
     #[Assert\NotBlank(message: 'Label is required.')]
     #[Assert\Length(max: 255)]
     private ?string $label = null;
 
     #[ORM\Column(length: 500, nullable: true)]
-    #[Groups(['menu:read', 'menu:write'])]
     #[Assert\Length(max: 500)]
     private ?string $url = null;
 
     #[ORM\ManyToOne(targetEntity: ContentPage::class)]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
-    #[Groups(['menu:read', 'menu:write'])]
     private ?ContentPage $page = null;
 
     #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'children')]
     #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
-    #[Groups(['menu:read', 'menu:write'])]
     private ?self $parent = null;
 
     /**
@@ -65,21 +40,17 @@ class MenuItem
      */
     #[ORM\OneToMany(targetEntity: self::class, mappedBy: 'parent', cascade: ['persist', 'remove'])]
     #[ORM\OrderBy(['position' => 'ASC'])]
-    #[Groups(['menu:read'])]
     private Collection $children;
 
     #[ORM\Column]
-    #[Groups(['menu:read', 'menu:write'])]
     #[Assert\PositiveOrZero(message: 'Position must be zero or a positive integer.')]
     private int $position = 0;
 
     #[ORM\Column(length: 50)]
-    #[Groups(['menu:read', 'menu:write'])]
     #[Assert\Choice(choices: ['main', 'footer'], message: 'Invalid menu.')]
     private string $menuName = MenuType::MAIN->value;
 
     #[ORM\Column]
-    #[Groups(['menu:read', 'menu:write'])]
     private bool $enabled = true;
 
     public function __construct()

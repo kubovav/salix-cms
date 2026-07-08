@@ -24,11 +24,11 @@ interface ApplyViolationsOptions {
  * Maps a failed write response onto a reactive form and returns a message for the caller's
  * general error banner (or `null` when every error was attached to a field).
  *
- * - API Platform validation (422) returns a `violations` array: each violation whose
+ * - Validation failures (422) return a `violations` array: each violation whose
  *   `propertyPath` resolves to a displayable control is attached as a `server` error (shown via
  *   the control's invalid-feedback, cleared automatically when the user edits the field).
  *   Violations that aren't displayable on a field are joined and returned for the banner.
- * - Custom endpoints that return a single `{ error }` string have it returned as-is.
+ * - Endpoints that return a single `{ error }` string have it returned as-is.
  * - Anything else (network failure, unexpected shape) returns `fallback`.
  */
 export function applyApiViolations(
