@@ -12,3 +12,45 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - run: bin/check-skeleton-sync
+
+  php-checks:
+    name: ${{ matrix.check.name }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        check:
+          - { name: PHPStan, cmd: composer phpstan }
+          - { name: PHP CS Fixer, cmd: vendor/bin/php-cs-fixer check --show-progress=none }
+          - { name: Rector, cmd: composer rector }
+    steps:
+      - uses: actions/checkout@v7
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          coverage: none
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-
+      - run: composer install --no-progress --no-interaction --no-scripts
+      - run: ${{ matrix.check.cmd }}
+
+  eslint:
+    name: ESLint (admin-app)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: cms-bundle/admin-app/package-lock.json
+      - run: npm ci
+        working-directory: cms-bundle/admin-app
+      - run: npm run lint
+        working-directory: cms-bundle/admin-app
