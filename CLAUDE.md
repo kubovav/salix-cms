@@ -95,7 +95,7 @@ Everything runs in a single `salix_app` Docker container managed by Supervisor:
 
 ### Current Entities
 - **`ContentPage`** (API shortName `Article`) — a page made of ordered content blocks
-- **`ContentBlock`** (API shortName `Block`) — a typed, ordered unit of content belonging to a page; data shape is validated per-type via `ValidBlockData`
+- **`ContentBlock`** (API shortName `Block`) — a typed, ordered unit of content belonging to a page; `data` is validated per-type against the field schema in `BlockType::fields()` via `ValidBlockData` (unknown keys rejected, URL fields restricted to relative/`#anchor`/http(s) — no `javascript:`, filenames restricted to plain names since templates render them into href/src/CSS contexts)
 - **`MenuItem`** — nav entry for the `main`/`footer` menus; can link to a `page` and optionally nest under a `parent` item
 - **`SiteSetting`** — key/value store for site-wide config (e.g. home page slug)
 - **`User`** — login account with hashed password and roles

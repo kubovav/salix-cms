@@ -82,6 +82,90 @@ final class BlockApiTest extends AdminApiTestCase
         $this->assertViolationPath('page');
     }
 
+    public function testCreateCtaWithJavascriptUrlIsRejected(): void
+    {
+        $articleId = $this->createArticle('cta-xss');
+
+        $this->client->jsonRequest('POST', '/api/blocks', [
+            'page' => $articleId,
+            'type' => 'cta',
+            'position' => 0,
+            'data' => ['heading' => 'Click', 'button_text' => 'Go', 'button_url' => 'javascript:alert(1)'],
+        ]);
+
+        $this->assertViolationPath('data.button_url');
+    }
+
+    public function testCreateCtaWithRelativeUrlIsAccepted(): void
+    {
+        $articleId = $this->createArticle('cta-ok');
+
+        $this->client->jsonRequest('POST', '/api/blocks', [
+            'page' => $articleId,
+            'type' => 'cta',
+            'position' => 0,
+            'data' => ['heading' => 'Click', 'button_text' => 'Go', 'button_url' => '/contact'],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+    }
+
+    public function testCreateWithUnknownDataKeyIsRejected(): void
+    {
+        $articleId = $this->createArticle('unknown-key');
+
+        $this->client->jsonRequest('POST', '/api/blocks', [
+            'page' => $articleId,
+            'type' => 'hero',
+            'position' => 0,
+            'data' => ['heading' => 'Hi', 'evil' => ['arbitrary' => 'payload']],
+        ]);
+
+        $this->assertViolationPath('data.evil');
+    }
+
+    public function testCreateImageWithTraversalFilenameIsRejected(): void
+    {
+        $articleId = $this->createArticle('bad-filename');
+
+        $this->client->jsonRequest('POST', '/api/blocks', [
+            'page' => $articleId,
+            'type' => 'image',
+            'position' => 0,
+            'data' => ['alt' => 'Alt', 'filename' => '../../evil.php'],
+        ]);
+
+        $this->assertViolationPath('data.filename');
+    }
+
+    public function testCreatePricingPlanWithJavascriptButtonUrlIsRejected(): void
+    {
+        $articleId = $this->createArticle('plan-xss');
+
+        $this->client->jsonRequest('POST', '/api/blocks', [
+            'page' => $articleId,
+            'type' => 'pricing_table',
+            'position' => 0,
+            'data' => ['plans' => [['name' => 'Basic', 'button_text' => 'Buy', 'button_url' => 'javascript:alert(1)']]],
+        ]);
+
+        $this->assertViolationPath('data.plans[0].button_url');
+    }
+
+    public function testCreateHeroWithWrongTypedOptionalFieldIsRejected(): void
+    {
+        $articleId = $this->createArticle('bad-type');
+
+        $this->client->jsonRequest('POST', '/api/blocks', [
+            'page' => $articleId,
+            'type' => 'hero',
+            'position' => 0,
+            'data' => ['heading' => 'Hi', 'subtext' => ['not' => 'a string']],
+        ]);
+
+        $this->assertViolationPath('data.subtext');
+    }
+
     public function testPatchAppliesOnlySentFields(): void
     {
         $articleId = $this->createArticle('patch');
