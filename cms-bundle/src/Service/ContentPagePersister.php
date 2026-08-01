@@ -11,6 +11,8 @@ use Doctrine\Persistence\ManagerRegistry;
 
 final readonly class ContentPagePersister
 {
+    // Bounds retries for the flush-time unique-constraint race (slug taken between the
+    // generator's check and our insert); caps pathological contention instead of retrying forever.
     private const int MAX_ATTEMPTS = 5;
 
     public function __construct(
