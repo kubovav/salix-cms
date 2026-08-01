@@ -20,8 +20,11 @@ use Symfony\Component\Validator\Exception\UnexpectedValueException;
 final class ValidBlockDataValidator extends ConstraintValidator
 {
     private const int MAX_STRING_LENGTH = 1000;
+
     private const int MAX_URL_LENGTH = 500;
+
     private const int MAX_PLANS = 25;
+
     private const int MAX_FEATURES = 50;
 
     public function validate(mixed $value, Constraint $constraint): void
@@ -63,10 +66,15 @@ final class ValidBlockDataValidator extends ConstraintValidator
         }
 
         foreach ($fields as $field => $kind) {
-            if (isset($reported[$field]) || !\array_key_exists($field, $data) || null === $data[$field]) {
+            if (isset($reported[$field])) {
                 continue;
             }
-
+            if (!\array_key_exists($field, $data)) {
+                continue;
+            }
+            if (null === $data[$field]) {
+                continue;
+            }
             $this->validateKind('data.'.$field, $data[$field], $kind);
         }
     }
@@ -239,7 +247,7 @@ final class ValidBlockDataValidator extends ConstraintValidator
         }
 
         foreach ($features as $index => $feature) {
-            if (mb_strlen($feature) > self::MAX_STRING_LENGTH) {
+            if (mb_strlen((string) $feature) > self::MAX_STRING_LENGTH) {
                 $this->addViolation($path.'['.$index.']', sprintf('Must be %d characters or fewer.', self::MAX_STRING_LENGTH));
             }
         }
