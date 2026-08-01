@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Salix\Cms\Service;
 
-use Salix\Cms\Entity\ContentPage;
-use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\Persistence\ManagerRegistry;
+use Salix\Cms\Repository\ContentPageRepository;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
 /**
@@ -18,7 +16,7 @@ class SlugGenerator
     private const int MAX_LENGTH = 180;
 
     public function __construct(
-        private readonly ManagerRegistry $registry,
+        private readonly ContentPageRepository $repository,
         private readonly SluggerInterface $slugger,
     ) {
     }
@@ -52,27 +50,9 @@ class SlugGenerator
         return $this->truncate($this->slugger->slug($title)->lower()->toString(), self::MAX_LENGTH);
     }
 
-    /**
-     * Resolves the manager from the registry on every call (rather than holding a repository),
-     * so the lookup keeps working after a ManagerRegistry::resetManager() during a retry.
-     */
     private function slugExists(string $slug, ?int $excludeId): bool
     {
-        $manager = $this->registry->getManagerForClass(ContentPage::class);
-        \assert($manager instanceof EntityManagerInterface);
-
-        $qb = $manager->createQueryBuilder()
-            ->select('COUNT(p.id)')
-            ->from(ContentPage::class, 'p')
-            ->andWhere('p.slug = :slug')
-            ->setParameter('slug', $slug);
-
-        if (null !== $excludeId) {
-            $qb->andWhere('p.id != :excludeId')
-                ->setParameter('excludeId', $excludeId);
-        }
-
-        return (int) $qb->getQuery()->getSingleScalarResult() > 0;
+        return $this->repository->slugExists($slug, $excludeId);
     }
 
     /**

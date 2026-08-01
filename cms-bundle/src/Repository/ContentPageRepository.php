@@ -39,4 +39,19 @@ class ContentPageRepository extends ServiceEntityRepository
             ->getQuery()
             ->getOneOrNullResult();
     }
+
+    public function slugExists(string $slug, ?int $excludeId = null): bool
+    {
+        $qb = $this->createQueryBuilder('p')
+            ->select('COUNT(p.id)')
+            ->andWhere('p.slug = :slug')
+            ->setParameter('slug', $slug);
+
+        if (null !== $excludeId) {
+            $qb->andWhere('p.id != :excludeId')
+                ->setParameter('excludeId', $excludeId);
+        }
+
+        return (int) $qb->getQuery()->getSingleScalarResult() > 0;
+    }
 }
