@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Salix\Cms\Tests\Functional;
 
+use Salix\Cms\Config\BlockType;
+
 final class ArticleApiTest extends AdminApiTestCase
 {
     private const string ADMIN_EMAIL = 'article-api-admin@example.test';
@@ -169,7 +171,7 @@ final class ArticleApiTest extends AdminApiTestCase
     {
         $this->client->jsonRequest('POST', '/api/blocks', [
             'page' => $articleId,
-            'type' => 'hero',
+            'type' => BlockType::HERO->value,
             'position' => $position,
             'data' => ['heading' => $heading],
         ]);

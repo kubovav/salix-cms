@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Salix\Cms\Tests\Functional;
 
+use Salix\Cms\Config\BlockType;
+
 final class BlockApiTest extends AdminApiTestCase
 {
     private const string ADMIN_EMAIL = 'block-api-admin@example.test';
@@ -30,7 +32,7 @@ final class BlockApiTest extends AdminApiTestCase
 
         $this->client->jsonRequest('POST', '/api/blocks', [
             'page' => $articleId,
-            'type' => 'rich_text',
+            'type' => BlockType::RICH_TEXT->value,
             'position' => 0,
             'data' => ['delta' => ['ops' => [['insert' => "Hello block\n"]]]],
         ]);
@@ -39,7 +41,7 @@ final class BlockApiTest extends AdminApiTestCase
         $body = $this->jsonResponse();
         self::assertIsInt($body['id']);
         self::assertSame($articleId, $body['page']);
-        self::assertSame('rich_text', $body['type']);
+        self::assertSame(BlockType::RICH_TEXT->value, $body['type']);
         self::assertIsString($body['renderedHtml']);
         self::assertStringContainsString('Hello block', $body['renderedHtml']);
         self::assertNull($body['imageUrl']);
@@ -51,7 +53,7 @@ final class BlockApiTest extends AdminApiTestCase
 
         $this->client->jsonRequest('POST', '/api/blocks', [
             'page' => $articleId,
-            'type' => 'hero',
+            'type' => BlockType::HERO->value,
             'position' => 0,
             'data' => [],
         ]);
@@ -63,7 +65,7 @@ final class BlockApiTest extends AdminApiTestCase
     {
         $this->client->jsonRequest('POST', '/api/blocks', [
             'page' => 99999999,
-            'type' => 'hero',
+            'type' => BlockType::HERO->value,
             'position' => 0,
             'data' => ['heading' => 'Orphan'],
         ]);
@@ -74,7 +76,7 @@ final class BlockApiTest extends AdminApiTestCase
     public function testCreateWithoutPageReturnsPageViolation(): void
     {
         $this->client->jsonRequest('POST', '/api/blocks', [
-            'type' => 'hero',
+            'type' => BlockType::HERO->value,
             'position' => 0,
             'data' => ['heading' => 'No owner'],
         ]);
@@ -88,7 +90,7 @@ final class BlockApiTest extends AdminApiTestCase
 
         $this->client->jsonRequest('POST', '/api/blocks', [
             'page' => $articleId,
-            'type' => 'cta',
+            'type' => BlockType::CTA->value,
             'position' => 0,
             'data' => ['heading' => 'Click', 'button_text' => 'Go', 'button_url' => 'javascript:alert(1)'],
         ]);
@@ -102,7 +104,7 @@ final class BlockApiTest extends AdminApiTestCase
 
         $this->client->jsonRequest('POST', '/api/blocks', [
             'page' => $articleId,
-            'type' => 'cta',
+            'type' => BlockType::CTA->value,
             'position' => 0,
             'data' => ['heading' => 'Click', 'button_text' => 'Go', 'button_url' => '/contact'],
         ]);
@@ -116,7 +118,7 @@ final class BlockApiTest extends AdminApiTestCase
 
         $this->client->jsonRequest('POST', '/api/blocks', [
             'page' => $articleId,
-            'type' => 'hero',
+            'type' => BlockType::HERO->value,
             'position' => 0,
             'data' => ['heading' => 'Hi', 'evil' => ['arbitrary' => 'payload']],
         ]);
@@ -130,7 +132,7 @@ final class BlockApiTest extends AdminApiTestCase
 
         $this->client->jsonRequest('POST', '/api/blocks', [
             'page' => $articleId,
-            'type' => 'image',
+            'type' => BlockType::IMAGE->value,
             'position' => 0,
             'data' => ['alt' => 'Alt', 'filename' => '../../evil.php'],
         ]);
@@ -144,7 +146,7 @@ final class BlockApiTest extends AdminApiTestCase
 
         $this->client->jsonRequest('POST', '/api/blocks', [
             'page' => $articleId,
-            'type' => 'pricing_table',
+            'type' => BlockType::PRICING_TABLE->value,
             'position' => 0,
             'data' => ['plans' => [['name' => 'Basic', 'button_text' => 'Buy', 'button_url' => 'javascript:alert(1)']]],
         ]);
@@ -158,7 +160,7 @@ final class BlockApiTest extends AdminApiTestCase
 
         $this->client->jsonRequest('POST', '/api/blocks', [
             'page' => $articleId,
-            'type' => 'hero',
+            'type' => BlockType::HERO->value,
             'position' => 0,
             'data' => ['heading' => 'Hi', 'subtext' => ['not' => 'a string']],
         ]);
@@ -176,7 +178,7 @@ final class BlockApiTest extends AdminApiTestCase
         self::assertResponseIsSuccessful();
         $body = $this->jsonResponse();
         self::assertSame('Named block', $body['name']);
-        self::assertSame('hero', $body['type']);
+        self::assertSame(BlockType::HERO->value, $body['type']);
         self::assertSame(['heading' => 'Keep me'], $body['data']);
         self::assertSame($articleId, $body['page']);
     }
@@ -211,7 +213,7 @@ final class BlockApiTest extends AdminApiTestCase
     {
         $this->client->jsonRequest('POST', '/api/blocks', [
             'page' => $articleId,
-            'type' => 'hero',
+            'type' => BlockType::HERO->value,
             'position' => 0,
             'data' => ['heading' => $heading],
         ]);
