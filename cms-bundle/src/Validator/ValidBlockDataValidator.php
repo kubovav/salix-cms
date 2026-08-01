@@ -69,12 +69,15 @@ final class ValidBlockDataValidator extends ConstraintValidator
             if (isset($reported[$field])) {
                 continue;
             }
+
             if (!\array_key_exists($field, $data)) {
                 continue;
             }
+
             if (null === $data[$field]) {
                 continue;
             }
+
             $this->validateKind('data.'.$field, $data[$field], $kind);
         }
     }
