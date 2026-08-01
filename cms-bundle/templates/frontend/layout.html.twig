@@ -11,7 +11,9 @@
         {% block meta_description %}
             {%- if site_meta_description %}<meta name="description" content="{{ site_meta_description }}">{% endif -%}
         {% endblock %}
-        <link rel="stylesheet" href="{{ asset('salix-cms/vendor/bootstrap/bootstrap.min.css') }}">
+        {% block bootstrap_css %}
+            <link rel="stylesheet" href="{{ asset('salix-cms/vendor/bootstrap/bootstrap.min.css') }}">
+        {% endblock %}
         <link rel="stylesheet" href="{{ asset('styles/frontend.css') }}">
         <link rel="stylesheet" href="{{ asset('styles/rich-text.css') }}">
         {% block stylesheets %}{% endblock %}
@@ -94,7 +96,9 @@
             </div>
         </footer>
 
-        <script src="{{ asset('salix-cms/vendor/bootstrap/bootstrap.bundle.min.js') }}"></script>
+        {% block bootstrap_js %}
+            <script src="{{ asset('salix-cms/vendor/bootstrap/bootstrap.bundle.min.js') }}"></script>
+        {% endblock %}
         {% block javascripts %}{% endblock %}
     </body>
 </html>
