@@ -40,6 +40,43 @@ jobs:
       - run: composer install --no-progress --no-interaction --no-scripts
       - run: ${{ matrix.check.cmd }}
 
+  tests:
+    name: PHPUnit
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8
+        env:
+          MYSQL_ROOT_PASSWORD: secret
+          MYSQL_DATABASE: salix
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    env:
+      DATABASE_URL: "mysql://root:secret@127.0.0.1:3306/salix?serverVersion=8.4&charset=utf8mb4"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          extensions: gd, intl, pdo_mysql
+          coverage: none
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-
+      - run: composer install --no-progress --no-interaction --no-scripts
+      - run: php bin/console doctrine:migrations:migrate -n --env=test
+      - run: composer test
+
   eslint:
     name: ESLint (admin-app)
     runs-on: ubuntu-latest
