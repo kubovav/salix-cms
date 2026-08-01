@@ -48,7 +48,7 @@ jobs:
         image: mysql:8
         env:
           MYSQL_ROOT_PASSWORD: secret
-          MYSQL_DATABASE: salix
+          MYSQL_DATABASE: salix_test
         ports:
           - 3306:3306
         options: >-
