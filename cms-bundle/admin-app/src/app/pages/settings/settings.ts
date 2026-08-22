@@ -30,6 +30,7 @@ export class SettingsComponent implements OnInit {
   readonly form = this.fb.nonNullable.group({
     home_page_slug: ['', Validators.required],
     site_name: [''],
+    copyright_name: [''],
     meta_description: ['', [Validators.maxLength(255)]],
   });
 
@@ -58,6 +59,7 @@ export class SettingsComponent implements OnInit {
         this.form.patchValue({
           home_page_slug: s.home_page_slug ?? '',
           site_name: s.site_name ?? '',
+          copyright_name: s.copyright_name ?? '',
           meta_description: s.meta_description ?? '',
         });
       });
@@ -107,11 +109,12 @@ export class SettingsComponent implements OnInit {
     this.saving.set(true);
     this.saved.set(false);
     this.error.set(null);
-    const { home_page_slug, site_name, meta_description } = this.form.getRawValue();
+    const { home_page_slug, site_name, copyright_name, meta_description } = this.form.getRawValue();
     this.settingsService
       .update({
         home_page_slug,
         site_name: site_name.trim() || null,
+        copyright_name: copyright_name.trim() || null,
         brand_logo: this.brandLogo(),
         meta_description: meta_description.trim() || null,
       })
@@ -123,6 +126,7 @@ export class SettingsComponent implements OnInit {
           this.form.patchValue({
             home_page_slug: s.home_page_slug ?? '',
             site_name: s.site_name ?? '',
+            copyright_name: s.copyright_name ?? '',
           });
           this.saving.set(false);
           this.saved.set(true);

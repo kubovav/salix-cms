@@ -9,7 +9,7 @@ use Twig\Extension\AbstractExtension;
 use Twig\Extension\GlobalsInterface;
 
 /**
- * Exposes site-wide branding settings (name and logo) to every frontend
+ * Exposes site-wide branding settings (name, copyright name and logo) to every frontend
  * template as Twig globals, so the public layout can render them without
  * each controller having to pass them explicitly.
  */
@@ -23,6 +23,7 @@ final class SiteSettingsExtension extends AbstractExtension implements GlobalsIn
     {
         return [
             'site_name' => $this->settings->get('site_name', 'Salix CMS'),
+            'site_copyright_name' => $this->settings->get('copyright_name'),
             'brand_logo' => $this->settings->get('brand_logo'),
             'site_meta_description' => $this->settings->get('meta_description'),
         ];

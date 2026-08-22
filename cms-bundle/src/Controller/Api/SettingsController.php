@@ -34,7 +34,7 @@ final class SettingsController extends AbstractController
         SiteSettingRepository $settingsRepository,
         EntityManagerInterface $em,
     ): JsonResponse {
-        /** @var array{home_page_slug?: mixed, site_name?: mixed, brand_logo?: mixed, meta_description?: mixed} $payload */
+        /** @var array{home_page_slug?: mixed, site_name?: mixed, copyright_name?: mixed, brand_logo?: mixed, meta_description?: mixed} $payload */
         $payload = $request->toArray();
 
         if (\array_key_exists('home_page_slug', $payload)) {
@@ -56,6 +56,12 @@ final class SettingsController extends AbstractController
             $name = $payload['site_name'];
             $name = \is_string($name) ? trim($name) : '';
             $settingsRepository->set('site_name', '' !== $name ? $name : null);
+        }
+
+        if (\array_key_exists('copyright_name', $payload)) {
+            $copyright = $payload['copyright_name'];
+            $copyright = \is_string($copyright) ? trim($copyright) : '';
+            $settingsRepository->set('copyright_name', '' !== $copyright ? $copyright : null);
         }
 
         if (\array_key_exists('brand_logo', $payload)) {
@@ -81,7 +87,7 @@ final class SettingsController extends AbstractController
     }
 
     /**
-     * @return array{home_page_slug: string|null, site_name: string|null, brand_logo: string|null, meta_description: string|null, available_pages: list<array{slug: string, title: string}>}
+     * @return array{home_page_slug: string|null, site_name: string|null, copyright_name: string|null, brand_logo: string|null, meta_description: string|null, available_pages: list<array{slug: string, title: string}>}
      */
     private function buildPayload(ContentPageRepository $pageRepository, SiteSettingRepository $settingsRepository): array
     {
@@ -93,7 +99,8 @@ final class SettingsController extends AbstractController
         return [
             'home_page_slug' => $settingsRepository->get('home_page_slug'),
             'site_name' => $settingsRepository->get('site_name', 'Salix CMS'),
-            'brand_logo' => $settingsRepository->get('brand_logo'),
+            'copyright_name' => $settingsRepository->get('copyright_name'),
+            'brand_logo' =>$settingsRepository->get('brand_logo'),
             'meta_description' => $settingsRepository->get('meta_description'),
             'available_pages' => $available,
         ];

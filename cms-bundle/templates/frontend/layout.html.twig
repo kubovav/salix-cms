@@ -92,7 +92,9 @@
                         {% endfor %}
                     </ul>
                 {% endif %}
-                <small class="text-secondary">&copy; {{ "now"|date("Y") }} {{ site_name|default('Salix CMS') }}</small>
+                {% if site_copyright_name %}
+                    <small class="text-secondary">&copy; {{ "now"|date("Y") }} {{ site_copyright_name }}</small>
+                {% endif %}
             </div>
         </footer>
 
