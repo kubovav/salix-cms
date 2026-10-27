@@ -87,6 +87,40 @@ export class BlockEditorModal {
     return this.type() === 'pricing_table';
   }
 
+  get isButtons(): boolean {
+    return this.type() === 'buttons';
+  }
+
+  readonly buttonStyles: { value: string; label: string }[] = [
+    { value: 'primary', label: 'Primary' },
+    { value: 'secondary', label: 'Secondary' },
+    { value: 'outline-primary', label: 'Outline primary' },
+    { value: 'outline-secondary', label: 'Outline secondary' },
+    { value: 'link', label: 'Link' },
+  ];
+
+  get buttons(): FormArray {
+    return this.form.get('buttons') as FormArray;
+  }
+
+  private buttonGroup(button: Record<string, unknown> = {}): FormGroup {
+    const str = (key: string) => (button[key] as string) ?? '';
+
+    return this.fb.group({
+      text: [str('text'), Validators.required],
+      url: [str('url'), Validators.required],
+      style: [str('style') || 'primary'],
+    });
+  }
+
+  addButton(): void {
+    this.buttons.push(this.buttonGroup());
+  }
+
+  removeButton(index: number): void {
+    this.buttons.removeAt(index);
+  }
+
   get plans(): FormArray {
     return this.form.get('plans') as FormArray;
   }
@@ -167,6 +201,17 @@ export class BlockEditorModal {
           button_url: [s('button_url'), Validators.required],
         });
         break;
+      case 'buttons': {
+        const rawButtons = Array.isArray(data['buttons'])
+          ? (data['buttons'] as Record<string, unknown>[])
+          : [];
+        const buttons = rawButtons.length ? rawButtons : [{}];
+        this.form = this.fb.group({
+          align: [s('align') || 'center'],
+          buttons: this.fb.array(buttons.map((button) => this.buttonGroup(button))),
+        });
+        break;
+      }
       case 'pricing_table': {
         const rawPlans = Array.isArray(data['plans'])
           ? (data['plans'] as Record<string, unknown>[])

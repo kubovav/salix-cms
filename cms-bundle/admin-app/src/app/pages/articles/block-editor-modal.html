@@ -380,6 +380,94 @@
         </div>
       }
 
+      <!-- Buttons -->
+      @if (isButtons) {
+        <div class="mb-3">
+          <label class="form-label fw-semibold" for="block-align">Alignment</label>
+          <select id="block-align" class="form-select" formControlName="align">
+            <option value="left">Left</option>
+            <option value="center">Center</option>
+            <option value="right">Right</option>
+          </select>
+        </div>
+
+        <div class="mb-3" formArrayName="buttons">
+          <div class="form-label fw-semibold">Buttons</div>
+          @for (button of buttons.controls; track $index; let buttonIndex = $index) {
+            <div class="card mb-2" [formGroupName]="buttonIndex">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <span class="fw-semibold text-muted small">Button {{ $index + 1 }}</span>
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-danger"
+                    [disabled]="buttons.length <= 1"
+                    (click)="removeButton(buttonIndex)"
+                  >
+                    Remove
+                  </button>
+                </div>
+
+                <div class="row g-2">
+                  <div class="col-md-4">
+                    <label class="form-label small" [attr.for]="'button-text-' + buttonIndex"
+                      >Text</label
+                    >
+                    <input
+                      type="text"
+                      class="form-control form-control-sm"
+                      autocomplete="off"
+                      [id]="'button-text-' + buttonIndex"
+                      formControlName="text"
+                      [class.is-invalid]="
+                        button.get('text')?.touched && button.get('text')?.invalid
+                      "
+                    />
+                    @if (button.get('text')?.touched && button.get('text')?.invalid) {
+                      <div class="invalid-feedback">Button text is required.</div>
+                    }
+                  </div>
+                  <div class="col-md-5">
+                    <label class="form-label small" [attr.for]="'button-url-' + buttonIndex"
+                      >URL</label
+                    >
+                    <input
+                      type="text"
+                      class="form-control form-control-sm"
+                      autocomplete="off"
+                      placeholder="/about, #section or https://…"
+                      [id]="'button-url-' + buttonIndex"
+                      formControlName="url"
+                      [class.is-invalid]="button.get('url')?.touched && button.get('url')?.invalid"
+                    />
+                    @if (button.get('url')?.touched && button.get('url')?.invalid) {
+                      <div class="invalid-feedback">Button URL is required.</div>
+                    }
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label small" [attr.for]="'button-style-' + buttonIndex"
+                      >Style</label
+                    >
+                    <select
+                      class="form-select form-select-sm"
+                      [id]="'button-style-' + buttonIndex"
+                      formControlName="style"
+                    >
+                      @for (style of buttonStyles; track style.value) {
+                        <option [value]="style.value">{{ style.label }}</option>
+                      }
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+          <button type="button" class="btn btn-outline-primary btn-sm mt-1" (click)="addButton()">
+            Add button
+          </button>
+        </div>
+      }
+
       <!-- Anchor (in-page link target) -->
       <div class="mb-3">
         <label class="form-label fw-semibold" for="block-anchor">Anchor (optional)</label>

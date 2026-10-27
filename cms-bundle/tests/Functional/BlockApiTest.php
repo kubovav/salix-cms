@@ -154,6 +154,54 @@ final class BlockApiTest extends AdminApiTestCase
         $this->assertViolationPath('data.plans[0].button_url');
     }
 
+    public function testCreateButtonsBlockIsAccepted(): void
+    {
+        $articleId = $this->createArticle('buttons-ok');
+
+        $this->client->jsonRequest('POST', '/api/blocks', [
+            'page' => $articleId,
+            'type' => BlockType::BUTTONS->value,
+            'position' => 0,
+            'data' => [
+                'align' => 'center',
+                'buttons' => [
+                    ['text' => 'Get started', 'url' => '/signup', 'style' => 'primary'],
+                    ['text' => 'Docs', 'url' => '#docs', 'style' => 'outline-secondary'],
+                ],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+    }
+
+    public function testCreateButtonWithJavascriptUrlIsRejected(): void
+    {
+        $articleId = $this->createArticle('buttons-xss');
+
+        $this->client->jsonRequest('POST', '/api/blocks', [
+            'page' => $articleId,
+            'type' => BlockType::BUTTONS->value,
+            'position' => 0,
+            'data' => ['buttons' => [['text' => 'Go', 'url' => 'javascript:alert(1)']]],
+        ]);
+
+        $this->assertViolationPath('data.buttons[0].url');
+    }
+
+    public function testCreateButtonWithUnknownStyleIsRejected(): void
+    {
+        $articleId = $this->createArticle('buttons-style');
+
+        $this->client->jsonRequest('POST', '/api/blocks', [
+            'page' => $articleId,
+            'type' => BlockType::BUTTONS->value,
+            'position' => 0,
+            'data' => ['buttons' => [['text' => 'Go', 'url' => '/go', 'style' => 'danger']]],
+        ]);
+
+        $this->assertViolationPath('data.buttons[0].style');
+    }
+
     public function testCreateHeroWithWrongTypedOptionalFieldIsRejected(): void
     {
         $articleId = $this->createArticle('bad-type');

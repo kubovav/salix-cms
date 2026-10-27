@@ -27,6 +27,11 @@ final class ValidBlockDataValidator extends ConstraintValidator
 
     private const int MAX_FEATURES = 50;
 
+    private const int MAX_BUTTONS = 10;
+
+    /** @var list<string> */
+    private const array BUTTON_STYLES = ['primary', 'secondary', 'outline-primary', 'outline-secondary', 'link'];
+
     public function validate(mixed $value, Constraint $constraint): void
     {
         if (!$constraint instanceof ValidBlockData) {
@@ -91,6 +96,7 @@ final class ValidBlockDataValidator extends ConstraintValidator
             'bool' === $kind => $this->validateBool($path, $value),
             'delta' === $kind => $this->validateDelta($path, $value),
             'plans' === $kind => $this->validatePlans($value),
+            'buttons' === $kind => $this->validateButtons($value),
             str_starts_with($kind, 'enum:') => $this->validateEnum($path, $value, explode(',', substr($kind, 5))),
             default => throw new \LogicException(sprintf('Unknown block field kind "%s".', $kind)),
         };
@@ -253,6 +259,62 @@ final class ValidBlockDataValidator extends ConstraintValidator
             if (mb_strlen((string) $feature) > self::MAX_STRING_LENGTH) {
                 $this->addViolation($path.'['.$index.']', sprintf('Must be %d characters or fewer.', self::MAX_STRING_LENGTH));
             }
+        }
+    }
+
+    private function validateButtons(mixed $buttons): void
+    {
+        if (!\is_array($buttons) || [] === $buttons) {
+            $this->addViolation('data.buttons', 'Add at least one button.');
+
+            return;
+        }
+
+        if (\count($buttons) > self::MAX_BUTTONS) {
+            $this->addViolation('data.buttons', sprintf('At most %d buttons are allowed.', self::MAX_BUTTONS));
+
+            return;
+        }
+
+        foreach ($buttons as $index => $button) {
+            if (!\is_array($button)) {
+                $this->addViolation('data.buttons['.$index.']', 'Invalid button.');
+
+                continue;
+            }
+
+            $this->validateButton('data.buttons['.$index.']', $button);
+        }
+    }
+
+    /**
+     * @param array<array-key, mixed> $button
+     */
+    private function validateButton(string $path, array $button): void
+    {
+        foreach (array_keys($button) as $field) {
+            if (!\in_array($field, ['text', 'url', 'style'], true)) {
+                $this->addViolation($path.'.'.$field, 'Unknown field.');
+            }
+        }
+
+        foreach (['text', 'url'] as $field) {
+            $value = $button[$field] ?? null;
+            if (!\is_string($value) || '' === trim($value)) {
+                $this->addViolation($path.'.'.$field, 'This field is required.');
+
+                continue;
+            }
+
+            if ('text' === $field) {
+                $this->validateString($path.'.text', $value);
+            } else {
+                $this->validateUrl($path.'.url', $value);
+            }
+        }
+
+        if (isset($button['style'])) {
+            $this->validateEnum($path.'.style', $button['style'], self::BUTTON_STYLES);
         }
     }
 

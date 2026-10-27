@@ -11,6 +11,7 @@ enum BlockType: string
     case HERO = 'hero';
     case TEXT_IMAGE = 'text_image';
     case CTA = 'cta';
+    case BUTTONS = 'buttons';
     case PRICING_TABLE = 'pricing_table';
 
     public function label(): string
@@ -21,6 +22,7 @@ enum BlockType: string
             self::HERO => 'Hero',
             self::TEXT_IMAGE => 'Text + Image',
             self::CTA => 'Call to Action',
+            self::BUTTONS => 'Buttons',
             self::PRICING_TABLE => 'Pricing Table',
         };
     }
@@ -37,7 +39,7 @@ enum BlockType: string
             self::HERO => ['heading'],
             self::TEXT_IMAGE => ['image_side', 'image_alt', 'filename'],
             self::CTA => ['heading', 'button_text', 'button_url'],
-            self::RICH_TEXT, self::PRICING_TABLE => [],
+            self::RICH_TEXT, self::BUTTONS, self::PRICING_TABLE => [],
         };
     }
 
@@ -46,7 +48,8 @@ enum BlockType: string
      * Kinds: 'string' (plain text), 'url' (relative path, "#anchor" or absolute
      * http(s)), 'filename' (uploaded-image filename, no slashes), 'bool',
      * 'enum:a,b' (one of the listed values), 'delta' (Quill delta object),
-     * 'plans' (pricing-table plan list). Keys not in the schema are rejected.
+     * 'plans' (pricing-table plan list), 'buttons' (button list).
+     * Keys not in the schema are rejected.
      *
      * @return array<string, string>
      */
@@ -83,6 +86,10 @@ enum BlockType: string
                 'heading' => 'string',
                 'button_text' => 'string',
                 'button_url' => 'url',
+            ],
+            self::BUTTONS => [
+                'align' => 'enum:left,center,right',
+                'buttons' => 'buttons',
             ],
             self::PRICING_TABLE => [
                 'plans' => 'plans',

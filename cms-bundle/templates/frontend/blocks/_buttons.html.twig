@@ -1,0 +1,11 @@
+{% set align = block.data.align|default('center') %}
+{% set justify = {'left': 'start', 'center': 'center', 'right': 'end'}[align]|default('center') %}
+{% set styles = ['primary', 'secondary', 'outline-primary', 'outline-secondary', 'link'] %}
+<div class="block block-buttons d-flex flex-wrap gap-2 justify-content-{{ justify }} mb-4">
+  {% for button in block.data.buttons|default([]) %}
+    {% if button.text is defined and button.text and button.url is defined and button.url %}
+      {% set style = button.style|default('primary') %}
+      <a href="{{ button.url }}" class="btn btn-{{ style in styles ? style : 'primary' }}">{{ button.text }}</a>
+    {% endif %}
+  {% endfor %}
+</div>
