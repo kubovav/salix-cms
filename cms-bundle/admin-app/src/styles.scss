@@ -63,6 +63,23 @@ body {
   flex: 1 1 auto;
 }
 
+.ql-snow .ql-picker.ql-badge {
+  width: 96px;
+
+  .ql-picker-label::before,
+  .ql-picker-item::before {
+    content: 'Badge';
+  }
+
+  @each $variant in (primary, secondary, success, danger, warning, info) {
+    .ql-picker-label[data-value='#{$variant}']::before,
+    .ql-picker-item[data-value='#{$variant}']::before {
+      content: '#{$variant}';
+      text-transform: capitalize;
+    }
+  }
+}
+
 .block-handle {
   cursor: grab;
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Salix\Cms\Service;
 
 use Salix\Cms\Service\Quill\AlignClassListener;
+use Salix\Cms\Service\Quill\BadgeListener;
 use Salix\Cms\Service\Quill\HeadingClassListener;
 use nadar\quill\Lexer;
 use nadar\quill\listener\Align;
@@ -30,6 +31,8 @@ final class RichTextRenderer
         $lexer = new Lexer($delta);
         $lexer->overwriteListener(new Align(), new AlignClassListener());
         $lexer->overwriteListener(new Heading(), new HeadingClassListener());
+        // Registered last so it wraps the built-in inline formats rather than being wrapped.
+        $lexer->registerListener(new BadgeListener());
 
         return trim($lexer->render());
     }

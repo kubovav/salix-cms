@@ -6,6 +6,7 @@ import { provideQuillConfig } from 'ngx-quill/config';
 
 import { routes } from './app.routes';
 import { authInterceptor } from '@core/auth.interceptor';
+import { BADGE_VARIANTS } from '@core/quill-badge-variants';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -15,10 +16,15 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptors([authInterceptor])),
     provideQuillConfig({
       format: 'object',
+      beforeRender: async () => {
+        const { registerBadgeFormat } = await import('@core/quill-badge');
+        registerBadgeFormat();
+      },
       modules: {
         toolbar: [
           [{ header: [2, 3, false] }],
           ['bold', 'italic', 'underline', 'strike'],
+          [{ badge: [...BADGE_VARIANTS, false] }],
           [{ list: 'ordered' }, { list: 'bullet' }],
           [{ indent: '-1' }, { indent: '+1' }],
           [{ align: [] }],
